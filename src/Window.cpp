@@ -78,7 +78,7 @@ void Window::mainloop() {
         ImGui::NewFrame();
         {
             ImGui::Begin("Config", &configPanelOpen);
-            
+            drawConfigPanel();
             ImGui::End();
         }
         ImGui::Render();
@@ -108,4 +108,25 @@ void Window::handleEvent(SDL_Event &e) {
 
     if (ImGui::IsKeyPressed(ImGuiKey_Escape))
         mRunning = false;
+}
+
+void Window::drawConfigPanel() {
+    if (ImGui::CollapsingHeader("Meshes##MeshHeader"))
+        drawMeshConfig();
+    if (ImGui::CollapsingHeader("Skybox##SkyboxHeader"))
+        drawSkyboxConfig();
+    if (ImGui::CollapsingHeader("Lighting##LightningHeader"))
+        drawLightingConfig();
+}
+
+void Window::drawMeshConfig() {
+
+}
+
+void Window::drawSkyboxConfig() {
+
+}
+
+void Window::drawLightingConfig() {
+
 }

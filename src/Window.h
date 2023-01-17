@@ -20,6 +20,11 @@ public:
 private:
     void handleEvent(SDL_Event& e);
 
+    void drawConfigPanel();
+    void drawMeshConfig();
+    void drawSkyboxConfig();
+    void drawLightingConfig();
+
     SDL_Window* mWindow = nullptr;
     SDL_GLContext mGLContext;
     ImGuiIO mIO;
