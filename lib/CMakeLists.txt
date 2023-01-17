@@ -1,0 +1,9 @@
+cmake_minimum_required(VERSION 3.17)
+project(lib)
+
+message("Loading OpenGL")
+add_subdirectory(glad/)
+message("Loading GLM")
+add_subdirectory(glm/)
+message("Loading ImGui")
+add_subdirectory(imgui/)
