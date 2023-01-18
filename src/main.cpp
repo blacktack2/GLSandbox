@@ -1,4 +1,4 @@
-#include "Window.h"
+#include "Window/Window.h"
 
 int main() {
     Window window("OpenGL Sandbox", 1200, 900);
