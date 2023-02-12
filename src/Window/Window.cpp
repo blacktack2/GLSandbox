@@ -6,6 +6,8 @@
 #include <imgui/imgui_impl_sdl.h>
 #include <imgui/imgui_stdlib.h>
 
+#include <imgui/imnodes.h>
+
 #include <chrono>
 #include <string>
 
@@ -42,6 +44,7 @@ mWidth(width), mHeight(height) {
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    ImNodes::CreateContext();
     mIO = ImGui::GetIO();
 
     ImGui::StyleColorsDark();
@@ -57,6 +60,7 @@ mWidth(width), mHeight(height) {
 Window::~Window() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
+    ImNodes::DestroyContext();
     ImGui::DestroyContext();
 
     SDL_GL_DeleteContext(mGLContext);
@@ -84,6 +88,10 @@ void Window::mainloop() {
         {
             ImGui::Begin("Config", &configPanelOpen);
             drawConfigPanel();
+            ImGui::End();
+            
+            ImGui::Begin("Editor");
+            drawEditorPanel();
             ImGui::End();
         }
         ImGui::Render();
@@ -134,4 +142,16 @@ void Window::drawSkyboxConfig() {
 
 void Window::drawLightingConfig() {
 
+}
+
+void Window::drawEditorPanel() {
+    ImNodes::BeginNodeEditor();
+
+    ImNodes::BeginNode(2);
+    ImNodes::BeginOutputAttribute(3);
+    ImGui::Text("Simple node");
+    ImNodes::EndOutputAttribute();
+    ImNodes::EndNode();
+
+    ImNodes::EndNodeEditor();
 }

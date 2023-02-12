@@ -29,6 +29,8 @@ private:
     void drawSkyboxConfig();
     void drawLightingConfig();
 
+    void drawEditorPanel();
+
     SDL_Window* mWindow = nullptr;
     SDL_GLContext mGLContext;
     ImGuiIO mIO;
