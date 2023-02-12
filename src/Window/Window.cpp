@@ -49,6 +49,8 @@ mWidth(width), mHeight(height) {
     ImGui_ImplSDL2_InitForOpenGL(mWindow, mGLContext);
     ImGui_ImplOpenGL3_Init("#version 460 core");
 
+    mRenderer = std::make_unique<Renderer>();
+
     mInitSuccess = true;
 }
 
@@ -72,6 +74,9 @@ void Window::mainloop() {
 
         while (SDL_PollEvent(&e))
             handleEvent(e);
+
+        mRenderer->update();
+        mRenderer->draw();
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame(mWindow);

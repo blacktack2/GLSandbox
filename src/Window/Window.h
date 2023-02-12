@@ -1,4 +1,6 @@
 #pragma once
+#include "../Rendering/Renderer.h"
+
 #include "imgui/imgui.h"
 
 #ifdef WIN32
@@ -6,6 +8,8 @@
 #else
 #include <SDL2/SDL.h>
 #endif
+
+#include <memory>
 
 class Window {
 public:
@@ -28,6 +32,8 @@ private:
     SDL_Window* mWindow = nullptr;
     SDL_GLContext mGLContext;
     ImGuiIO mIO;
+
+    std::unique_ptr<Renderer> mRenderer;
 
     int mWidth, mHeight;
 

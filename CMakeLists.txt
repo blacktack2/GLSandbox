@@ -4,6 +4,8 @@ project(GLSandbox)
 
 set(CMAKE_CXX_STANDARD 20)
 
+file(COPY src/Shaders DESTINATION ${CMAKE_BINARY_DIR})
+
 find_package(OpenGL REQUIRED)
 
 if(WIN32)
