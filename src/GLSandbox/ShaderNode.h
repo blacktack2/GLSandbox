@@ -15,7 +15,8 @@ public:
     static void findTessEvalFiles();
     static void findGeometryFiles();
 protected:
-    void drawInput() override;
+    void drawContents() override;
+    void runContents() override;
 private:
     void drawShaderCombo(const std::string& label, int& index, const std::vector<std::string>& files);
     void drawShaderStatus();

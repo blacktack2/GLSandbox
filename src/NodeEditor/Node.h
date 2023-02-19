@@ -38,16 +38,17 @@ public:
 
 class Node {
 public:
-    Node(std::string title, int id = 0);
+    explicit Node(std::string title, int id = 0);
 
     void draw();
-    void execute();
+    void run();
 
-    inline int getID() {
+    [[nodiscard]] inline int getID() const {
         return mID;
     }
 protected:
-    virtual void drawInput() = 0;
+    virtual void drawContents() = 0;
+    virtual void runContents() = 0;
 private:
     int mID;
 

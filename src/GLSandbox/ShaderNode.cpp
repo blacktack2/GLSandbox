@@ -43,7 +43,7 @@ void ShaderNode::findGeometryFiles() {
     findFiles(sGeometryFiles, VALID_GEOMETRY);
 }
 
-void ShaderNode::drawInput() {
+void ShaderNode::drawContents() {
     drawShaderCombo("Vertex", vert, sVertexFiles);
     drawShaderCombo("Fragment", frag, sFragmentFiles);
     drawShaderCombo("Tess-Control", tesc, sTessContFiles);
@@ -55,6 +55,10 @@ void ShaderNode::drawInput() {
         updateShader();
 
     drawShaderStatus();
+}
+
+void ShaderNode::runContents() {
+
 }
 
 void ShaderNode::drawShaderCombo(const std::string& label, int& index, const std::vector<std::string>& files) {

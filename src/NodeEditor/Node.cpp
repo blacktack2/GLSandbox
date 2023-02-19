@@ -33,11 +33,13 @@ Node::Node(std::string title, int id) : mTitle(std::move(title)), mID{id == 0 ? 
 
 void Node::draw() {
     ImNodes::BeginNode(mID);
+    ImNodes::BeginNodeTitleBar();
     ImGui::Text("%s", mTitle.c_str());
-    drawInput();
+    ImNodes::EndNodeTitleBar();
+    drawContents();
     ImNodes::EndNode();
 }
 
-void Node::execute() {
-
+void Node::run() {
+    runContents();
 }
