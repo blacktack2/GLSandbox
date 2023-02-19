@@ -53,6 +53,7 @@ mWidth(width), mHeight(height) {
     ImGui_ImplOpenGL3_Init("#version 460 core");
 
     mRenderer = std::make_unique<Renderer>();
+    mGraph = std::make_unique<PipelineGraph>();
 
     mInitSuccess = true;
 }
@@ -89,7 +90,7 @@ void Window::mainloop() {
             ImGui::Begin("Config", &configPanelOpen);
             drawConfigPanel();
             ImGui::End();
-            
+
             ImGui::Begin("Editor");
             drawEditorPanel();
             ImGui::End();
@@ -145,13 +146,5 @@ void Window::drawLightingConfig() {
 }
 
 void Window::drawEditorPanel() {
-    ImNodes::BeginNodeEditor();
-
-    ImNodes::BeginNode(2);
-    ImNodes::BeginOutputAttribute(3);
-    ImGui::Text("Simple node");
-    ImNodes::EndOutputAttribute();
-    ImNodes::EndNode();
-
-    ImNodes::EndNodeEditor();
+    mGraph->draw();
 }

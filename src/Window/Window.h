@@ -1,5 +1,6 @@
 #pragma once
 #include "../Rendering/Renderer.h"
+#include "../GLSandbox/PipelineGraph.h"
 
 #include "imgui/imgui.h"
 
@@ -36,6 +37,7 @@ private:
     ImGuiIO mIO;
 
     std::unique_ptr<Renderer> mRenderer;
+    std::unique_ptr<PipelineGraph> mGraph;
 
     int mWidth, mHeight;
 

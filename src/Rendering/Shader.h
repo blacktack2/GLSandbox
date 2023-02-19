@@ -14,6 +14,7 @@ public:
         OGL_LINK,
     };
 
+    Shader();
     Shader(const std::string& vertShader, const std::string& fragShader,
            const std::string& tescShader = "", const std::string& teseShader = "", const std::string& geomShader = "");
     ~Shader();
