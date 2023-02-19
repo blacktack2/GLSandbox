@@ -83,6 +83,7 @@ void ShaderNode::drawShaderCombo(const std::string& label, int& index, const std
 
 void ShaderNode::drawShaderStatus() {
     std::string text;
+    ImVec4 colour;
 
     switch (mShader.getState()) {
         case Shader::ErrorState::INVALID:
@@ -96,16 +97,19 @@ void ShaderNode::drawShaderStatus() {
                 text = "Tesselation Evaluation selected, but no Tesselation Control";
             else
                 text = mShader.getErrorMessage();
+            colour = ImVec4(1, 0, 0, 1);
             break;
         case Shader::ErrorState::VALID:
             text = "Shader loaded";
+            colour = ImVec4(0, 1, 0, 1);
             break;
         case Shader::ErrorState::FILE_READ: case Shader::ErrorState::OGL_COMPILE: case Shader::ErrorState::OGL_LINK:
             text = mShader.getErrorMessage();
+            colour = ImVec4(1, 0, 0, 1);
             break;
     }
 
-    ImGui::Text("%s", text.c_str());
+    ImGui::TextColored(colour, "%s", text.c_str());
 }
 
 void ShaderNode::updateShader() {
