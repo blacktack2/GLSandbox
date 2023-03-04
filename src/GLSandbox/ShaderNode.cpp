@@ -5,60 +5,42 @@
 #include <algorithm>
 #include <filesystem>
 
-inline std::vector<std::string> ShaderNode::sVertexFiles{};
-inline std::vector<std::string> ShaderNode::sFragmentFiles{};
-inline std::vector<std::string> ShaderNode::sTessContFiles{};
-inline std::vector<std::string> ShaderNode::sTessEvalFiles{};
-inline std::vector<std::string> ShaderNode::sGeometryFiles{};
-
-inline const std::string ShaderNode::SHADER_DIR = "Shaders/";
-
-inline const std::vector<std::string> ShaderNode::VALID_VERTEX    = {".glsl", ".vert", ".vs", ".glslv"};
-inline const std::vector<std::string> ShaderNode::VALID_FRAGMENT  = {".glsl", ".frag", ".fs", ".glslf"};
-inline const std::vector<std::string> ShaderNode::VALID_TESS_CONT = {".glsl", ".tesc", ".tcs", ".glsltc"};
-inline const std::vector<std::string> ShaderNode::VALID_TESS_EVAL = {".glsl", ".tese", ".tes", ".glslte"};
-inline const std::vector<std::string> ShaderNode::VALID_GEOMETRY  = {".glsl", ".geom", ".gs", ".glslg"};
-
 ShaderNode::ShaderNode() : Node("Shader") {
 
 }
 
 void ShaderNode::findVertexFiles() {
-    findFiles(sVertexFiles, VALID_VERTEX);
+    findFiles(getVertexFiles(), getValidVertexFileExtensions());
 }
 
 void ShaderNode::findFragmentFiles() {
-    findFiles(sFragmentFiles, VALID_FRAGMENT);
+    findFiles(getFragmentFiles(), getValidFragmentFileExtensions());
 }
 
 void ShaderNode::findTessContFiles() {
-    findFiles(sTessContFiles, VALID_TESS_CONT);
+    findFiles(getTessContFiles(), getValidTessContFileExtensions());
 }
 
 void ShaderNode::findTessEvalFiles() {
-    findFiles(sTessEvalFiles, VALID_TESS_EVAL);
+    findFiles(getTessEvalFiles(), getValidTessEvalFileExtensions());
 }
 
 void ShaderNode::findGeometryFiles() {
-    findFiles(sGeometryFiles, VALID_GEOMETRY);
+    findFiles(getGeometryFiles(), getValidGeometryFileExtensions());
 }
 
 void ShaderNode::drawContents() {
-    drawShaderCombo("Vertex", vert, sVertexFiles);
-    drawShaderCombo("Fragment", frag, sFragmentFiles);
-    drawShaderCombo("Tess-Control", tesc, sTessContFiles);
-    drawShaderCombo("Tess-Eval", tese, sTessEvalFiles);
-    drawShaderCombo("Geometry", geom, sGeometryFiles);
+    drawShaderCombo("Vertex", vert, getVertexFiles());
+    drawShaderCombo("Fragment", frag, getFragmentFiles());
+    drawShaderCombo("Tess-Control", tesc, getTessContFiles());
+    drawShaderCombo("Tess-Eval", tese, getTessEvalFiles());
+    drawShaderCombo("Geometry", geom, getGeometryFiles());
 
     const std::string loadShaderLabel = std::string("Reload Shader##Button_LoadShader_Node").append(std::to_string(getID()));
     if (ImGui::Button(loadShaderLabel.c_str()))
         updateShader();
 
     drawShaderStatus();
-}
-
-void ShaderNode::runContents() {
-
 }
 
 void ShaderNode::drawShaderCombo(const std::string& label, int& index, const std::vector<std::string>& files) {
@@ -113,34 +95,34 @@ void ShaderNode::drawShaderStatus() {
 }
 
 void ShaderNode::updateShader() {
-    vertLoaded = (vert >= 0 && vert < sVertexFiles.size());
-    fragLoaded = (frag >= 0 && frag < sFragmentFiles.size());
-    tescLoaded = (tesc >= 0 && tesc < sTessContFiles.size());
-    teseLoaded = (tese >= 0 && tese < sTessEvalFiles.size());
-    geomLoaded = (geom >= 0 && geom < sGeometryFiles.size());
+    vertLoaded = (vert >= 0 && vert < getVertexFiles().size());
+    fragLoaded = (frag >= 0 && frag < getFragmentFiles().size());
+    tescLoaded = (tesc >= 0 && tesc < getTessContFiles().size());
+    teseLoaded = (tese >= 0 && tese < getTessEvalFiles().size());
+    geomLoaded = (geom >= 0 && geom < getGeometryFiles().size());
 
-    std::string vertex   = vertLoaded ? sVertexFiles[vert]   : std::string();
-    std::string fragment = fragLoaded ? sFragmentFiles[frag] : std::string();
-    std::string tessCont = tescLoaded ? sTessContFiles[tesc] : std::string();
-    std::string tessEval = teseLoaded ? sTessEvalFiles[tese] : std::string();
-    std::string geometry = geomLoaded ? sGeometryFiles[geom] : std::string();
+    std::string vertex   = vertLoaded ? getVertexFiles()[vert]   : std::string();
+    std::string fragment = fragLoaded ? getFragmentFiles()[frag] : std::string();
+    std::string tessCont = tescLoaded ? getTessContFiles()[tesc] : std::string();
+    std::string tessEval = teseLoaded ? getTessEvalFiles()[tese] : std::string();
+    std::string geometry = geomLoaded ? getGeometryFiles()[geom] : std::string();
 
     if (vertex.empty() || fragment.empty() || tessCont.empty() != tessEval.empty()) {
         mShader = Shader();
         return;
     }
     mShader = Shader(
-            SHADER_DIR + vertex,
-            SHADER_DIR + fragment,
-            tescLoaded ? SHADER_DIR + tessCont : "",
-            teseLoaded ? SHADER_DIR + tessEval : "",
-            geomLoaded ? SHADER_DIR + geometry : ""
+            getShaderDir() + vertex,
+            getShaderDir() + fragment,
+            tescLoaded ? getShaderDir() + tessCont : "",
+            teseLoaded ? getShaderDir() + tessEval : "",
+            geomLoaded ? getShaderDir() + geometry : ""
     );
 }
 
 void ShaderNode::findFiles(std::vector<std::string>& files, const std::vector<std::string>& extensions) {
     files.clear();
-    for (const auto& file : std::filesystem::directory_iterator(SHADER_DIR)) {
+    for (const auto& file : std::filesystem::directory_iterator(getShaderDir())) {
         if (!file.is_regular_file())
             continue;
         const std::string extension = file.path().extension().string();

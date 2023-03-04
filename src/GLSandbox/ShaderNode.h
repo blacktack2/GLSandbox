@@ -16,7 +16,6 @@ public:
     static void findGeometryFiles();
 protected:
     void drawContents() override;
-    void runContents() override;
 private:
     void drawShaderCombo(const std::string& label, int& index, const std::vector<std::string>& files);
     void drawShaderStatus();
@@ -24,6 +23,53 @@ private:
     void updateShader();
 
     static void findFiles(std::vector<std::string>& files, const std::vector<std::string>& extensions);
+
+    static inline const std::string& getShaderDir() {
+        static const std::string cDirectory = "Shaders/";
+        return cDirectory;
+    }
+
+    static inline std::vector<std::string>& getVertexFiles() {
+        static std::vector<std::string> cFiles;
+        return cFiles;
+    }
+    static inline std::vector<std::string>& getFragmentFiles() {
+        static std::vector<std::string> cFiles;
+        return cFiles;
+    }
+    static inline std::vector<std::string>& getTessContFiles() {
+        static std::vector<std::string> cFiles;
+        return cFiles;
+    }
+    static inline std::vector<std::string>& getTessEvalFiles() {
+        static std::vector<std::string> cFiles;
+        return cFiles;
+    }
+    static inline std::vector<std::string>& getGeometryFiles() {
+        static std::vector<std::string> cFiles;
+        return cFiles;
+    }
+
+    static inline const std::vector<std::string>& getValidVertexFileExtensions() {
+        static const std::vector<std::string> cExtensions = {".glsl", ".vert", ".vs", ".glslv"};
+        return cExtensions;
+    }
+    static inline const std::vector<std::string>& getValidFragmentFileExtensions() {
+        static const std::vector<std::string> cExtensions = {".glsl", ".frag", ".fs", ".glslf"};
+        return cExtensions;
+    }
+    static inline const std::vector<std::string>& getValidTessContFileExtensions() {
+        static const std::vector<std::string> cExtensions = {".glsl", ".tesc", ".tcs", ".glsltc"};
+        return cExtensions;
+    }
+    static inline const std::vector<std::string>& getValidTessEvalFileExtensions() {
+        static const std::vector<std::string> cExtensions = {".glsl", ".tese", ".tes", ".glslte"};
+        return cExtensions;
+    }
+    static inline const std::vector<std::string>& getValidGeometryFileExtensions() {
+        static const std::vector<std::string> cExtensions = {".glsl", ".geom", ".gs", ".glslg"};
+        return cExtensions;
+    }
 
     Shader mShader;
 
@@ -38,19 +84,5 @@ private:
     bool tescLoaded = false;
     bool teseLoaded = false;
     bool geomLoaded = false;
-
-    static std::vector<std::string> sVertexFiles;
-    static std::vector<std::string> sFragmentFiles;
-    static std::vector<std::string> sTessContFiles;
-    static std::vector<std::string> sTessEvalFiles;
-    static std::vector<std::string> sGeometryFiles;
-
-    static const std::string SHADER_DIR;
-
-    static const std::vector<std::string> VALID_VERTEX;
-    static const std::vector<std::string> VALID_FRAGMENT;
-    static const std::vector<std::string> VALID_TESS_CONT;
-    static const std::vector<std::string> VALID_TESS_EVAL;
-    static const std::vector<std::string> VALID_GEOMETRY;
 };
 
