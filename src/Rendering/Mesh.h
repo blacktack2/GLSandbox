@@ -7,15 +7,26 @@
 
 class Mesh {
 public:
+    enum class ErrorState {
+        INVALID,
+        VALID,
+    };
+
+    enum class Type {
+        Triangles = 0u,
+        TriangleStrip,
+        TriangleFan,
+        Lines,
+        Points,
+    };
+
     Mesh();
     ~Mesh();
 
     void softClean();
     void hardClean();
 
-    inline void setType(GLuint type) {
-        mType = type;
-    }
+    void setType(Type type);
     inline void setNumVertices(GLuint numVertices) {
         mNumVertices = numVertices;
     }
@@ -57,16 +68,24 @@ public:
      * @param dataSize Size of the data type (e.g. vec3 is sizeof(vec3)).
      * @param debugName Label for printing debug information about this attribute.
      */
-    void addAttribute(void* data, GLint attribSize, size_t dataSize, const std::string& debugName);
+    void addAttribute(const void* data, GLint attribSize, size_t dataSize, const std::string& debugName);
     void bufferData();
 
     static void makeScreenQuad(Mesh& mesh);
+
+    [[nodiscard]] inline ErrorState getState() const {
+        return mErrorState;
+    }
+
+    [[nodiscard]] inline const std::string& getErrorMessage() {
+        return mMessage;
+    }
 private:
     struct VertexAttribute {
         GLuint vbo = 0;
 
         GLuint index{};
-        void* data{};
+        const void* data{};
         GLint attribSize{};
         size_t dataSize{};
         std::string debugName;
@@ -87,5 +106,8 @@ private:
 
     std::vector<GLuint> mIndices;
     std::vector<VertexAttribute> mAttributes{};
+
+    ErrorState mErrorState;
+    std::string mMessage;
 };
 

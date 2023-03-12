@@ -15,6 +15,7 @@ Mesh::~Mesh() {
 void Mesh::softClean() {
     for (VertexAttribute& attrib : mAttributes)
         glDeleteBuffers(1, &attrib.vbo);
+    mErrorState = ErrorState::INVALID;
 }
 
 void Mesh::hardClean() {
@@ -31,7 +32,7 @@ void Mesh::hardClean() {
     mAttributes.clear();
 }
 
-void Mesh::addAttribute(void* data, GLint attribSize, size_t dataSize, const std::string& debugName) {
+void Mesh::addAttribute(const void* data, GLint attribSize, size_t dataSize, const std::string& debugName) {
     VertexAttribute& attribute = mAttributes.emplace_back();
     attribute.index = mAttributes.size() - 1;
     attribute.data = data;
@@ -50,7 +51,7 @@ void Mesh::makeScreenQuad(Mesh& mesh) {
         { 1.0f,  1.0f},
     };
 
-    mesh.setType(GL_TRIANGLE_STRIP);
+    mesh.setType(Type::TriangleStrip);
     mesh.setNumVertices(4);
     mesh.addAttribute(positions, 2, sizeof(glm::vec2), "Position");
     mesh.bind();
@@ -63,6 +64,8 @@ void Mesh::bufferData() {
         uploadAttribute(attrib);
     if (!mIndices.empty())
         uploadIndices();
+
+    mErrorState = ErrorState::VALID;
 }
 
 void Mesh::uploadAttribute(Mesh::VertexAttribute& attrib) const {
@@ -81,4 +84,17 @@ void Mesh::uploadIndices() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndices.size() * sizeof(GLuint), mIndices.data(), GL_STATIC_DRAW);
 
     glObjectLabel(GL_BUFFER, mIndexVBO, -1, "Indices");
+}
+
+void Mesh::setType(Mesh::Type type) {
+    GLuint gltype;
+    switch (type) {
+        default:
+        case Type::Triangles     : gltype = GL_TRIANGLES     ; break;
+        case Type::TriangleStrip : gltype = GL_TRIANGLE_STRIP; break;
+        case Type::TriangleFan   : gltype = GL_TRIANGLE_FAN  ; break;
+        case Type::Lines         : gltype = GL_LINES         ; break;
+        case Type::Points        : gltype = GL_POINTS        ; break;
+    }
+    mType = gltype;
 }
