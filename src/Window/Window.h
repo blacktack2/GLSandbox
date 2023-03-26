@@ -2,7 +2,7 @@
 #include "../Rendering/Renderer.h"
 #include "../GLSandbox/PipelineGraph.h"
 
-#include "imgui/imgui.h"
+#include "imgui.h"
 
 #ifdef WIN32
 #include <SDL.h>

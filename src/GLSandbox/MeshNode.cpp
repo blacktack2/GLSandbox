@@ -2,8 +2,8 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-#include <imgui/imgui.h>
-#include <imgui/imgui_stdlib.h>
+#include <imgui.h>
+#include <imgui_stdlib.h>
 
 MeshNode::MeshNode() : Node("Mesh") {
 

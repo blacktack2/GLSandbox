@@ -2,12 +2,19 @@
 #include "Ports.h"
 
 #include <functional>
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
 
+namespace ax::NodeEditor {
+    struct EditorContext;
+}
+
 class Node {
 public:
+    virtual ~Node() = default;
+
     void draw();
 
     [[nodiscard]] inline int getID() const {

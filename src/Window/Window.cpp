@@ -2,11 +2,9 @@
 
 #include <glad/glad.h>
 
-#include <imgui/imgui_impl_opengl3.h>
-#include <imgui/imgui_impl_sdl.h>
-#include <imgui/imgui_stdlib.h>
-
-#include <imgui/imnodes.h>
+#include <imgui_impl_opengl3.h>
+#include <imgui_impl_sdl.h>
+#include <imgui_stdlib.h>
 
 #include <chrono>
 #include <string>
@@ -44,7 +42,6 @@ mWidth(width), mHeight(height) {
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImNodes::CreateContext();
     mIO = ImGui::GetIO();
 
     ImGui::StyleColorsDark();
@@ -61,7 +58,6 @@ mWidth(width), mHeight(height) {
 Window::~Window() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
-    ImNodes::DestroyContext();
     ImGui::DestroyContext();
 
     SDL_GL_DeleteContext(mGLContext);

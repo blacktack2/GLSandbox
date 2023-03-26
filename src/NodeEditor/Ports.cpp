@@ -1,7 +1,7 @@
 #include "Ports.h"
 
-#include <imgui/imgui.h>
-#include <imgui/imnodes.h>
+#include <imgui.h>
+#include <imgui_node_editor.h>
 
 static int gPortIDCounter = 1;
 
@@ -14,23 +14,23 @@ OutPort::OutPort(const std::string& displayName, const std::any& value, int id) 
 }
 
 void OutPort::draw() const {
-    ImNodes::BeginOutputAttribute(getID());
+    ax::NodeEditor::BeginPin(getID(), ax::NodeEditor::PinKind::Output);
 
     ImGui::Text("%s", getDisplayName().c_str());
 
-    ImNodes::EndOutputAttribute();
+    ax::NodeEditor::EndPin();
 }
 
 InPort::InPort(const std::string& displayName, int id) : Port(displayName, id) {
 }
 
 void InPort::draw() const {
-    ImNodes::BeginInputAttribute(getID());
+    ax::NodeEditor::BeginPin(getID(), ax::NodeEditor::PinKind::Input);
 
     ImGui::Text("%s", getDisplayName().c_str());
 
-    ImNodes::EndInputAttribute();
+    ax::NodeEditor::EndPin();
 
     if (mLink.has_value())
-        ImNodes::Link(mLinkID, mLink.value().get().getID(), getID());
+        ax::NodeEditor::Link(mLinkID, mLink.value().get().getID(), getID());
 }

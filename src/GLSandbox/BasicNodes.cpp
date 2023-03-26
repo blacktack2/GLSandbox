@@ -1,6 +1,6 @@
 #include "BasicNodes.h"
 
-#include <imgui/imgui.h>
+#include <imgui.h>
 
 void IntegerNode::drawContents() {
     const std::string LABEL = std::string();

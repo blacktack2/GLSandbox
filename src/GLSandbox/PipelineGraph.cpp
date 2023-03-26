@@ -12,8 +12,8 @@ PipelineGraph::PipelineGraph() {
     ShaderNode::findTessEvalFiles();
     ShaderNode::findGeometryFiles();
 
-//    mNodes.push_back(std::make_unique<IntegerNode>());
-//    mNodes.push_back(std::make_unique<FloatNode>());
-    mNodes.push_back(std::make_unique<MeshNode>());
-//    mNodes.push_back(std::make_unique<ShaderNode>());
+//    addNode(std::move(std::make_unique<IntegerNode>()));
+//    addNode(std::move(std::make_unique<FloatNode>()));
+    addNode(std::move(std::make_unique<MeshNode>()));
+//    addNode(std::move(std::make_unique<ShaderNode>()));
 }
