@@ -35,8 +35,8 @@ void PipelineGraph::drawNodeCreation() {
 
     if (ImGui::CollapsingHeader("Maths##MeshHeader")) {
         static const NodeFactory cMATH_FACTORIES[] = {
-                {"Integer", []() { return std::make_unique<IntegerNode>(); }},
-                {"Float"  , []() { return std::make_unique<FloatNode>(); }},
+            NodeFactory("Integer", []() { return std::make_unique<IntegerNode>(); }),
+            NodeFactory("Float"  , []() { return std::make_unique<FloatNode>();   }),
         };
         for (const auto& nodeFactory : cMATH_FACTORIES) {
             if (ImGui::Selectable(nodeFactory.mLabel.c_str())) {
@@ -46,8 +46,8 @@ void PipelineGraph::drawNodeCreation() {
     }
     if (ImGui::CollapsingHeader("Graphics##MeshHeader")) {
         static const NodeFactory cGRAPHICS_FACTORIES[] = {
-                {"Mesh"  , []() { return std::make_unique<MeshNode>(); }},
-                {"Shader", []() { return std::make_unique<ShaderNode>(); }},
+            NodeFactory("Mesh"  , []() { return std::make_unique<MeshNode>();  }),
+            NodeFactory("Shader", []() { return std::make_unique<ShaderNode>();}),
         };
         for (const auto& nodeFactory : cGRAPHICS_FACTORIES) {
             if (ImGui::Selectable(nodeFactory.mLabel.c_str())) {
