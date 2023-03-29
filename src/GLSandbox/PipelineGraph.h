@@ -4,5 +4,7 @@
 class PipelineGraph : public Graph {
 public:
     PipelineGraph();
+protected:
+    void drawNodeCreation() override;
 };
 

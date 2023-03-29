@@ -68,7 +68,6 @@ Window::~Window() {
 void Window::mainloop() {
     SDL_Event e;
 
-    bool configPanelOpen = true;
     mRunning = true;
     while (mRunning) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -82,15 +81,7 @@ void Window::mainloop() {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame(mWindow);
         ImGui::NewFrame();
-        {
-            ImGui::Begin("Config", &configPanelOpen);
-            drawConfigPanel();
-            ImGui::End();
-
-            ImGui::Begin("Editor");
-            drawEditorPanel();
-            ImGui::End();
-        }
+        drawGraph();
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -120,27 +111,6 @@ void Window::handleEvent(SDL_Event &e) {
         mRunning = false;
 }
 
-void Window::drawConfigPanel() {
-    if (ImGui::CollapsingHeader("Meshes##MeshHeader"))
-        drawMeshConfig();
-    if (ImGui::CollapsingHeader("Skybox##SkyboxHeader"))
-        drawSkyboxConfig();
-    if (ImGui::CollapsingHeader("Lighting##LightningHeader"))
-        drawLightingConfig();
-}
-
-void Window::drawMeshConfig() {
-
-}
-
-void Window::drawSkyboxConfig() {
-
-}
-
-void Window::drawLightingConfig() {
-
-}
-
-void Window::drawEditorPanel() {
+void Window::drawGraph() {
     mGraph->draw();
 }
