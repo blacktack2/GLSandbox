@@ -4,14 +4,12 @@
 #include <memory>
 #include <vector>
 
-namespace ax::NodeEditor {
-    struct EditorContext;
-}
+struct ImNodesContext;
 
 class Graph {
 public:
     Graph();
-    virtual ~Graph() = default;
+    virtual ~Graph();
 
     void draw();
 protected:
@@ -24,7 +22,7 @@ private:
     void drawEditor();
     void drawConfig();
 
-    ax::NodeEditor::EditorContext* mContext;
+    ImNodesContext* mContext;
 
     std::vector<std::unique_ptr<Node>> mNodes{};
 

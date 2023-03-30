@@ -3,7 +3,7 @@
 #include "Node.h"
 
 #include <imgui.h>
-#include <imgui_node_editor.h>
+#include <imnodes.h>
 
 static int gPortIDCounter = 1;
 
@@ -19,16 +19,16 @@ Port(parent, displayName, id), mValue(value) {
 void OutPort::draw() const {
     ImGui::Dummy(ImVec2(0, 0));
     std::string text = getDisplayName() + " ->";
-    ImGui::SameLine(
-        ImGui::GetCursorPosX() + ax::NodeEditor::GetNodeSize(getParentNode().getID()).x -
-        ax::NodeEditor::GetNodePosition(getParentNode().getID()).x -
-        ImGui::CalcTextSize(text.c_str()).x - ImGui::GetStyle().ItemSpacing.x
-    );
-    ax::NodeEditor::BeginPin(getID(), ax::NodeEditor::PinKind::Output);
+//    ImGui::SameLine(
+//        ImGui::GetCursorPosX() + ax::NodeEditor::GetNodeSize(getParentNode().getID()).x -
+//        ax::NodeEditor::GetNodePosition(getParentNode().getID()).x -
+//        ImGui::CalcTextSize(text.c_str()).x - ImGui::GetStyle().ItemSpacing.x
+//    );
+    ImNodes::BeginOutputAttribute(getID());
 
     ImGui::Text("%s", text.c_str());
 
-    ax::NodeEditor::EndPin();
+    ImNodes::EndOutputAttribute();
 }
 
 InPort::InPort(const Node& parent, const std::string& displayName, int id) :
@@ -36,12 +36,12 @@ Port(parent, displayName, id) {
 }
 
 void InPort::draw() const {
-    ax::NodeEditor::BeginPin(getID(), ax::NodeEditor::PinKind::Input);
+    ImNodes::BeginInputAttribute(getID());
 
     ImGui::Text("<- %s", getDisplayName().c_str());
 
-    ax::NodeEditor::EndPin();
+    ImNodes::EndInputAttribute();
 
     if (mLink.has_value())
-        ax::NodeEditor::Link(mLinkID, mLink.value().get().getID(), getID());
+        ImNodes::Link(mLinkID, mLink.value().get().getID(), getID());
 }

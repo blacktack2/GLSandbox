@@ -1,7 +1,7 @@
 #include "Node.h"
 
 #include <imgui.h>
-#include <imgui_node_editor.h>
+#include <imnodes.h>
 
 #include <utility>
 
@@ -12,7 +12,7 @@ Node::Node(std::string title, int id) : mTitle(std::move(title)), mID{id == 0 ? 
 }
 
 void Node::draw() {
-    ax::NodeEditor::BeginNode(mID);
+    ImNodes::BeginNode(mID);
 
     ImGui::Text("%s", mTitle.c_str());
 
@@ -21,5 +21,5 @@ void Node::draw() {
 
     drawContents();
 
-    ax::NodeEditor::EndNode();
+    ImNodes::EndNode();
 }
