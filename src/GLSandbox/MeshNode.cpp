@@ -6,7 +6,7 @@
 #include <imgui_stdlib.h>
 
 MeshNode::MeshNode() : Node("Mesh") {
-
+    addPort(mMeshOutPort);
 }
 
 void MeshNode::drawContents() {

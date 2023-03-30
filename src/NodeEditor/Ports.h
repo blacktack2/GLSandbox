@@ -4,6 +4,8 @@
 #include <optional>
 #include <string>
 
+class Node;
+
 class IPort {
 public:
     virtual void draw() const = 0;
@@ -20,17 +22,23 @@ public:
     [[nodiscard]] const std::string& getDisplayName() const override {
         return mDisplayName;
     }
+
+    [[nodiscard]] const Node& getParentNode() const {
+        return mParentNode;
+    }
 protected:
-    explicit Port(std::string displayName, int id = 0);
+    explicit Port(const Node& parent, std::string displayName, int id = 0);
 private:
     int mID;
 
     std::string mDisplayName;
+
+    const Node& mParentNode;
 };
 
 class OutPort : public Port {
 public:
-    explicit OutPort(const std::string& displayName, const std::any& value, int id = 0);
+    explicit OutPort(const Node& parent, const std::string& displayName, const std::any& value, int id = 0);
 
     void draw() const override;
 
@@ -43,7 +51,7 @@ private:
 
 class InPort : public Port {
 public:
-    explicit InPort(const std::string& displayName, int id = 0);
+    explicit InPort(const Node& parent, const std::string& displayName, int id = 0);
 
     void draw() const override;
 

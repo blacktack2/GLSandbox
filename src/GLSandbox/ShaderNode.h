@@ -72,6 +72,8 @@ private:
     }
 
     Shader mShader;
+    std::any mShaderWrapper = std::ref(mShader);
+    OutPort mShaderOutPort = OutPort(*this, "Shader", mShaderWrapper);
 
     int vert = -1;
     int frag = -1;

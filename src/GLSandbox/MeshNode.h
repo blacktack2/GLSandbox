@@ -6,6 +6,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
+#include <any>
 #include <functional>
 #include <string>
 #include <vector>
@@ -49,6 +50,8 @@ private:
     void resizeAttributes();
 
     Mesh mMesh;
+    std::any mMeshWrapper = std::ref(mMesh);
+    OutPort mMeshOutPort = OutPort(*this, "Mesh", mMeshWrapper);
 
     unsigned int mNumVertices = 1;
     unsigned int mNumIndices = 0;

@@ -6,7 +6,7 @@
 #include <filesystem>
 
 ShaderNode::ShaderNode() : Node("Shader") {
-
+    addPort(mShaderOutPort);
 }
 
 void ShaderNode::findVertexFiles() {

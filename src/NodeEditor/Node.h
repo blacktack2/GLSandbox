@@ -20,10 +20,18 @@ public:
     [[nodiscard]] inline int getID() const {
         return mID;
     }
+
+    [[nodiscard]] inline size_t numPorts() const {
+        return mPorts.size();
+    }
+
+    [[nodiscard]] IPort& getPort(size_t i) {
+        return mPorts[i].get();
+    }
 protected:
     explicit Node(std::string title, int id = 0);
 
-    inline void addPort(const IPort& port) {
+    inline void addPort(IPort& port) {
         mPorts.emplace_back(port);
     }
 
@@ -33,6 +41,6 @@ private:
 
     std::string mTitle;
 
-    std::vector<std::reference_wrapper<const IPort>> mPorts;
+    std::vector<std::reference_wrapper<IPort>> mPorts;
 };
 
