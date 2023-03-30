@@ -2,6 +2,7 @@
 
 #include "../NodeEditor/Node.h"
 #include "BasicNodes.h"
+#include "MathNodes.h"
 #include "MeshNode.h"
 #include "ShaderNode.h"
 
@@ -35,10 +36,20 @@ void PipelineGraph::drawNodeCreation() {
 
     if (ImGui::CollapsingHeader("Maths##MeshHeader")) {
         static const NodeFactory cMATH_FACTORIES[] = {
+            NodeFactory("Arithmetic", []() { return std::make_unique<ArithmeticNode>(); }),
+        };
+        for (const auto& nodeFactory : cMATH_FACTORIES) {
+            if (ImGui::Selectable(nodeFactory.mLabel.c_str())) {
+                addNode(nodeFactory.mCallback());
+            }
+        }
+    }
+    if (ImGui::CollapsingHeader("Numerics##NumericsHeader")) {
+        static const NodeFactory cNUMERIC_FACTORIES[] = {
             NodeFactory("Integer", []() { return std::make_unique<IntegerNode>(); }),
             NodeFactory("Float"  , []() { return std::make_unique<FloatNode>();   }),
         };
-        for (const auto& nodeFactory : cMATH_FACTORIES) {
+        for (const auto& nodeFactory : cNUMERIC_FACTORIES) {
             if (ImGui::Selectable(nodeFactory.mLabel.c_str())) {
                 addNode(nodeFactory.mCallback());
             }
