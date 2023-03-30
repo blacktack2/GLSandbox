@@ -30,6 +30,30 @@ void OutPort::drawLinks() const {
 
 }
 
+void OutPort::unlink() {
+    if (mLink) {
+        mLink->unlinkSoft();
+        mLink = nullptr;
+    }
+}
+
+void OutPort::link(InPort& port) {
+    if (mLink) {
+        unlink();
+    }
+    linkSoft(port);
+    mLink->linkSoft(*this);
+}
+
+void OutPort::unlinkSoft() {
+    mLink = nullptr;
+}
+
+void OutPort::linkSoft(InPort& port) {
+    static int cLinkIDCounter = 1;
+    mLink = &port;
+}
+
 InPort::InPort(const Node& parent, const std::string& displayName, int id) :
 Port(parent, displayName, id) {
 }
@@ -45,4 +69,29 @@ void InPort::draw() const {
 void InPort::drawLinks() const {
     if (mLink)
         ImNodes::Link(mLinkID, mLink->getID(), getID());
+}
+
+void InPort::unlink() {
+    if (mLink) {
+        mLink->unlinkSoft();
+        mLink = nullptr;
+    }
+}
+
+void InPort::link(OutPort& port) {
+    if (mLink) {
+        unlink();
+    }
+    linkSoft(port);
+    mLink->linkSoft(*this);
+}
+
+void InPort::unlinkSoft() {
+    mLink = nullptr;
+}
+
+void InPort::linkSoft(OutPort& port) {
+    static int cLinkIDCounter = 1;
+    mLink = &port;
+    mLinkID = cLinkIDCounter++;
 }

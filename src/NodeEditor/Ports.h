@@ -39,6 +39,8 @@ private:
     const Node& mParentNode;
 };
 
+class InPort;
+
 class OutPort : public Port {
 public:
     explicit OutPort(const Node& parent, const std::string& displayName, const std::any& value, int id = 0);
@@ -49,12 +51,35 @@ public:
     [[nodiscard]] inline const std::any& getValue() const {
         return mValue;
     }
+
+    /**
+     * @brief Two-way unlink port (both ports are set to be unlinked).
+     */
+    void unlink();
+    /**
+     * @brief Two-way link port (will link in->out and out->in). Existing links will be unlinked.
+     * @param port Port to link to.
+     */
+    void link(InPort& port);
+    /**
+     * @brief Only unlink this port (to prevent infinite recursion during unlinking).
+     */
+    void unlinkSoft();
+    /**
+     * @brief Only link out->in (to prevent infinite recursion during linking).
+     * @param port Port to link to.
+     */
+    void linkSoft(InPort& port);
 private:
+    InPort* mLink = nullptr;
+
     const std::any& mValue;
 };
 
 class InPort : public Port {
 public:
+    friend class OutPort;
+
     explicit InPort(const Node& parent, const std::string& displayName, int id = 0);
 
     void draw() const override;
@@ -63,17 +88,27 @@ public:
     [[nodiscard]] inline const std::any& getValue() const {
         return mLink->getValue();
     }
-    inline void unlink() {
-        mLink = nullptr;
-    }
-    inline void link(const OutPort& port) {
-        static int cLinkIDCounter = 1;
-        unlink();
-        mLink = &port;
-        mLinkID = cLinkIDCounter++;
-    }
+
+    /**
+     * @brief Two-way unlink port (both ports are set to be unlinked).
+     */
+    void unlink();
+    /**
+     * @brief Two-way link port (will link in->out and out->in). Existing links will be unlinked.
+     * @param port Port to link to.
+     */
+    void link(OutPort& port);
+    /**
+     * @brief Only unlink this port (to prevent infinite recursion during unlinking).
+     */
+    void unlinkSoft();
+    /**
+     * @brief Only link in->out (to prevent infinite recursion during linking).
+     * @param port Port to link to.
+     */
+    void linkSoft(OutPort& port);
 private:
-    const OutPort* mLink = nullptr;
+    OutPort* mLink = nullptr;
 
     int mLinkID = 0;
 };
