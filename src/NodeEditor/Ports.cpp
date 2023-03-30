@@ -18,17 +18,16 @@ Port(parent, displayName, id), mValue(value) {
 
 void OutPort::draw() const {
     ImGui::Dummy(ImVec2(0, 0));
-    std::string text = getDisplayName() + " ->";
-//    ImGui::SameLine(
-//        ImGui::GetCursorPosX() + ax::NodeEditor::GetNodeSize(getParentNode().getID()).x -
-//        ax::NodeEditor::GetNodePosition(getParentNode().getID()).x -
-//        ImGui::CalcTextSize(text.c_str()).x - ImGui::GetStyle().ItemSpacing.x
-//    );
     ImNodes::BeginOutputAttribute(getID());
 
+    std::string text = getDisplayName() + " ->";
     ImGui::Text("%s", text.c_str());
 
     ImNodes::EndOutputAttribute();
+}
+
+void OutPort::drawLinks() const {
+
 }
 
 InPort::InPort(const Node& parent, const std::string& displayName, int id) :
@@ -41,7 +40,9 @@ void InPort::draw() const {
     ImGui::Text("<- %s", getDisplayName().c_str());
 
     ImNodes::EndInputAttribute();
+}
 
-    if (mLink.has_value())
-        ImNodes::Link(mLinkID, mLink.value().get().getID(), getID());
+void InPort::drawLinks() const {
+    if (mLink)
+        ImNodes::Link(mLinkID, mLink->getID(), getID());
 }

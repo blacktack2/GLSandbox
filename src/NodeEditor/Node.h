@@ -16,6 +16,7 @@ public:
     virtual ~Node() = default;
 
     void draw();
+    void drawLinks();
 
     [[nodiscard]] inline int getID() const {
         return mID;
@@ -25,8 +26,15 @@ public:
         return mPorts.size();
     }
 
-    [[nodiscard]] IPort& getPort(size_t i) {
+    [[nodiscard]] IPort& getPortByIndex(size_t i) {
         return mPorts[i].get();
+    }
+
+    [[nodiscard]] IPort* getPort(int portID) {
+        for (auto& port : mPorts)
+            if (port.get().getID() == portID)
+                return &port.get();
+        return nullptr;
     }
 protected:
     explicit Node(std::string title, int id = 0);

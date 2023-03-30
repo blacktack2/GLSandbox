@@ -23,3 +23,8 @@ void Node::draw() {
 
     ImNodes::EndNode();
 }
+
+void Node::drawLinks() {
+    for (auto port : mPorts)
+        port.get().drawLinks();
+}

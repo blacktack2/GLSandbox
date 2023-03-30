@@ -9,7 +9,10 @@ class Node;
 class IPort {
 public:
     virtual void draw() const = 0;
+    virtual void drawLinks() const = 0;
+
     [[nodiscard]] virtual int getID() const = 0;
+
     [[nodiscard]] virtual const std::string& getDisplayName() const = 0;
 };
 
@@ -41,6 +44,7 @@ public:
     explicit OutPort(const Node& parent, const std::string& displayName, const std::any& value, int id = 0);
 
     void draw() const override;
+    void drawLinks() const override;
 
     [[nodiscard]] inline const std::any& getValue() const {
         return mValue;
@@ -54,21 +58,22 @@ public:
     explicit InPort(const Node& parent, const std::string& displayName, int id = 0);
 
     void draw() const override;
+    void drawLinks() const override;
 
     [[nodiscard]] inline const std::any& getValue() const {
-        return mLink.value().get().getValue();
+        return mLink->getValue();
     }
     inline void unlink() {
-        mLink = std::optional<std::reference_wrapper<const OutPort>>();
+        mLink = nullptr;
     }
     inline void link(const OutPort& port) {
         static int cLinkIDCounter = 1;
         unlink();
-        mLink = port;
+        mLink = &port;
         mLinkID = cLinkIDCounter++;
     }
 private:
-    std::optional<std::reference_wrapper<const OutPort>> mLink;
+    const OutPort* mLink = nullptr;
 
     int mLinkID = 0;
 };

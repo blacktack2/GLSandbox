@@ -11,7 +11,9 @@ public:
     Graph();
     virtual ~Graph();
 
+    void preDraw();
     void draw();
+    void postDraw();
 protected:
     virtual void drawNodeCreation() = 0;
 

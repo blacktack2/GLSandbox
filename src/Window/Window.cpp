@@ -112,5 +112,7 @@ void Window::handleEvent(SDL_Event &e) {
 }
 
 void Window::drawGraph() {
+    mGraph->preDraw();
     mGraph->draw();
+    mGraph->postDraw();
 }
