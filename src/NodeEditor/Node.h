@@ -23,19 +23,19 @@ public:
     void setAbsolutePosition(const glm::vec2& pos);
     void setRelativePosition(const glm::vec2& pos);
 
-    glm::vec2 getAbsolutePositionC() const;
-    glm::vec2 getAbsolutePositionTR() const;
-    glm::vec2 getAbsolutePositionBR() const;
-    glm::vec2 getAbsolutePositionBL() const;
-    glm::vec2 getAbsolutePositionTL() const;
+    [[nodiscard]] glm::vec2 getAbsolutePositionC() const;
+    [[nodiscard]] glm::vec2 getAbsolutePositionTR() const;
+    [[nodiscard]] glm::vec2 getAbsolutePositionBR() const;
+    [[nodiscard]] glm::vec2 getAbsolutePositionBL() const;
+    [[nodiscard]] glm::vec2 getAbsolutePositionTL() const;
 
-    glm::vec2 getRelativePositionC() const;
-    glm::vec2 getRelativePositionTR() const;
-    glm::vec2 getRelativePositionBR() const;
-    glm::vec2 getRelativePositionBL() const;
-    glm::vec2 getRelativePositionTL() const;
+    [[nodiscard]] glm::vec2 getRelativePositionC() const;
+    [[nodiscard]] glm::vec2 getRelativePositionTR() const;
+    [[nodiscard]] glm::vec2 getRelativePositionBR() const;
+    [[nodiscard]] glm::vec2 getRelativePositionBL() const;
+    [[nodiscard]] glm::vec2 getRelativePositionTL() const;
 
-    glm::vec2 getSize() const;
+    [[nodiscard]] glm::vec2 getSize() const;
 
     [[nodiscard]] inline int getID() const {
         return mID;
