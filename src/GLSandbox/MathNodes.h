@@ -1,7 +1,7 @@
 #pragma once
 #include "../NodeEditor/Node.h"
+#include "BasicNodes.h"
 
-#include <any>
 #include <functional>
 #include <string>
 #include <vector>
@@ -36,11 +36,10 @@ private:
         return OPERATIONS;
     }
 
-    InPort mValueAIn = InPort(*this, "A");
-    InPort mValueBIn = InPort(*this, "A");
+    InPort mValueAIn = InPort(*this, "A", {&typeid(IntegerNode), &typeid(FloatNode)});
+    InPort mValueBIn = InPort(*this, "B", {&typeid(IntegerNode), &typeid(FloatNode)});
 
-    std::any mValueWrapper = nullptr;
-    OutPort mValueOut = OutPort(*this, "Out", mValueWrapper);
+    OutPort mValueOut = OutPort(*this, "Out");
 
     Operation mCurrentOperation = Operation::Add;
 };

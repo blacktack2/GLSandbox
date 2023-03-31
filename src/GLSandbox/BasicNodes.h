@@ -1,7 +1,6 @@
 #pragma once
 #include "../NodeEditor/Node.h"
 
-#include <any>
 #include <functional>
 
 class IntegerNode : public Node {
@@ -13,8 +12,7 @@ protected:
     void drawContents() override;
 private:
     int mValue = 0;
-    std::any mValueWrapper = std::ref(mValue);
-    OutPort mIntOut = OutPort(*this, "Value", mValueWrapper);
+    OutPort mIntOut = OutPort(*this, "Value");
 };
 
 class FloatNode : public Node {
@@ -26,6 +24,5 @@ protected:
     void drawContents() override;
 private:
     float mValue = 0.0f;
-    std::any mValueWrapper = std::ref(mValue);
-    OutPort mFloatOut = OutPort(*this, "Value", mValueWrapper);
+    OutPort mFloatOut = OutPort(*this, "Value");
 };

@@ -22,7 +22,7 @@ private:
 
     template<typename T>
     struct Attribute {
-        unsigned int id;
+        unsigned int id = 0;
         std::string name;
         std::vector<T> data{};
         bool show = false;
@@ -50,8 +50,7 @@ private:
     void resizeAttributes();
 
     Mesh mMesh;
-    std::any mMeshWrapper = std::ref(mMesh);
-    OutPort mMeshOutPort = OutPort(*this, "Mesh", mMeshWrapper);
+    OutPort mMeshOutPort = OutPort(*this, "Mesh");
 
     unsigned int mNumVertices = 1;
     unsigned int mNumIndices = 0;
