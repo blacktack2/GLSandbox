@@ -43,6 +43,7 @@ void Graph::drawEditor() {
     for (auto& node : mNodes)
         node->drawLinks();
 
+    ImNodes::MiniMap();
     ImNodes::EndNodeEditor();
     ImGui::End();
 }
