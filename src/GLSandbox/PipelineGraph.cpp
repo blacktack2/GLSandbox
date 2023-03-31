@@ -2,16 +2,12 @@
 
 #include "../NodeEditor/Node.h"
 #include "BasicNodes.h"
+#include "ExecutableNodes.h"
 #include "MathNodes.h"
 #include "MeshNode.h"
 #include "ShaderNode.h"
 
 #include <imgui.h>
-
-#include <functional>
-#include <memory>
-#include <string>
-#include <utility>
 
 PipelineGraph::PipelineGraph() {
     ShaderNode::findVertexFiles();
@@ -19,51 +15,47 @@ PipelineGraph::PipelineGraph() {
     ShaderNode::findTessContFiles();
     ShaderNode::findTessEvalFiles();
     ShaderNode::findGeometryFiles();
+
+    std::unique_ptr<EntryNode> defaultEntry = std::make_unique<EntryNode>();
+    std::unique_ptr<RenderPassNode> defaultPass = std::make_unique<RenderPassNode>();
+    std::unique_ptr<ExitNode> defaultExit = std::make_unique<ExitNode>();
+    addNode(std::move(defaultEntry));
+    addNode(std::move(defaultPass));
+    addNode(std::move(defaultExit));
 }
 
 void PipelineGraph::drawNodeCreation() {
-    struct NodeFactory {
-        typedef std::function<std::unique_ptr<Node>()> factory_callback;
-
-        NodeFactory(const std::string& label, factory_callback callback) : mCallback(std::move(callback)) {
-            static int cLabelIDCounter = 0;
-            mLabel = std::string(label).append("##NodeCreator_").append(std::to_string(cLabelIDCounter++));
-        }
-
-        std::string mLabel;
-        factory_callback mCallback;
-    };
-
+    if (ImGui::CollapsingHeader("Execution##ExecutionHeader")) {
+        static const std::vector<NodeFactory> cEXECUTION_FACTORIES = {
+            NodeFactory("Entry", []() { return std::make_unique<EntryNode>(); }),
+            NodeFactory("Render Pass", []() { return std::make_unique<RenderPassNode>(); }),
+        };
+        drawNodeSelectors(cEXECUTION_FACTORIES);
+    }
     if (ImGui::CollapsingHeader("Maths##MeshHeader")) {
-        static const NodeFactory cMATH_FACTORIES[] = {
+        static const std::vector<NodeFactory> cMATH_FACTORIES = {
             NodeFactory("Arithmetic", []() { return std::make_unique<ArithmeticNode>(); }),
         };
-        for (const auto& nodeFactory : cMATH_FACTORIES) {
-            if (ImGui::Selectable(nodeFactory.mLabel.c_str())) {
-                addNode(nodeFactory.mCallback());
-            }
-        }
+        drawNodeSelectors(cMATH_FACTORIES);
     }
     if (ImGui::CollapsingHeader("Numerics##NumericsHeader")) {
-        static const NodeFactory cNUMERIC_FACTORIES[] = {
+        static const std::vector<NodeFactory> cNUMERIC_FACTORIES = {
             NodeFactory("Integer", []() { return std::make_unique<IntegerNode>(); }),
             NodeFactory("Float"  , []() { return std::make_unique<FloatNode>();   }),
         };
-        for (const auto& nodeFactory : cNUMERIC_FACTORIES) {
-            if (ImGui::Selectable(nodeFactory.mLabel.c_str())) {
-                addNode(nodeFactory.mCallback());
-            }
-        }
+        drawNodeSelectors(cNUMERIC_FACTORIES);
     }
-    if (ImGui::CollapsingHeader("Graphics##MeshHeader")) {
-        static const NodeFactory cGRAPHICS_FACTORIES[] = {
+    if (ImGui::CollapsingHeader("Graphics##GraphicsHeader")) {
+        static const std::vector<NodeFactory> cGRAPHICS_FACTORIES = {
             NodeFactory("Mesh"  , []() { return std::make_unique<MeshNode>();  }),
             NodeFactory("Shader", []() { return std::make_unique<ShaderNode>();}),
         };
-        for (const auto& nodeFactory : cGRAPHICS_FACTORIES) {
-            if (ImGui::Selectable(nodeFactory.mLabel.c_str())) {
-                addNode(nodeFactory.mCallback());
-            }
-        }
+        drawNodeSelectors(cGRAPHICS_FACTORIES);
     }
+}
+
+void PipelineGraph::drawNodeSelectors(const std::vector<NodeFactory>& factories) {
+    for (const NodeFactory& nodeFactory : factories)
+        if (ImGui::Selectable(nodeFactory.mLabel.c_str()))
+            addNode(nodeFactory.mCallback());
 }
