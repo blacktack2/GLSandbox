@@ -5,9 +5,16 @@
 #include <string>
 #include <vector>
 
-class ShaderNode : public Node {
+class ShaderNode final : public Node {
 public:
     ShaderNode();
+    ~ShaderNode() final = default;
+
+    [[nodiscard]] bool isValid() const;
+
+    [[nodiscard]] inline const Shader& getShader() const {
+        return mShader;
+    }
 
     static void findVertexFiles();
     static void findFragmentFiles();

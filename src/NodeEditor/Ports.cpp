@@ -111,3 +111,9 @@ bool InPort::isConnectionValid(const IPort& port) {
     return std::any_of(mValidConnections.begin(), mValidConnections.end(),
                        [check](const std::type_info* a) { return *a == *check; });
 }
+
+const Node* InPort::getInput() const {
+    if (!mLink)
+        return nullptr;
+    return &mLink->getParent();
+}

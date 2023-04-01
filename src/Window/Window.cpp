@@ -6,9 +6,6 @@
 #include <imgui_impl_sdl.h>
 #include <imgui_stdlib.h>
 
-#include <chrono>
-#include <string>
-
 Window::Window(const char *title, int width, int height) :
 mWidth(width), mHeight(height) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -22,6 +19,7 @@ mWidth(width), mHeight(height) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 
     auto windowFlags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     mWindow = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mWidth, mHeight, windowFlags);
@@ -36,6 +34,15 @@ mWidth(width), mHeight(height) {
 
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
         return;
+
+    int flags;
+    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(Renderer::debugOutput, nullptr);
+        glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_ERROR, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
+    }
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glViewport(0, 0, mWidth, mHeight);
@@ -76,12 +83,16 @@ void Window::mainloop() {
             handleEvent(e);
 
         mRenderer->update();
-        mRenderer->draw();
+        mRenderer->drawScene();
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame(mWindow);
         ImGui::NewFrame();
+
         drawGraph();
+
+        mRenderer->drawDebug();
+
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

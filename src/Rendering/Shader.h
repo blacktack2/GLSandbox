@@ -14,7 +14,7 @@ public:
         OGL_LINK,
     };
 
-    Shader();
+    Shader() = default;
     Shader(const std::string& vertShader, const std::string& fragShader,
            const std::string& tescShader = "", const std::string& teseShader = "", const std::string& geomShader = "");
     ~Shader();
@@ -27,11 +27,11 @@ public:
         glUseProgram(0);
     }
 
-    inline ErrorState getState() {
+    [[nodiscard]] inline ErrorState getState() const {
         return mState;
     }
 
-    inline std::string getErrorMessage() {
+    [[nodiscard]] inline std::string getErrorMessage() const {
         return mMessage;
     }
 private:
@@ -45,7 +45,7 @@ private:
     bool compileShader(const std::string& code, GLenum type);
     bool linkProgram();
 
-    GLuint mProgramID;
+    GLuint mProgramID = 0;
 
     ErrorState mState = ErrorState::INVALID;
     std::string mMessage = "Default Message";

@@ -2,20 +2,36 @@
 #include "Mesh.h"
 #include "Shader.h"
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#define APIENTRY
+#endif
+
 class Renderer {
 public:
+    typedef std::function<void()> pipeline_callback;
+
     Renderer();
-    ~Renderer();
+    ~Renderer() = default;
 
     void update();
-    void draw();
+    void drawScene();
+    void drawDebug();
 
-    void loadShader(const std::string& vert, const std::string& frag, const std::string& tesc = "", const std::string& tese = "", const std::string& geom = "");
+    static void APIENTRY debugOutput(unsigned int source, unsigned int type, unsigned int id, unsigned int severity,
+                                     int length, const char* message, const void* userParam);
 private:
-    std::vector<std::shared_ptr<Shader>> mShaders;
-    std::vector<std::shared_ptr<Mesh>> mMeshes;
+    std::vector<pipeline_callback> mRenderPipeline;
+
+    std::unique_ptr<Mesh> mDefaultMesh;
+    std::unique_ptr<Shader> mDefaultShader;
+
+    static std::vector<std::string> sDebugMessages;
+    static bool sErrorFlag;
 };

@@ -11,17 +11,6 @@ private:
     OutPort mExecutionOutPort = OutPort(*this, "Out");
 };
 
-class RenderPassNode final : public Node {
-public:
-    RenderPassNode();
-    ~RenderPassNode() override = default;
-protected:
-    void drawContents() final;
-private:
-    InPort mExecutionInPort = InPort(*this, "In", {&typeid(EntryNode), &typeid(RenderPassNode)});
-    OutPort mExecutionOutPort = OutPort(*this, "Out");
-};
-
 class ExitNode final : public Node {
 public:
     ExitNode();
@@ -29,5 +18,5 @@ public:
 protected:
     void drawContents() final;
 private:
-    InPort mExecutionInPort = InPort(*this, "In", {&typeid(RenderPassNode)});
+    InPort mExecutionInPort = InPort(*this, "In");
 };

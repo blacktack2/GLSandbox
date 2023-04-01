@@ -11,9 +11,16 @@
 #include <string>
 #include <vector>
 
-class MeshNode : public Node {
+class MeshNode final : public Node {
 public:
     MeshNode();
+    ~MeshNode() final = default;
+
+    [[nodiscard]] bool isValid() const;
+
+    [[nodiscard]] inline const Mesh& getMesh() const {
+        return mMesh;
+    }
 protected:
     void drawContents() override;
 private:

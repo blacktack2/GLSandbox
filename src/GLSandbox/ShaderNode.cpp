@@ -9,6 +9,10 @@ ShaderNode::ShaderNode() : Node("Shader") {
     addPort(mShaderOutPort);
 }
 
+bool ShaderNode::isValid() const {
+    return mShader.getState() == Shader::ErrorState::VALID;
+}
+
 void ShaderNode::findVertexFiles() {
     findFiles(getVertexFiles(), getValidVertexFileExtensions());
 }
@@ -112,11 +116,11 @@ void ShaderNode::updateShader() {
         return;
     }
     mShader = Shader(
-            getShaderDir() + vertex,
-            getShaderDir() + fragment,
-            tescLoaded ? getShaderDir() + tessCont : "",
-            teseLoaded ? getShaderDir() + tessEval : "",
-            geomLoaded ? getShaderDir() + geometry : ""
+        getShaderDir() + vertex,
+        getShaderDir() + fragment,
+        tescLoaded ? getShaderDir() + tessCont : "",
+        teseLoaded ? getShaderDir() + tessEval : "",
+        geomLoaded ? getShaderDir() + geometry : ""
     );
 }
 

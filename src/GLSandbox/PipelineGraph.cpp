@@ -2,9 +2,10 @@
 
 #include "../NodeEditor/Node.h"
 #include "BasicNodes.h"
-#include "ExecutableNodes.h"
+#include "FixedNodes.h"
 #include "MathNodes.h"
 #include "MeshNode.h"
+#include "RenderPassNode.h"
 #include "ShaderNode.h"
 
 #include <imgui.h>

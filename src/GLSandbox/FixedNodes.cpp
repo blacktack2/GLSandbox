@@ -1,19 +1,10 @@
-#include "ExecutableNodes.h"
+#include "FixedNodes.h"
 
 EntryNode::EntryNode() : Node("Entry") {
     addPort(mExecutionOutPort);
 }
 
 void EntryNode::drawContents() {
-
-}
-
-RenderPassNode::RenderPassNode() : Node("Render Pass") {
-    addPort(mExecutionInPort);
-    addPort(mExecutionOutPort);
-}
-
-void RenderPassNode::drawContents() {
 
 }
 

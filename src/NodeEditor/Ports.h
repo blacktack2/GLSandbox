@@ -89,6 +89,8 @@ public:
     void draw() const override;
     void drawLinks() const override;
 
+    [[nodiscard]] const Node* getInput() const;
+
     /**
      * @brief Two-way unlink port (both ports are set to be unlinked).
      */
