@@ -10,9 +10,9 @@
 
 class PipelineGraph : public Graph {
 public:
-    PipelineGraph(IPipelineHandler& pipelineHandler);
+    explicit PipelineGraph(IPipelineHandler& pipelineHandler);
 protected:
-    void drawNodeCreation() override;
+    void drawNodeCreation() final;
 private:
     struct NodeFactory {
         typedef std::function<std::unique_ptr<Node>()> factory_callback;
