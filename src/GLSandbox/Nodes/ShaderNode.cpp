@@ -10,7 +10,7 @@ ShaderNode::ShaderNode() : Node("Shader") {
 }
 
 bool ShaderNode::isValid() const {
-    return mShader.getState() == Shader::ErrorState::VALID;
+    return mShader->getState() == Shader::ErrorState::VALID;
 }
 
 void ShaderNode::findVertexFiles() {
@@ -71,7 +71,7 @@ void ShaderNode::drawShaderStatus() {
     std::string text;
     ImVec4 colour;
 
-    switch (mShader.getState()) {
+    switch (mShader->getState()) {
         case Shader::ErrorState::INVALID:
             if (!vertLoaded)
                 text = "No vertex shader selected";
@@ -82,7 +82,7 @@ void ShaderNode::drawShaderStatus() {
             else if (!tescLoaded && teseLoaded)
                 text = "Tesselation Evaluation selected, but no Tesselation Control";
             else
-                text = mShader.getErrorMessage();
+                text = mShader->getErrorMessage();
             colour = ImVec4(1, 0, 0, 1);
             break;
         case Shader::ErrorState::VALID:
@@ -90,7 +90,7 @@ void ShaderNode::drawShaderStatus() {
             colour = ImVec4(0, 1, 0, 1);
             break;
         case Shader::ErrorState::FILE_READ: case Shader::ErrorState::OGL_COMPILE: case Shader::ErrorState::OGL_LINK:
-            text = mShader.getErrorMessage();
+            text = mShader->getErrorMessage();
             colour = ImVec4(1, 0, 0, 1);
             break;
     }
@@ -112,10 +112,10 @@ void ShaderNode::updateShader() {
     std::string geometry = geomLoaded ? getGeometryFiles()[geom] : std::string();
 
     if (vertex.empty() || fragment.empty() || tessCont.empty() != tessEval.empty()) {
-        mShader = Shader();
+        mShader = std::make_unique<Shader>();
         return;
     }
-    mShader = Shader(
+    mShader = std::make_unique<Shader>(
         getShaderDir() + vertex,
         getShaderDir() + fragment,
         tescLoaded ? getShaderDir() + tessCont : "",

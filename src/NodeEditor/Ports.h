@@ -17,6 +17,7 @@ public:
     [[nodiscard]] virtual int getID() const = 0;
 
     [[nodiscard]] virtual const Node& getParent() const = 0;
+    [[nodiscard]] virtual const Node* getLink() const = 0;
 
     [[nodiscard]] virtual const std::string& getDisplayName() const = 0;
 
@@ -59,6 +60,8 @@ public:
     void draw() const override;
     void drawLinks() const override;
 
+    [[nodiscard]] const Node* getLink() const final;
+
     [[nodiscard]] int getLinkID() const override;
 
     /**
@@ -93,6 +96,8 @@ public:
 
     void draw() const override;
     void drawLinks() const override;
+
+    [[nodiscard]] const Node* getLink() const final;
 
     [[nodiscard]] int getLinkID() const override;
 

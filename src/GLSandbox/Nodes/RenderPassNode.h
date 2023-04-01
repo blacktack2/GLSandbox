@@ -15,8 +15,12 @@ public:
     RenderPassNode();
     ~RenderPassNode() override = default;
 
-    [[nodiscard]] bool validate();
-    [[nodiscard]] pipeline_callback generateCallback();
+    [[nodiscard]] bool validate() const;
+    [[nodiscard]] pipeline_callback generateCallback() const;
+
+    [[nodiscard]] inline const RenderPassNode* getNextPass() const {
+        return dynamic_cast<const RenderPassNode*>(mExecutionOutPort.getLink());
+    }
 protected:
     void drawContents() final;
 private:

@@ -32,6 +32,10 @@ void OutPort::drawLinks() const {
     // Link drawing handled by InPort
 }
 
+const Node* OutPort::getLink() const {
+    return mLink ? &mLink->getParent() : nullptr;
+}
+
 int OutPort::getLinkID() const {
     return mLink ? mLink->getLinkID() : -1;
 }
@@ -78,6 +82,10 @@ void InPort::draw() const {
 void InPort::drawLinks() const {
     if (mLink)
         ImNodes::Link(mLinkID, mLink->getID(), getID());
+}
+
+const Node* InPort::getLink() const {
+    return mLink ? &mLink->getParent() : nullptr;
 }
 
 int InPort::getLinkID() const {

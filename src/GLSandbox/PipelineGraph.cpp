@@ -17,7 +17,7 @@ PipelineGraph::PipelineGraph(IPipelineHandler& pipelineHandler) : mPipelineHandl
     ShaderNode::findTessEvalFiles();
     ShaderNode::findGeometryFiles();
 
-    std::unique_ptr<EntryNode> defaultEntry = std::make_unique<EntryNode>();
+    std::unique_ptr<EntryNode> defaultEntry = std::make_unique<EntryNode>(mPipelineHandler);
     std::unique_ptr<RenderPassNode> defaultPass = std::make_unique<RenderPassNode>();
     std::unique_ptr<ExitNode> defaultExit = std::make_unique<ExitNode>();
     dynamic_cast<OutPort&>(defaultEntry->getPortByIndex(0)).link(dynamic_cast<InPort&>(defaultPass->getPortByIndex(0)));
@@ -33,7 +33,7 @@ PipelineGraph::PipelineGraph(IPipelineHandler& pipelineHandler) : mPipelineHandl
 void PipelineGraph::drawNodeCreation() {
     if (ImGui::CollapsingHeader("Execution##ExecutionHeader")) {
         static const std::vector<NodeFactory> cEXECUTION_FACTORIES = {
-            NodeFactory("Entry", []() { return std::make_unique<EntryNode>(); }),
+            NodeFactory("Entry", [&]() { return std::make_unique<EntryNode>(mPipelineHandler); }),
             NodeFactory("Render Pass", []() { return std::make_unique<RenderPassNode>(); }),
         };
         drawNodeSelectors(cEXECUTION_FACTORIES);

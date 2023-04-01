@@ -14,26 +14,19 @@ void RenderPassNode::drawContents() {
         ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", errorText.c_str());
 }
 
-bool RenderPassNode::validate() {
+bool RenderPassNode::validate() const {
     const MeshNode* meshNode = dynamic_cast<const MeshNode*>(mMeshInPort.getInput());
-    if (!meshNode) {
-        errorText = "Missing Mesh";
+    if (!meshNode)
         return false;
-    }
     const ShaderNode* shaderNode = dynamic_cast<const ShaderNode*>(mShaderInPort.getInput());
-    if (!shaderNode) {
-        errorText = "Missing Shader";
+    if (!shaderNode)
         return false;
-    }
-    if (!meshNode->isValid()) {
-        errorText = "Mesh invalid";
+    if (!meshNode->isValid())
         return false;
-    }
-    errorText = "";
     return true;
 }
 
-RenderPassNode::pipeline_callback RenderPassNode::generateCallback() {
+RenderPassNode::pipeline_callback RenderPassNode::generateCallback() const {
     const Mesh*   mesh   = &dynamic_cast<const MeshNode*>(mMeshInPort.getInput())->getMesh();
     const Shader* shader = &dynamic_cast<const ShaderNode*>(mShaderInPort.getInput())->getShader();
 

@@ -142,6 +142,7 @@ void MeshNode::drawUploadButton() {
     const std::string UPLOAD_BUTTON_LABEL = std::string("Upload##UploadButton_").append(getNodeID());
     if (ImGui::Button(UPLOAD_BUTTON_LABEL.c_str())) {
         mMesh.hardClean();
+        mMesh.setType(mType);
         mMesh.setNumVertices(mNumVertices);
         for (const auto& attr : mIntAttributes)
             mMesh.addAttribute(attr.data.data(), 1, sizeof(int), attr.name);

@@ -2,6 +2,7 @@
 #include "../../NodeEditor/Node.h"
 #include "../../Rendering/Shader.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -13,7 +14,7 @@ public:
     [[nodiscard]] bool isValid() const;
 
     [[nodiscard]] inline const Shader& getShader() const {
-        return mShader;
+        return *mShader;
     }
 
     static void findVertexFiles();
@@ -78,7 +79,7 @@ private:
         return cExtensions;
     }
 
-    Shader mShader;
+    std::unique_ptr<Shader> mShader = std::make_unique<Shader>();
     OutPort mShaderOutPort = OutPort(*this, "Shader");
 
     int vert = -1;
