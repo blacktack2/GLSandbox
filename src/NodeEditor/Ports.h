@@ -19,6 +19,9 @@ public:
     [[nodiscard]] virtual const Node& getParent() const = 0;
 
     [[nodiscard]] virtual const std::string& getDisplayName() const = 0;
+
+    virtual void unlink() = 0;
+    [[nodiscard]] virtual int getLinkID() const = 0;
 };
 
 class Port : public IPort {
@@ -56,10 +59,12 @@ public:
     void draw() const override;
     void drawLinks() const override;
 
+    [[nodiscard]] int getLinkID() const override;
+
     /**
      * @brief Two-way unlink port (both ports are set to be unlinked).
      */
-    void unlink();
+    void unlink() override;
     /**
      * @brief Two-way link port (will link in->out and out->in). Existing links will be unlinked.
      * @brief If this is not a valid link for port, as defined by validConnections (see InPort::InPort()), no link will
@@ -89,12 +94,14 @@ public:
     void draw() const override;
     void drawLinks() const override;
 
+    [[nodiscard]] int getLinkID() const override;
+
     [[nodiscard]] const Node* getInput() const;
 
     /**
      * @brief Two-way unlink port (both ports are set to be unlinked).
      */
-    void unlink();
+    void unlink() override;
     /**
      * @brief Two-way link port (will link in->out and out->in). Existing links will be unlinked.
      * @brief If port is not a valid link, as defined by validConnections (see InPort::InPort()), no link will be

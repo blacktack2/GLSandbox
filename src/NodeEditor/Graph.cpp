@@ -4,6 +4,7 @@
 
 Graph::Graph() {
     mContext = ImNodes::CreateContext();
+    ImNodes::PushAttributeFlag(ImNodesAttributeFlags_EnableLinkDetachWithDragClick);
 }
 
 Graph::~Graph() {
@@ -21,17 +22,8 @@ void Graph::draw() {
 }
 
 void Graph::postDraw() {
-    int outputID, inputID;
-    if (ImNodes::IsLinkCreated(&outputID, &inputID)) {
-        OutPort* output = nullptr;
-        InPort*  input  = nullptr;
-        for (auto& node : mNodes) {
-            output = output ? output : dynamic_cast<OutPort*>(node->getPort(outputID));
-            input  = input  ? input  : dynamic_cast<InPort* >(node->getPort(inputID ));
-        }
-        if (output && input)
-            input->link(*output);
-    }
+    checkLinkCreated();
+    checkLinkDestroyed();
 }
 
 void Graph::drawEditor() {
@@ -55,4 +47,36 @@ void Graph::drawConfig() {
     drawNodeCreation();
 
     ImGui::End();
+}
+
+void Graph::checkLinkCreated() {
+    int outputID, inputID;
+    if (!ImNodes::IsLinkCreated(&outputID, &inputID))
+        return;
+
+    OutPort* output = nullptr;
+    InPort*  input  = nullptr;
+    for (auto& node : mNodes) {
+        output = output ? output : dynamic_cast<OutPort*>(node->getPort(outputID));
+        input  = input  ? input  : dynamic_cast<InPort* >(node->getPort(inputID ));
+    }
+
+    if (output && input)
+        input->link(*output);
+}
+
+void Graph::checkLinkDestroyed() {
+    int linkID;
+    if (!ImNodes::IsLinkDestroyed(&linkID))
+        return;
+
+    for (auto& node : mNodes) {
+        for (size_t i = 0; i < node->numPorts(); i++) {
+            IPort& port = node->getPortByIndex(i);
+            if (port.getLinkID() == linkID) {
+                port.unlink();
+                return;
+            }
+        }
+    }
 }

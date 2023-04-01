@@ -24,6 +24,9 @@ private:
     void drawEditor();
     void drawConfig();
 
+    void checkLinkCreated();
+    void checkLinkDestroyed();
+
     ImNodesContext* mContext;
 
     std::vector<std::unique_ptr<Node>> mNodes{};
