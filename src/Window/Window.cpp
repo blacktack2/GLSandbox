@@ -1,5 +1,8 @@
 #include "Window.h"
 
+#include "../GLSandbox/GLSandboxRenderer.h"
+#include "../GLSandbox/PipelineGraph.h"
+
 #include <glad/glad.h>
 
 #include <imgui_impl_opengl3.h>
@@ -40,7 +43,7 @@ mWidth(width), mHeight(height) {
     if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-        glDebugMessageCallback(Renderer::debugOutput, nullptr);
+        glDebugMessageCallback(GLSandboxRenderer::debugOutput, nullptr);
         glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_ERROR, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
     }
 
@@ -56,8 +59,8 @@ mWidth(width), mHeight(height) {
     ImGui_ImplSDL2_InitForOpenGL(mWindow, mGLContext);
     ImGui_ImplOpenGL3_Init("#version 460 core");
 
-    mRenderer = std::make_unique<Renderer>();
-    mGraph = std::make_unique<PipelineGraph>();
+    mRenderer = std::make_unique<GLSandboxRenderer>();
+    mGraph = std::make_unique<PipelineGraph>(*mRenderer);
 
     mInitSuccess = true;
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "../NodeEditor/Node.h"
+#include "../../NodeEditor/Node.h"
 
 class EntryNode final : public Node {
 public:

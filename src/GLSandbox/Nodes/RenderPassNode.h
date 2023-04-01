@@ -1,5 +1,5 @@
 #pragma once
-#include "../NodeEditor/Node.h"
+#include "../../NodeEditor/Node.h"
 
 #include "FixedNodes.h"
 #include "MeshNode.h"

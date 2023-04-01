@@ -1,6 +1,8 @@
 #pragma once
 #include "../NodeEditor/Graph.h"
 
+#include "../Rendering/IPipelineHandler.h"
+
 #include <functional>
 #include <memory>
 #include <string>
@@ -8,7 +10,7 @@
 
 class PipelineGraph : public Graph {
 public:
-    PipelineGraph();
+    PipelineGraph(IPipelineHandler& pipelineHandler);
 protected:
     void drawNodeCreation() override;
 private:
@@ -25,4 +27,6 @@ private:
     };
 
     void drawNodeSelectors(const std::vector<NodeFactory>& factories);
+
+    IPipelineHandler& mPipelineHandler;
 };

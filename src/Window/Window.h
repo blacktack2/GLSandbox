@@ -1,7 +1,4 @@
 #pragma once
-#include "../Rendering/Renderer.h"
-#include "../GLSandbox/PipelineGraph.h"
-
 #include "imgui.h"
 
 #ifdef WIN32
@@ -11,6 +8,9 @@
 #endif
 
 #include <memory>
+
+class Graph;
+class Renderer;
 
 class Window {
 public:
@@ -32,7 +32,7 @@ private:
     ImGuiIO mIO;
 
     std::unique_ptr<Renderer> mRenderer;
-    std::unique_ptr<PipelineGraph> mGraph;
+    std::unique_ptr<Graph> mGraph;
 
     int mWidth, mHeight;
 

@@ -1,16 +1,16 @@
 #include "PipelineGraph.h"
 
 #include "../NodeEditor/Node.h"
-#include "BasicNodes.h"
-#include "FixedNodes.h"
-#include "MathNodes.h"
-#include "MeshNode.h"
-#include "RenderPassNode.h"
-#include "ShaderNode.h"
+#include "Nodes/BasicNodes.h"
+#include "Nodes/FixedNodes.h"
+#include "Nodes/MathNodes.h"
+#include "Nodes/MeshNode.h"
+#include "Nodes/RenderPassNode.h"
+#include "Nodes/ShaderNode.h"
 
 #include <imgui.h>
 
-PipelineGraph::PipelineGraph() {
+PipelineGraph::PipelineGraph(IPipelineHandler& pipelineHandler) : mPipelineHandler(pipelineHandler) {
     ShaderNode::findVertexFiles();
     ShaderNode::findFragmentFiles();
     ShaderNode::findTessContFiles();

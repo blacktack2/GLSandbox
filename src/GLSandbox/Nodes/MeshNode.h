@@ -1,6 +1,6 @@
 #pragma once
-#include "../NodeEditor/Node.h"
-#include "../Rendering/Mesh.h"
+#include "../../NodeEditor/Node.h"
+#include "../../Rendering/Mesh.h"
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>

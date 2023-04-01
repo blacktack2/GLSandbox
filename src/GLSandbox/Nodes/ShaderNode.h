@@ -1,6 +1,6 @@
 #pragma once
-#include "../NodeEditor/Node.h"
-#include "../Rendering/Shader.h"
+#include "../../NodeEditor/Node.h"
+#include "../../Rendering/Shader.h"
 
 #include <string>
 #include <vector>
