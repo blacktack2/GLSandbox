@@ -33,6 +33,14 @@ void ShaderNode::findGeometryFiles() {
     findFiles(getGeometryFiles(), getValidGeometryFileExtensions());
 }
 
+void ShaderNode::serializeContents(std::ofstream& streamOut) const {
+
+}
+
+void ShaderNode::deserializeContents(std::ifstream& streamIn) {
+
+}
+
 void ShaderNode::drawContents() {
     drawShaderCombo("Vertex", vert, getVertexFiles());
     drawShaderCombo("Fragment", frag, getFragmentFiles());

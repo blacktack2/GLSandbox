@@ -9,6 +9,14 @@ RenderPassNode::RenderPassNode() : Node("Render Pass") {
     addPort(mShaderInPort);
 }
 
+void RenderPassNode::serializeContents(std::ofstream& streamOut) const {
+
+}
+
+void RenderPassNode::deserializeContents(std::ifstream& streamIn) {
+
+}
+
 void RenderPassNode::drawContents() {
     if (!errorText.empty())
         ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", errorText.c_str());

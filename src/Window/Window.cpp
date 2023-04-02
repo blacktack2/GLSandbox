@@ -9,6 +9,8 @@
 #include <imgui_impl_sdl.h>
 #include <imgui_stdlib.h>
 
+#include <fstream>
+
 Window::Window(const char *title, int width, int height) :
 mWidth(width), mHeight(height) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -61,11 +63,20 @@ mWidth(width), mHeight(height) {
 
     mRenderer = std::make_unique<GLSandboxRenderer>();
     mGraph = std::make_unique<PipelineGraph>(*mRenderer);
-
+    {
+        std::ifstream stream("state.graph");
+        if (stream)
+            mGraph->deserialize(stream);
+    }
     mInitSuccess = true;
 }
 
 Window::~Window() {
+    {
+        std::ofstream stream("state.graph");
+        if (stream)
+            mGraph->serialize(stream);
+    }
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();

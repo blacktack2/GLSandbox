@@ -8,6 +8,14 @@ EntryNode::EntryNode(IPipelineHandler& pipelineHandler) : Node("Entry"), mPipeli
     addPort(mExecutionOutPort);
 }
 
+void EntryNode::serializeContents(std::ofstream& streamOut) const {
+
+}
+
+void EntryNode::deserializeContents(std::ifstream& streamIn) {
+
+}
+
 void EntryNode::drawContents() {
     const std::string UPDATE_LABEL = std::string("Update##Node_").append(std::to_string(getID()));
     if (ImGui::Button(UPDATE_LABEL.c_str()) && validatePipeline())
@@ -38,6 +46,14 @@ void EntryNode::updatePipeline() {
 
 ExitNode::ExitNode() : Node("Exit") {
     addPort(mExecutionInPort);
+}
+
+void ExitNode::serializeContents(std::ofstream& streamOut) const {
+
+}
+
+void ExitNode::deserializeContents(std::ifstream& streamIn) {
+
 }
 
 void ExitNode::drawContents() {

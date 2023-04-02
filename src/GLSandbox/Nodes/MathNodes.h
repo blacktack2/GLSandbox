@@ -1,20 +1,30 @@
 #pragma once
 #include "../../NodeEditor/Node.h"
+
+#include "../NodeClassifications.h"
 #include "BasicNodes.h"
 
 #include <functional>
 #include <string>
 #include <vector>
 
-class ArithmeticNode : public Node {
+class ArithmeticNode final : public Node {
 public:
     ArithmeticNode() : Node("Integer") {
         addPort(mValueAIn);
         addPort(mValueBIn);
         addPort(mValueOut);
     }
+    ~ArithmeticNode() final = default;
+
+    [[nodiscard]] unsigned int getTypeID() final {
+        return (unsigned int)NodeType::Arithmetic;
+    }
 protected:
-    void drawContents() override;
+    void serializeContents(std::ofstream& streamOut) const final;
+    void deserializeContents(std::ifstream& streamIn) final;
+
+    void drawContents() final;
 private:
     enum class Operation {
         Add = 0ull,

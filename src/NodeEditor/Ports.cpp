@@ -92,6 +92,10 @@ int InPort::getLinkID() const {
     return mLink ? mLinkID : -1;
 }
 
+int InPort::getLinkedPortID() const {
+    return mLink ? mLink->getID() : -1;
+}
+
 void InPort::unlink() {
     if (mLink) {
         mLink->unlinkSoft();

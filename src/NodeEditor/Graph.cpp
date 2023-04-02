@@ -11,6 +11,37 @@ Graph::~Graph() {
     ImNodes::DestroyContext(mContext);
 }
 
+void Graph::serialize(std::ofstream& streamOut) const {
+    streamOut << mNodes.size() << "\n";
+    for (const auto& node : mNodes) {
+        streamOut << node->getTypeID() << "\n";
+        node->serialize(streamOut);
+    }
+}
+
+void Graph::deserialize(std::ifstream& streamIn) {
+    mNodes.clear();
+
+    std::unordered_map<int, std::reference_wrapper<OutPort>> outPorts;
+    std::vector<std::pair<std::reference_wrapper<InPort>, int>> links;
+
+    size_t numNodes;
+    streamIn >> numNodes;
+    for (size_t i = 0; i < numNodes; i++) {
+        unsigned int nodeType;
+        streamIn >> nodeType;
+        std::unique_ptr<Node> node = deserializeNodeType(nodeType);
+        node->deserialize(streamIn, outPorts, links);
+        addNode(std::move(node));
+    }
+
+    for (auto& link : links) {
+        auto match = outPorts.find(link.second);
+        if (match != outPorts.end())
+            link.first.get().link(match->second);
+    }
+}
+
 void Graph::preDraw() {
 
 }

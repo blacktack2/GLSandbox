@@ -13,6 +13,14 @@ bool MeshNode::isValid() const {
     return mMesh.getState() == Mesh::ErrorState::VALID;
 }
 
+void MeshNode::serializeContents(std::ofstream& streamOut) const {
+
+}
+
+void MeshNode::deserializeContents(std::ifstream& streamIn) {
+
+}
+
 void MeshNode::drawContents() {
     drawGlobalParameters();
 

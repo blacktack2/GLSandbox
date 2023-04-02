@@ -12,6 +12,54 @@ Node::Node(std::string title, int id) : mTitle(std::move(title)), mID{id == 0 ? 
     ImNodes::SetNodeEditorSpacePos(getID(), ImVec2(0.0f, 0.0f));
 }
 
+void Node::serialize(std::ofstream& streamOut) const {
+    streamOut << getID() << "\n";
+
+    glm::vec2 position = getAbsolutePositionC();
+    streamOut << position.x << "\n";
+    streamOut << position.y << "\n";
+
+    for (InPort& port : mInPorts) {
+        streamOut << port.getID() << "\n";
+        streamOut << port.getLinkedPortID() << "\n";
+    }
+
+    for (OutPort& port : mOutPorts) {
+        streamOut << port.getID() << "\n";
+    }
+
+    serializeContents(streamOut);
+}
+
+void Node::deserialize(std::ifstream& streamIn, std::unordered_map<int, std::reference_wrapper<OutPort>>& outPorts,
+                       std::vector<std::pair<std::reference_wrapper<InPort>, int>>& links) {
+    int id;
+    streamIn >> id;
+    if (id != -1)
+        mID = id;
+
+    float posX, posY;
+    streamIn >> posX;
+    streamIn >> posY;
+    setAbsolutePosition({posX, posY});
+
+    for (InPort& port : mInPorts) {
+        int portID, linkID;
+        streamIn >> portID;
+        streamIn >> linkID;
+        if (linkID != -1)
+            links.emplace_back(port, linkID);
+    }
+
+    for (OutPort& port : mOutPorts) {
+        int portID;
+        streamIn >> portID;
+        outPorts.emplace(portID, port);
+    }
+
+    deserializeContents(streamIn);
+}
+
 void Node::draw() {
     ImNodes::BeginNode(mID);
 

@@ -2,6 +2,8 @@
 #include "../../NodeEditor/Node.h"
 #include "../../Rendering/Mesh.h"
 
+#include "../NodeClassifications.h"
+
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
@@ -16,12 +18,19 @@ public:
     MeshNode();
     ~MeshNode() final = default;
 
+    [[nodiscard]] unsigned int getTypeID() final {
+        return (unsigned int)NodeType::Mesh;
+    }
+
     [[nodiscard]] bool isValid() const;
 
     [[nodiscard]] inline const Mesh& getMesh() const {
         return mMesh;
     }
 protected:
+    void serializeContents(std::ofstream& streamOut) const final;
+    void deserializeContents(std::ifstream& streamIn) final;
+
     void drawContents() override;
 private:
     template<typename T>

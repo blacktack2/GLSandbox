@@ -11,6 +11,31 @@
 #include <imgui.h>
 
 PipelineGraph::PipelineGraph(IPipelineHandler& pipelineHandler) : mPipelineHandler(pipelineHandler) {
+    mNodeFactories = {
+        {NodeType::Entry,     [&]() { return std::make_unique<EntryNode>(mPipelineHandler); }},
+        {NodeType::Exit,       []() { return std::make_unique<ExitNode>();       }},
+        {NodeType::RenderPass, []() { return std::make_unique<RenderPassNode>(); }},
+        {NodeType::Arithmetic, []() { return std::make_unique<ArithmeticNode>(); }},
+        {NodeType::Integer,    []() { return std::make_unique<IntegerNode>();    }},
+        {NodeType::Float,      []() { return std::make_unique<FloatNode>();      }},
+        {NodeType::Mesh,       []() { return std::make_unique<MeshNode>();       }},
+        {NodeType::Shader,     []() { return std::make_unique<ShaderNode>();     }},
+    };
+    mNodeGroups = {
+        {NodeGroup::Execution, {
+            NodeType::Entry, NodeType::RenderPass,
+        }},
+        {NodeGroup::Numerics, {
+            NodeType::Integer, NodeType::Float,
+        }},
+        {NodeGroup::Maths, {
+            NodeType::Arithmetic,
+        }},
+        {NodeGroup::Graphics, {
+            NodeType::Mesh, NodeType::Shader,
+        }},
+    };
+
     ShaderNode::findVertexFiles();
     ShaderNode::findFragmentFiles();
     ShaderNode::findTessContFiles();
@@ -30,38 +55,41 @@ PipelineGraph::PipelineGraph(IPipelineHandler& pipelineHandler) : mPipelineHandl
     addNode(std::move(defaultExit));
 }
 
-void PipelineGraph::drawNodeCreation() {
-    if (ImGui::CollapsingHeader("Execution##ExecutionHeader")) {
-        static const std::vector<NodeFactory> cEXECUTION_FACTORIES = {
-            NodeFactory("Entry", [&]() { return std::make_unique<EntryNode>(mPipelineHandler); }),
-            NodeFactory("Render Pass", []() { return std::make_unique<RenderPassNode>(); }),
-        };
-        drawNodeSelectors(cEXECUTION_FACTORIES);
-    }
-    if (ImGui::CollapsingHeader("Maths##MeshHeader")) {
-        static const std::vector<NodeFactory> cMATH_FACTORIES = {
-            NodeFactory("Arithmetic", []() { return std::make_unique<ArithmeticNode>(); }),
-        };
-        drawNodeSelectors(cMATH_FACTORIES);
-    }
-    if (ImGui::CollapsingHeader("Numerics##NumericsHeader")) {
-        static const std::vector<NodeFactory> cNUMERIC_FACTORIES = {
-            NodeFactory("Integer", []() { return std::make_unique<IntegerNode>(); }),
-            NodeFactory("Float"  , []() { return std::make_unique<FloatNode>();   }),
-        };
-        drawNodeSelectors(cNUMERIC_FACTORIES);
-    }
-    if (ImGui::CollapsingHeader("Graphics##GraphicsHeader")) {
-        static const std::vector<NodeFactory> cGRAPHICS_FACTORIES = {
-            NodeFactory("Mesh"  , []() { return std::make_unique<MeshNode>();  }),
-            NodeFactory("Shader", []() { return std::make_unique<ShaderNode>();}),
-        };
-        drawNodeSelectors(cGRAPHICS_FACTORIES);
-    }
+std::unique_ptr<Node> PipelineGraph::deserializeNodeType(unsigned int nodeType) {
+    auto factory = mNodeFactories.find((NodeType)nodeType);
+    return factory == mNodeFactories.end() ? nullptr : factory->second();
 }
 
-void PipelineGraph::drawNodeSelectors(const std::vector<NodeFactory>& factories) {
-    for (const NodeFactory& nodeFactory : factories)
-        if (ImGui::Selectable(nodeFactory.mLabel.c_str()))
-            addNode(nodeFactory.mCallback());
+void PipelineGraph::drawNodeCreation() {
+    static const std::unordered_map<NodeType, std::string> cNODE_NAMES = {
+        {NodeType::Entry, "Entry"},
+        {NodeType::Exit , "Exit" },
+        {NodeType::RenderPass, "Render Pass"},
+
+        {NodeType::Arithmetic, "Arithmetic"},
+
+        {NodeType::Integer, "Integer"},
+        {NodeType::Float  , "Float"  },
+
+        {NodeType::Mesh  , "Mesh"  },
+        {NodeType::Shader, "Shader"},
+    };
+    static const std::unordered_map<NodeGroup, std::string> cGROUP_NAMES {
+        {NodeGroup::Execution, "Execution"},
+        {NodeGroup::Maths    , "Maths"    },
+        {NodeGroup::Numerics , "Numerics" },
+        {NodeGroup::Graphics , "Graphics" },
+    };
+
+    for (const auto& group : mNodeGroups) {
+        const std::string HEADER_LABEL = std::string(cGROUP_NAMES.find(group.first)->second).append("##GraphHeader");
+        if (!ImGui::CollapsingHeader(HEADER_LABEL.c_str()))
+            continue;
+
+        for (const auto& nodeType : group.second) {
+            const std::string NODE_LABEL = std::string(cNODE_NAMES.find(nodeType)->second).append("##GraphButton");
+            if (ImGui::Selectable(NODE_LABEL.c_str()))
+                addNode(mNodeFactories.find(nodeType)->second());
+        }
+    }
 }

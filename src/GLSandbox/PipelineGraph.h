@@ -3,30 +3,28 @@
 
 #include "../Rendering/IPipelineHandler.h"
 
+#include "NodeClassifications.h"
+
 #include <functional>
+#include <map>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
-class PipelineGraph : public Graph {
+class PipelineGraph final : public Graph {
 public:
     explicit PipelineGraph(IPipelineHandler& pipelineHandler);
+    ~PipelineGraph() final = default;
 protected:
+    std::unique_ptr<Node> deserializeNodeType(unsigned int nodeType) final;
+
     void drawNodeCreation() final;
 private:
-    struct NodeFactory {
-        typedef std::function<std::unique_ptr<Node>()> factory_callback;
-
-        NodeFactory(const std::string& label, factory_callback callback) : mCallback(std::move(callback)) {
-            static int cLabelIDCounter = 0;
-            mLabel = std::string(label).append("##NodeCreator_").append(std::to_string(cLabelIDCounter++));
-        }
-
-        std::string mLabel;
-        factory_callback mCallback;
-    };
-
-    void drawNodeSelectors(const std::vector<NodeFactory>& factories);
+    typedef std::function<std::unique_ptr<Node>()> factory_callback;
 
     IPipelineHandler& mPipelineHandler;
+
+    std::unordered_map<NodeType, factory_callback> mNodeFactories;
+    std::map<NodeGroup, std::vector<NodeType>> mNodeGroups;
 };

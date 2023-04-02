@@ -100,6 +100,7 @@ public:
     [[nodiscard]] const Node* getLink() const final;
 
     [[nodiscard]] int getLinkID() const override;
+    [[nodiscard]] int getLinkedPortID() const;
 
     [[nodiscard]] const Node* getInput() const;
 

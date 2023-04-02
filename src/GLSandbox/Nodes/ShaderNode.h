@@ -1,6 +1,8 @@
 #pragma once
 #include "../../NodeEditor/Node.h"
+
 #include "../../Rendering/Shader.h"
+#include "../NodeClassifications.h"
 
 #include <memory>
 #include <string>
@@ -10,6 +12,10 @@ class ShaderNode final : public Node {
 public:
     ShaderNode();
     ~ShaderNode() final = default;
+
+    [[nodiscard]] unsigned int getTypeID() final {
+        return (unsigned int)NodeType::Shader;
+    }
 
     [[nodiscard]] bool isValid() const;
 
@@ -23,6 +29,9 @@ public:
     static void findTessEvalFiles();
     static void findGeometryFiles();
 protected:
+    void serializeContents(std::ofstream& streamOut) const final;
+    void deserializeContents(std::ifstream& streamIn) final;
+
     void drawContents() override;
 private:
     void drawShaderCombo(const std::string& label, int& index, const std::vector<std::string>& files);

@@ -18,3 +18,11 @@ void ArithmeticNode::drawOperationSelector() {
         }
     }
 }
+
+void ArithmeticNode::serializeContents(std::ofstream& streamOut) const {
+
+}
+
+void ArithmeticNode::deserializeContents(std::ifstream& streamIn) {
+
+}
