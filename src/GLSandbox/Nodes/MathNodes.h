@@ -6,6 +6,7 @@
 
 #include <functional>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 class ArithmeticNode final : public Node {
@@ -26,6 +27,8 @@ protected:
 
     void drawContents() final;
 private:
+    typedef std::function<std::any(const std::any&, const std::any&)> operation_callback;
+
     enum class Operation {
         Add = 0ull,
         Subtract,
@@ -34,6 +37,8 @@ private:
     };
 
     void drawOperationSelector();
+
+    std::any calculateValue();
 
     static inline const std::vector<std::string>& getOperationLabels() {
         // Matches Operation enum
@@ -46,10 +51,21 @@ private:
         return OPERATIONS;
     }
 
-    InPort mValueAIn = InPort(*this, "A", {&typeid(IntegerNode), &typeid(FloatNode)});
-    InPort mValueBIn = InPort(*this, "B", {&typeid(IntegerNode), &typeid(FloatNode)});
+    template<typename T>
+    static inline const std::unordered_map<Operation, operation_callback>& getOperations() {
+        static const std::unordered_map<Operation, operation_callback> OPERATIONS = {
+            {Operation::Add,      [](const std::any& a, const std::any& b) { return std::any(std::any_cast<T>(a) + std::any_cast<T>(b)); }},
+            {Operation::Subtract, [](const std::any& a, const std::any& b) { return std::any(std::any_cast<T>(a) - std::any_cast<T>(b)); }},
+            {Operation::Multiply, [](const std::any& a, const std::any& b) { return std::any(std::any_cast<T>(a) * std::any_cast<T>(b)); }},
+            {Operation::Divide,   [](const std::any& a, const std::any& b) { return std::any(std::any_cast<T>(a) / std::any_cast<T>(b)); }},
+        };
+        return OPERATIONS;
+    };
 
-    OutPort mValueOut = OutPort(*this, "Out");
+    InPort mValueAIn = InPort(*this, "A", {&typeid(float), &typeid(int)});
+    InPort mValueBIn = InPort(*this, "B", {&typeid(float), &typeid(int)});
+
+    OutPort mValueOut = OutPort(*this, "Out", [&]() { return calculateValue(); });
 
     Operation mCurrentOperation = Operation::Add;
 };

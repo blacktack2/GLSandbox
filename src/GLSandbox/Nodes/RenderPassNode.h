@@ -1,10 +1,10 @@
 #pragma once
 #include "../../NodeEditor/Node.h"
 
+#include "../../Rendering/Mesh.h"
+#include "../../Rendering/Shader.h"
+
 #include "../NodeClassifications.h"
-#include "FixedNodes.h"
-#include "MeshNode.h"
-#include "ShaderNode.h"
 
 #include <functional>
 #include <string>
@@ -24,7 +24,7 @@ public:
     [[nodiscard]] pipeline_callback generateCallback() const;
 
     [[nodiscard]] inline const RenderPassNode* getNextPass() const {
-        return dynamic_cast<const RenderPassNode*>(mExecutionOutPort.getLink());
+        return mExecutionOutPort.isLinked() ? std::any_cast<RenderPassNode*>(mExecutionOutPort.getLinkValue()) : nullptr;
     }
 protected:
     void serializeContents(std::ofstream& streamOut) const final;
@@ -32,11 +32,11 @@ protected:
 
     void drawContents() final;
 private:
-    InPort mExecutionInPort = InPort(*this, "In", {&typeid(EntryNode), &typeid(RenderPassNode)});
-    OutPort mExecutionOutPort = OutPort(*this, "Out");
+    InPort mExecutionInPort = InPort(*this, "In", {&typeid(void*), &typeid(RenderPassNode*)});
+    OutPort mExecutionOutPort = OutPort(*this, "Out", [&]() { return this; });
 
-    InPort mMeshInPort = InPort(*this, "Mesh", {&typeid(MeshNode)});
-    InPort mShaderInPort = InPort(*this, "Shader", {&typeid(ShaderNode)});
+    InPort mMeshInPort = InPort(*this, "Mesh", {&typeid(Mesh*)});
+    InPort mShaderInPort = InPort(*this, "Shader", {&typeid(Shader*)});
 
     std::string errorText;
 };

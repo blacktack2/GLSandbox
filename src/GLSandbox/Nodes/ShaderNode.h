@@ -90,7 +90,7 @@ private:
     }
 
     std::unique_ptr<Shader> mShader = std::make_unique<Shader>();
-    OutPort mShaderOutPort = OutPort(*this, "Shader");
+    OutPort mShaderOutPort = OutPort(*this, "Shader", [&]() { return mShader.get(); });
 
     std::string mVertFile;
     std::string mFragFile;

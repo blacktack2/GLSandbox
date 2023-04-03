@@ -14,8 +14,8 @@ mParentNode(parent), mDisplayName(std::move(displayName)), mID{id == 0 ? gPortID
     gPortIDCounter = std::max(gPortIDCounter, mID + 1);
 }
 
-OutPort::OutPort(const Node& parent, const std::string& displayName, int id) :
-Port(parent, displayName, id) {
+OutPort::OutPort(const Node& parent, const std::string& displayName, get_node_value_callback getValue, int id) :
+Port(parent, displayName, id), mGetValue(std::move(getValue)) {
 }
 
 void OutPort::draw() const {
@@ -32,8 +32,12 @@ void OutPort::drawLinks() const {
     // Link drawing handled by InPort
 }
 
-const Node* OutPort::getLink() const {
-    return mLink ? &mLink->getParent() : nullptr;
+std::any OutPort::getLinkValue() const {
+    return mGetValue();
+}
+
+bool OutPort::isLinked() const {
+    return mLink != nullptr;
 }
 
 int OutPort::getLinkID() const {
@@ -66,6 +70,10 @@ void OutPort::linkSoft(InPort& port) {
     mLink = &port;
 }
 
+const Node& OutPort::getLinkParent() const {
+    return mLink->getParent();
+}
+
 InPort::InPort(const Node& parent, const std::string& displayName,
                std::vector<const std::type_info*> validConnections, int id) :
 Port(parent, displayName, id), mValidConnections(std::move(validConnections)) {
@@ -84,8 +92,12 @@ void InPort::drawLinks() const {
         ImNodes::Link(mLinkID, mLink->getID(), getID());
 }
 
-const Node* InPort::getLink() const {
-    return mLink ? &mLink->getParent() : nullptr;
+std::any InPort::getLinkValue() const {
+    return mLink->getLinkValue();
+}
+
+bool InPort::isLinked() const {
+    return mLink != nullptr;
 }
 
 int InPort::getLinkID() const {
@@ -126,14 +138,7 @@ void InPort::linkSoft(OutPort& port) {
 bool InPort::isConnectionValid(const IPort& port) {
     if (mValidConnections.empty())
         return true;
-    const Node& parent = port.getParent(); // Multiline to avoid typeid warning
-    const std::type_info* check = &typeid(parent);
+    const std::type_info& type = port.getLinkValue().type();
     return std::any_of(mValidConnections.begin(), mValidConnections.end(),
-                       [check](const std::type_info* a) { return *a == *check; });
-}
-
-const Node* InPort::getInput() const {
-    if (!mLink)
-        return nullptr;
-    return &mLink->getParent();
+                       [&type](const std::type_info* other) { return *other == type; });
 }

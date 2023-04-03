@@ -67,10 +67,6 @@ MeshNode::MeshNode() : Node("Mesh") {
     addPort(mMeshOutPort);
 }
 
-bool MeshNode::isValid() const {
-    return mMesh.getState() == Mesh::ErrorState::VALID;
-}
-
 void MeshNode::clearAttributes() {
     for (auto& attrPair : mAttributes)
         attrPair.second.clear();

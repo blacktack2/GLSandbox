@@ -2,6 +2,14 @@
 
 #include <imgui.h>
 
+void ArithmeticNode::serializeContents(std::ofstream& streamOut) const {
+
+}
+
+void ArithmeticNode::deserializeContents(std::ifstream& streamIn) {
+
+}
+
 void ArithmeticNode::drawContents() {
     drawOperationSelector();
 }
@@ -19,10 +27,21 @@ void ArithmeticNode::drawOperationSelector() {
     }
 }
 
-void ArithmeticNode::serializeContents(std::ofstream& streamOut) const {
+std::any ArithmeticNode::calculateValue() {
+    if (!mValueAIn.isLinked() || !mValueBIn.isLinked())
+        return nullptr;
 
-}
+    const std::any a = mValueAIn.getLinkValue();
+    const std::any b = mValueBIn.getLinkValue();
+    const std::type_info& typeA = a.type();
+    const std::type_info& typeB = b.type();
+    if (typeA != typeB)
+        return nullptr;
 
-void ArithmeticNode::deserializeContents(std::ifstream& streamIn) {
-
+    if (typeA == typeid(int))
+        return getOperations<int>().find(mCurrentOperation)->second(a, b);
+    else if (typeA == typeid(float))
+        return getOperations<float>().find(mCurrentOperation)->second(a, b);
+    else
+        assert(false);
 }

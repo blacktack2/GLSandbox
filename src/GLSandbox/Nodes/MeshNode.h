@@ -28,8 +28,6 @@ public:
         return (unsigned int)NodeType::Mesh;
     }
 
-    [[nodiscard]] bool isValid() const;
-
     [[nodiscard]] inline const Mesh& getMesh() const {
         return mMesh;
     }
@@ -195,7 +193,7 @@ private:
     void resizeAttributes();
 
     Mesh mMesh;
-    OutPort mMeshOutPort = OutPort(*this, "Mesh");
+    OutPort mMeshOutPort = OutPort(*this, "Mesh", [&]() { return &mMesh; });
 
     unsigned int mNumVertices = 1;
     unsigned int mNumIndices = 0;

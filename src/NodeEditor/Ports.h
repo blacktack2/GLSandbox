@@ -1,4 +1,5 @@
 #pragma once
+#include <any>
 #include <functional>
 #include <optional>
 #include <string>
@@ -17,12 +18,15 @@ public:
     [[nodiscard]] virtual int getID() const = 0;
 
     [[nodiscard]] virtual const Node& getParent() const = 0;
-    [[nodiscard]] virtual const Node* getLink() const = 0;
+    [[nodiscard]] virtual std::any getLinkValue() const = 0;
+    [[nodiscard]] virtual bool isLinked() const = 0;
 
     [[nodiscard]] virtual const std::string& getDisplayName() const = 0;
 
     virtual void unlink() = 0;
     [[nodiscard]] virtual int getLinkID() const = 0;
+protected:
+    IPort() = default;
 };
 
 class Port : public IPort {
@@ -54,20 +58,23 @@ class InPort;
 
 class OutPort final : public Port {
 public:
-    OutPort(const Node& parent, const std::string& displayName, int id = 0);
+    typedef std::function<std::any()> get_node_value_callback;
+
+    OutPort(const Node& parent, const std::string& displayName, get_node_value_callback getValue, int id = 0);
     ~OutPort() final = default;
 
     void draw() const override;
     void drawLinks() const override;
 
-    [[nodiscard]] const Node* getLink() const final;
+    [[nodiscard]] std::any getLinkValue() const final;
+    [[nodiscard]] bool isLinked() const final;
 
     [[nodiscard]] int getLinkID() const override;
 
     /**
      * @brief Two-way unlink port (both ports are set to be unlinked).
      */
-    void unlink() override;
+    void unlink() final;
     /**
      * @brief Two-way link port (will link in->out and out->in). Existing links will be unlinked.
      * @brief If this is not a valid link for port, as defined by validConnections (see InPort::InPort()), no link will
@@ -84,8 +91,12 @@ public:
      * @param port Port to link to.
      */
     void linkSoft(InPort& port);
+
+    const Node& getLinkParent() const;
 private:
     InPort* mLink = nullptr;
+
+    get_node_value_callback mGetValue;
 };
 
 class InPort final : public Port {
@@ -94,15 +105,14 @@ public:
                     std::vector<const std::type_info*> validConnections = {}, int id = 0);
     ~InPort() final = default;
 
-    void draw() const override;
-    void drawLinks() const override;
+    void draw() const final;
+    void drawLinks() const final;
 
-    [[nodiscard]] const Node* getLink() const final;
+    [[nodiscard]] std::any getLinkValue() const final;
+    [[nodiscard]] bool isLinked() const final;
 
-    [[nodiscard]] int getLinkID() const override;
+    [[nodiscard]] int getLinkID() const final;
     [[nodiscard]] int getLinkedPortID() const;
-
-    [[nodiscard]] const Node* getInput() const;
 
     /**
      * @brief Two-way unlink port (both ports are set to be unlinked).

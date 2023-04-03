@@ -23,12 +23,14 @@ void EntryNode::drawContents() {
 }
 
 bool EntryNode::validatePipeline() {
-    const RenderPassNode* current = dynamic_cast<const RenderPassNode*>(mExecutionOutPort.getLink());
+    if (!mExecutionOutPort.isLinked())
+        return false;
+    const RenderPassNode* current = &dynamic_cast<const RenderPassNode&>(mExecutionOutPort.getLinkParent());
     while (current) {
         if (!current->validate())
             return false;
 
-        current = dynamic_cast<const RenderPassNode*>(current->getNextPass());
+        current = current->getNextPass();
     }
     return true;
 }
@@ -36,11 +38,11 @@ bool EntryNode::validatePipeline() {
 void EntryNode::updatePipeline() {
     mPipelineHandler.clearPipeline();
 
-    const RenderPassNode* current = dynamic_cast<const RenderPassNode*>(mExecutionOutPort.getLink());
+    const RenderPassNode* current = &dynamic_cast<const RenderPassNode&>(mExecutionOutPort.getLinkParent());
     while (current) {
         mPipelineHandler.appendPipeline(current->generateCallback());
 
-        current = dynamic_cast<const RenderPassNode*>(current->getNextPass());
+        current = current->getNextPass();
     }
 }
 

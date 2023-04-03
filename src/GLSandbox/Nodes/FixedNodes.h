@@ -23,7 +23,7 @@ private:
 
     IPipelineHandler& mPipelineHandler;
 
-    OutPort mExecutionOutPort = OutPort(*this, "Out");
+    OutPort mExecutionOutPort = OutPort(*this, "Out", [&]() { return (void*)nullptr; });
 };
 
 class ExitNode final : public Node {

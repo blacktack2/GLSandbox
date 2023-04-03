@@ -23,20 +23,20 @@ void RenderPassNode::drawContents() {
 }
 
 bool RenderPassNode::validate() const {
-    const MeshNode* meshNode = dynamic_cast<const MeshNode*>(mMeshInPort.getInput());
-    if (!meshNode)
+    if (!mMeshInPort.isLinked() || !mShaderInPort.isLinked())
         return false;
-    const ShaderNode* shaderNode = dynamic_cast<const ShaderNode*>(mShaderInPort.getInput());
-    if (!shaderNode)
+
+    const Mesh* mesh = std::any_cast<Mesh*>(mMeshInPort.getLinkValue());
+    const Shader* shader = std::any_cast<Shader*>(mShaderInPort.getLinkValue());
+    if (mesh->getState() != Mesh::ErrorState::VALID || shader->getState() != Shader::ErrorState::VALID)
         return false;
-    if (!meshNode->isValid())
-        return false;
+
     return true;
 }
 
 RenderPassNode::pipeline_callback RenderPassNode::generateCallback() const {
-    const Mesh*   mesh   = &dynamic_cast<const MeshNode*>(mMeshInPort.getInput())->getMesh();
-    const Shader* shader = &dynamic_cast<const ShaderNode*>(mShaderInPort.getInput())->getShader();
+    const Mesh*   mesh   = std::any_cast<Mesh*>(mMeshInPort.getLinkValue());
+    const Shader* shader = std::any_cast<Shader*>(mShaderInPort.getLinkValue());
 
     return [mesh, shader]() {
         shader->bind();

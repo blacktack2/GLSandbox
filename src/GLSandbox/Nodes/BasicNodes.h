@@ -20,7 +20,7 @@ protected:
     void drawContents() final;
 private:
     int mValue = 0;
-    OutPort mIntOut = OutPort(*this, "Value");
+    OutPort mIntOut = OutPort(*this, "Value", [&]() { return mValue; });
 };
 
 class FloatNode final : public Node {
@@ -38,5 +38,5 @@ protected:
     void drawContents() final;
 private:
     float mValue = 0.0f;
-    OutPort mFloatOut = OutPort(*this, "Value");
+    OutPort mFloatOut = OutPort(*this, "Value", [&]() { return mValue; });
 };
