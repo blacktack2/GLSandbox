@@ -36,11 +36,30 @@ void ShaderNode::findGeometryFiles() {
 }
 
 void ShaderNode::serializeContents(std::ofstream& streamOut) const {
-
+    streamOut << (mVertFile.empty() ? "null" : mVertFile) << "\n";
+    streamOut << (mFragFile.empty() ? "null" : mFragFile) << "\n";
+    streamOut << (mTescFile.empty() ? "null" : mTescFile) << "\n";
+    streamOut << (mTeseFile.empty() ? "null" : mTeseFile) << "\n";
+    streamOut << (mGeomFile.empty() ? "null" : mGeomFile) << "\n";
 }
 
 void ShaderNode::deserializeContents(std::ifstream& streamIn) {
+    std::string vert, frag, tesc, tese, geom;
 
+    streamIn >> vert;
+    mVertFile = vert == "null" ? "" : vert;
+
+    streamIn >> frag;
+    mFragFile = frag == "null" ? "" : frag;
+
+    streamIn >> tesc;
+    mTescFile = tesc == "null" ? "" : tesc;
+
+    streamIn >> tese;
+    mTeseFile = tese == "null" ? "" : tese;
+
+    streamIn >> geom;
+    mGeomFile = geom == "null" ? "" : geom;
 }
 
 void ShaderNode::drawContents() {
