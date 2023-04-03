@@ -4,6 +4,7 @@
 #include "../../Rendering/Shader.h"
 #include "../NodeClassifications.h"
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -34,17 +35,17 @@ protected:
 
     void drawContents() override;
 private:
-    void drawShaderCombo(const std::string& label, int& index, const std::vector<std::string>& files);
+    typedef std::function<void()> update_files_callback;
+    typedef std::function<std::vector<std::string>&()> get_files_callback;
+
+    void drawShaderChooseButton(const std::string& shaderType, std::string& value,
+                                const update_files_callback& updateFiles, const get_files_callback& getFiles);
+    void drawShaderChoosePopup(const std::string& popupLabel, const std::vector<std::string>& files, std::string& value);
     void drawShaderStatus();
 
     void updateShader();
 
     static void findFiles(std::vector<std::string>& files, const std::vector<std::string>& extensions);
-
-    static inline const std::string& getShaderDir() {
-        static const std::string cDirectory = "Shaders/";
-        return cDirectory;
-    }
 
     static inline std::vector<std::string>& getVertexFiles() {
         static std::vector<std::string> cFiles;
@@ -91,16 +92,10 @@ private:
     std::unique_ptr<Shader> mShader = std::make_unique<Shader>();
     OutPort mShaderOutPort = OutPort(*this, "Shader");
 
-    int vert = -1;
-    int frag = -1;
-    int tesc = -1;
-    int tese = -1;
-    int geom = -1;
-
-    bool vertLoaded = false;
-    bool fragLoaded = false;
-    bool tescLoaded = false;
-    bool teseLoaded = false;
-    bool geomLoaded = false;
+    std::string mVertFile;
+    std::string mFragFile;
+    std::string mTescFile;
+    std::string mTeseFile;
+    std::string mGeomFile;
 };
 

@@ -1,5 +1,7 @@
 #include "ShaderNode.h"
 
+#include "../Assets.h"
+
 #include <imgui.h>
 
 #include <algorithm>
@@ -42,11 +44,11 @@ void ShaderNode::deserializeContents(std::ifstream& streamIn) {
 }
 
 void ShaderNode::drawContents() {
-    drawShaderCombo("Vertex", vert, getVertexFiles());
-    drawShaderCombo("Fragment", frag, getFragmentFiles());
-    drawShaderCombo("Tess-Control", tesc, getTessContFiles());
-    drawShaderCombo("Tess-Eval", tese, getTessEvalFiles());
-    drawShaderCombo("Geometry", geom, getGeometryFiles());
+    drawShaderChooseButton("Vertex",    mVertFile, findVertexFiles,   getVertexFiles);
+    drawShaderChooseButton("Fragment",  mFragFile, findFragmentFiles, getFragmentFiles);
+    drawShaderChooseButton("Tess-Cont", mTescFile, findTessContFiles, getTessContFiles);
+    drawShaderChooseButton("Tess-Eval", mTeseFile, findTessEvalFiles, getTessEvalFiles);
+    drawShaderChooseButton("Geometry",  mGeomFile, findGeometryFiles, getGeometryFiles);
 
     const std::string loadShaderLabel = std::string("Reload Shader##Button_LoadShader_Node").append(std::to_string(getID()));
     if (ImGui::Button(loadShaderLabel.c_str()))
@@ -55,23 +57,35 @@ void ShaderNode::drawContents() {
     drawShaderStatus();
 }
 
-void ShaderNode::drawShaderCombo(const std::string& label, int& index, const std::vector<std::string>& files) {
-    static const float COMBO_OFFSET = 90.0f;
-    static const float COMBO_WIDTH = 90.0f;
+void ShaderNode::drawShaderChooseButton(const std::string& shaderType, std::string& value,
+                                        const update_files_callback& updateFiles, const get_files_callback& getFiles) {
+    ImGui::Text("%s: %s", shaderType.c_str(), value.empty() ? "<not-selected>" : value.c_str());
 
-    ImGui::Text("%s", label.c_str());
-    ImGui::SameLine(COMBO_OFFSET);
-    const std::string comboLabel = std::string("##Combo_").append(label).append("_Node").append(std::to_string(getID()));
-    ImGui::SetNextItemWidth(COMBO_WIDTH);
-    if (ImGui::BeginCombo(comboLabel.c_str(), index < 0 ? "" : files[index].c_str())) {
-        for (size_t n = 0; n < files.size(); n++) {
-            const bool isSelected = index == n;
-            if (ImGui::Selectable(files[n].c_str(), isSelected))
-                index = n;
-            if (isSelected)
-                ImGui::SetItemDefaultFocus();
+    const std::string POPUP_ID = std::string("Choose").append(shaderType).append("Popup_Node")
+            .append(std::to_string(getID()));
+    if (ImGui::Button(std::string("Choose ").append(shaderType).c_str())) {
+        ImGui::OpenPopup(POPUP_ID.c_str());
+        updateFiles();
+    }
+    drawShaderChoosePopup(POPUP_ID, getFiles(), value);
+}
+
+void ShaderNode::drawShaderChoosePopup(const std::string& popupLabel, const std::vector<std::string>& files, std::string& value) {
+    if (ImGui::BeginPopup(popupLabel.c_str())) {
+        if (files.empty()) {
+            ImGui::Text("No files found");
+        } else {
+            for (const std::string& file : files) {
+                const std::string FILE_SELECT_LABEL = std::string(file).append("##FileSelect_Node").append(
+                        std::to_string(getID()));
+                if (!ImGui::Selectable(FILE_SELECT_LABEL.c_str()))
+                    continue;
+                value = file;
+                break;
+            }
         }
-        ImGui::EndCombo();
+
+        ImGui::EndPopup();
     }
 }
 
@@ -81,13 +95,13 @@ void ShaderNode::drawShaderStatus() {
 
     switch (mShader->getState()) {
         case Shader::ErrorState::INVALID:
-            if (!vertLoaded)
+            if (mVertFile.empty())
                 text = "No vertex shader selected";
-            else if (!fragLoaded)
+            else if (mFragFile.empty())
                 text = "No fragment shader selected";
-            else if (tescLoaded && !teseLoaded)
+            else if (!mTescFile.empty() && mTeseFile.empty())
                 text = "Tesselation Control selected, but no Tesselation Evaluation";
-            else if (!tescLoaded && teseLoaded)
+            else if (mTescFile.empty() && !mTeseFile.empty())
                 text = "Tesselation Evaluation selected, but no Tesselation Control";
             else
                 text = mShader->getErrorMessage();
@@ -107,36 +121,25 @@ void ShaderNode::drawShaderStatus() {
 }
 
 void ShaderNode::updateShader() {
-    vertLoaded = (vert >= 0 && vert < getVertexFiles().size());
-    fragLoaded = (frag >= 0 && frag < getFragmentFiles().size());
-    tescLoaded = (tesc >= 0 && tesc < getTessContFiles().size());
-    teseLoaded = (tese >= 0 && tese < getTessEvalFiles().size());
-    geomLoaded = (geom >= 0 && geom < getGeometryFiles().size());
-
-    std::string vertex   = vertLoaded ? getVertexFiles()[vert]   : std::string();
-    std::string fragment = fragLoaded ? getFragmentFiles()[frag] : std::string();
-    std::string tessCont = tescLoaded ? getTessContFiles()[tesc] : std::string();
-    std::string tessEval = teseLoaded ? getTessEvalFiles()[tese] : std::string();
-    std::string geometry = geomLoaded ? getGeometryFiles()[geom] : std::string();
-
-    if (vertex.empty() || fragment.empty() || tessCont.empty() != tessEval.empty()) {
+    if (mVertFile.empty() || mFragFile.empty() || (mTescFile.empty() != mTeseFile.empty())) {
         mShader = std::make_unique<Shader>();
         return;
     }
     mShader = std::make_unique<Shader>(
-        getShaderDir() + vertex,
-        getShaderDir() + fragment,
-        tescLoaded ? getShaderDir() + tessCont : "",
-        teseLoaded ? getShaderDir() + tessEval : "",
-        geomLoaded ? getShaderDir() + geometry : ""
+        gSHADER_ASSET_DIR + mVertFile,
+        gSHADER_ASSET_DIR + mFragFile,
+        mTescFile.empty() ? "" : gSHADER_ASSET_DIR + mTescFile,
+        mTeseFile.empty() ? "" : gSHADER_ASSET_DIR + mTeseFile,
+        mGeomFile.empty() ? "" : gSHADER_ASSET_DIR + mGeomFile
     );
 }
 
 void ShaderNode::findFiles(std::vector<std::string>& files, const std::vector<std::string>& extensions) {
     files.clear();
-    for (const auto& file : std::filesystem::directory_iterator(getShaderDir())) {
+    for (const auto& file : std::filesystem::directory_iterator(gSHADER_ASSET_DIR)) {
         if (!file.is_regular_file())
             continue;
+
         const std::string extension = file.path().extension().string();
         if (std::find(extensions.begin(), extensions.end(), extension) != extensions.end())
             files.push_back(file.path().filename().string());
