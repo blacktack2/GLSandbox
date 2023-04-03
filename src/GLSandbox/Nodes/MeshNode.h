@@ -10,13 +10,19 @@
 
 #include <any>
 #include <functional>
+#include <map>
 #include <string>
+#include <typeindex>
+#include <typeinfo>
+#include <unordered_map>
 #include <vector>
 
 class MeshNode final : public Node {
 public:
     MeshNode();
     ~MeshNode() final = default;
+
+    void clearAttributes();
 
     [[nodiscard]] unsigned int getTypeID() final {
         return (unsigned int)NodeType::Mesh;
@@ -33,35 +39,158 @@ protected:
 
     void drawContents() override;
 private:
-    template<typename T>
-    using draw_attribute_input_callback_t = std::function<void(const std::string&, T&)>;
+    class IAttribute {
+    public:
+        IAttribute() = default;
+        virtual ~IAttribute() = default;
+
+        virtual void serialize(std::ofstream& stream) const = 0;
+        virtual void deserialize(std::ifstream& stream) = 0;
+
+        [[nodiscard]] virtual unsigned int getID() const = 0;
+
+        [[nodiscard]] virtual void* getData() const = 0;
+        [[nodiscard]] virtual void* getDataAt(size_t index) const = 0;
+        virtual void resizeData(size_t size) = 0;
+
+        [[nodiscard]] virtual const std::string& getName() const = 0;
+        virtual void setName(const std::string& name) = 0;
+
+        [[nodiscard]] virtual bool isShown() const = 0;
+        virtual void setShown(bool show) = 0;
+
+        [[nodiscard]] virtual bool isMarkedDelete() const = 0;
+        virtual void markForDeletion() = 0;
+
+        [[nodiscard]] virtual unsigned int getNumComponents() const = 0;
+    };
 
     template<typename T>
-    struct Attribute {
-        unsigned int id = 0;
-        std::string name;
-        std::vector<T> data{};
-        bool show = false;
-        bool remove = false;
+    class Attribute final : public IAttribute {
+    public:
+        Attribute() {
+            static unsigned int sIdCounter = 0;
+            mID = sIdCounter++;
+        }
+        ~Attribute() final = default;
+
+        void serialize(std::ofstream& stream) const final {
+            stream << (mName.empty() ? "attribute" : mName);
+
+            if constexpr (std::disjunction_v<std::is_same<T, int>, std::is_same<T, float>>)
+                stream << ' ' << 1u;
+            else
+                stream << ' ' << (unsigned int)T::length();
+
+            if constexpr (std::disjunction_v<std::is_same<T, int>, std::is_same<T, glm::ivec2>,
+                    std::is_same<T, glm::ivec3>, std::is_same<T, glm::ivec4>>)
+                stream << ' ' << 'i';
+            else
+                stream << ' ' << 'f';
+
+            stream << '\n';
+
+            for (const auto& val : mData) {
+                if constexpr (std::disjunction_v<std::is_same<T, int>, std::is_same<T, float>>) {
+                    stream << val;
+                } else {
+                    stream << val[0];
+                    for (size_t i = 1; i < T::length(); i++)
+                        stream << ' ' << val[i];
+                }
+
+                stream << '\n';
+            }
+        }
+        void deserialize(std::ifstream& stream) final {
+            for (auto& val : mData) {
+                if constexpr (std::disjunction_v<std::is_same<T, int>, std::is_same<T, float>>)
+                    stream >> val;
+                else
+                    for (size_t i = 0; i < T::length(); i++)
+                        stream >> val[i];
+            }
+        }
+
+        [[nodiscard]] unsigned int getID() const final {
+            return mID;
+        }
+
+        [[nodiscard]] void* getData() const final {
+            return (void*)mData.data();
+        }
+        [[nodiscard]] void* getDataAt(size_t index) const final {
+            return (void*)&mData[index];
+        }
+        void resizeData(size_t size) final {
+            mData.resize(size);
+        }
+        void setData(const std::vector<T> data) {
+            mData = data;
+        }
+
+        [[nodiscard]] const std::string& getName() const final {
+            return mName;
+        }
+        void setName(const std::string& name) final {
+            mName = name;
+        }
+
+        [[nodiscard]] bool isShown() const final {
+            return mShow;
+        }
+        void setShown(bool show) final {
+            mShow = show;
+        }
+
+        [[nodiscard]] bool isMarkedDelete() const final {
+            return mRemove;
+        }
+        void markForDeletion() final {
+            mRemove = true;
+        }
+
+        [[nodiscard]] unsigned int getNumComponents() const final {
+            if constexpr (std::disjunction_v<std::is_same<T, int>, std::is_same<T, float>>) {
+                return 1;
+            } else {
+                return T::length();
+            }
+        }
+    private:
+        unsigned int mID;
+        std::string mName;
+        std::vector<T> mData{};
+        bool mShow = false;
+        bool mRemove = false;
     };
+
+    template<typename T>
+    using draw_attribute_input_callback = std::function<void(const std::string&, T&)>;
+    typedef std::function<std::unique_ptr<IAttribute>()> create_attribute_callback;
+
+    void loadFromStreamOBJ(std::ifstream& stream);
+    void loadFromStreamOBJEXT(std::ifstream& stream);
+    void writeToStreamOBJEXT(std::ofstream& stream) const;
+
+    void generateFilename();
+
+    void uploadMesh();
 
     void drawGlobalParameters();
 
-    template<typename T>
-    void drawAttributes(std::vector<Attribute<T>>& attributes, draw_attribute_input_callback_t<T> callback, const std::string& typeLabel);
-    template<typename T>
-    void drawAttribute(Attribute<T>& attribute, draw_attribute_input_callback_t<T> callback, const std::string& typeLabel);
+    void drawAttributes(std::vector<std::unique_ptr<IAttribute>>& attributes, std::type_index type);
+    void drawAttribute(IAttribute& attribute, std::type_index type);
 
     void drawAddAttributePopup();
-    template<typename T>
-    void drawAttributeSelection(std::vector<Attribute<T>>& attrVec, const std::string& typeLabel);
+    void drawAttributeSelection(std::vector<std::unique_ptr<IAttribute>>& attrVec, std::type_index type);
 
     void drawUploadButton();
 
     void drawMeshStatus();
 
     std::string getNodeID();
-    std::string getAttributeID(const std::string& typeLabel);
+    std::string getAttributeID(std::type_index type);
 
     void resizeAttributes();
 
@@ -73,17 +202,18 @@ private:
 
     Mesh::Type mType = Mesh::Type::Triangles;
 
-    std::vector<Attribute<int>> mIntAttributes{};
-    std::vector<Attribute<glm::ivec2>> mIVec2Attributes{};
-    std::vector<Attribute<glm::ivec3>> mIVec3Attributes{};
-    std::vector<Attribute<glm::ivec4>> mIVec4Attributes{};
-    std::vector<Attribute<float>> mFloatAttributes{};
-    std::vector<Attribute<glm::vec2>> mVec2Attributes{};
-    std::vector<Attribute<glm::vec3>> mVec3Attributes{};
-    std::vector<Attribute<glm::vec4>> mVec4Attributes{};
+    std::unordered_map<std::type_index, std::vector<std::unique_ptr<IAttribute>>> mAttributes;
+    std::map<std::type_index, create_attribute_callback> mAttributeFactories = {
+        {typeid(int),        []() { return std::make_unique<Attribute<int>>();        }},
+        {typeid(glm::ivec2), []() { return std::make_unique<Attribute<glm::ivec2>>(); }},
+        {typeid(glm::ivec3), []() { return std::make_unique<Attribute<glm::ivec3>>(); }},
+        {typeid(glm::ivec4), []() { return std::make_unique<Attribute<glm::ivec4>>(); }},
+        {typeid(float),      []() { return std::make_unique<Attribute<float>>();      }},
+        {typeid(glm::vec2),  []() { return std::make_unique<Attribute<glm::vec2>>();  }},
+        {typeid(glm::vec3),  []() { return std::make_unique<Attribute<glm::vec3>>();  }},
+        {typeid(glm::vec4),  []() { return std::make_unique<Attribute<glm::vec4>>();  }},
+    };
     std::vector<GLuint> mIndices{};
-
-    size_t mTypeIndex = (size_t)mType;
 
     // Matches Mesh::Type
     const std::vector<std::string> mTypes {
@@ -93,5 +223,7 @@ private:
         "Lines",
         "Points",
     };
+
+    std::string mFilename;
 };
 

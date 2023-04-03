@@ -1,5 +1,6 @@
 #include "Window.h"
 
+#include "../GLSandbox/Assets.h"
 #include "../GLSandbox/GLSandboxRenderer.h"
 #include "../GLSandbox/PipelineGraph.h"
 
@@ -9,7 +10,7 @@
 #include <imgui_impl_sdl.h>
 #include <imgui_stdlib.h>
 
-#include <fstream>
+#include <filesystem>
 
 Window::Window(const char *title, int width, int height) :
 mWidth(width), mHeight(height) {
@@ -60,6 +61,9 @@ mWidth(width), mHeight(height) {
 
     ImGui_ImplSDL2_InitForOpenGL(mWindow, mGLContext);
     ImGui_ImplOpenGL3_Init("#version 460 core");
+
+    std::filesystem::create_directory(gMESH_ASSET_DIR);
+    std::filesystem::create_directory(gSHADER_ASSET_DIR);
 
     mRenderer = std::make_unique<GLSandboxRenderer>();
     mGraph = std::make_unique<PipelineGraph>(*mRenderer);

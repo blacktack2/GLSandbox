@@ -1,6 +1,7 @@
 #include "Mesh.h"
 
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 
 Mesh::Mesh() {
     glGenVertexArrays(1, &mArrayObject);

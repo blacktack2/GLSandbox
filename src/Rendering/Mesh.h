@@ -1,6 +1,7 @@
 #pragma once
 #include <glad/glad.h>
 
+#include <fstream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -97,17 +98,17 @@ private:
 
     GLuint mArrayObject = 0;
 
-    GLuint mType;
-    GLuint mNumVertices;
+    GLuint mType = 0;
+    GLuint mNumVertices = 0;
 
-    GLuint mIndexVBO;
+    GLuint mIndexVBO = 0;
 
     bool mUseIndexBuffer = false;
 
     std::vector<GLuint> mIndices;
     std::vector<VertexAttribute> mAttributes{};
 
-    ErrorState mErrorState;
+    ErrorState mErrorState = ErrorState::INVALID;
     std::string mMessage;
 };
 
