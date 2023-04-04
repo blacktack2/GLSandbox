@@ -55,6 +55,8 @@ void Graph::draw() {
 void Graph::postDraw() {
     checkLinkCreated();
     checkLinkDestroyed();
+    checkLinksDeleted();
+    checkNodesDeleted();
 }
 
 void Graph::drawEditor() {
@@ -110,4 +112,37 @@ void Graph::checkLinkDestroyed() {
             }
         }
     }
+}
+
+void Graph::checkLinksDeleted() {
+    const int numSelected = ImNodes::NumSelectedLinks();
+    if (numSelected == 0 || !ImGui::IsKeyReleased(ImGuiKey_Delete))
+        return;
+
+    std::vector<int> selectedLinks(numSelected);
+    ImNodes::GetSelectedLinks(selectedLinks.data());
+    for (auto& node : mNodes) {
+        for (size_t i = 0; i < node->numPorts(); i++) {
+            IPort& port = node->getPortByIndex(i);
+            if (std::find(selectedLinks.begin(), selectedLinks.end(), port.getLinkID()) != selectedLinks.end())
+                port.unlink();
+        }
+    }
+}
+
+void Graph::checkNodesDeleted() {
+    const int numSelected = ImNodes::NumSelectedNodes();
+    if (numSelected == 0 || !ImGui::IsKeyReleased(ImGuiKey_Delete))
+        return;
+
+    std::vector<int> selectedNodes(numSelected);
+    ImNodes::GetSelectedNodes(selectedNodes.data());
+    mNodes.erase(
+        std::remove_if(
+            mNodes.begin(), mNodes.end(),
+            [&selectedNodes](const auto& node) {
+                return std::find(selectedNodes.begin(), selectedNodes.end(), node->getID()) != selectedNodes.end();
+            }),
+        mNodes.end()
+    );
 }

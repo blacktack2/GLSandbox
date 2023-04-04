@@ -76,7 +76,7 @@ public:
     typedef std::function<std::any()> get_node_value_callback;
 
     OutPort(const Node& parent, const std::string& displayName, get_node_value_callback getValue);
-    ~OutPort() final = default;
+    ~OutPort() final;
 
     void draw() const override;
     void drawLinks() const override;
@@ -118,7 +118,7 @@ class InPort final : public Port {
 public:
     explicit InPort(const Node& parent, const std::string& displayName,
                     std::vector<const std::type_info*> validConnections = {});
-    ~InPort() final = default;
+    ~InPort() final;
 
     void draw() const final;
     void drawLinks() const final;

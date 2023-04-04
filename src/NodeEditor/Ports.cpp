@@ -17,6 +17,10 @@ OutPort::OutPort(const Node& parent, const std::string& displayName, get_node_va
 Port(parent, displayName), mGetValue(std::move(getValue)) {
 }
 
+OutPort::~OutPort() {
+    unlink();
+}
+
 void OutPort::draw() const {
     ImGui::Dummy(ImVec2(0, 0));
     ImNodes::BeginOutputAttribute(getID());
@@ -80,6 +84,10 @@ const Node& OutPort::getLinkParent() const {
 InPort::InPort(const Node& parent, const std::string& displayName,
                std::vector<const std::type_info*> validConnections) :
 Port(parent, displayName), mValidConnections(std::move(validConnections)) {
+}
+
+InPort::~InPort() {
+    unlink();
 }
 
 void InPort::draw() const {

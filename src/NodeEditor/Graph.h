@@ -35,6 +35,8 @@ private:
 
     void checkLinkCreated();
     void checkLinkDestroyed();
+    void checkLinksDeleted();
+    void checkNodesDeleted();
 
     ImNodesContext* mContext;
 
