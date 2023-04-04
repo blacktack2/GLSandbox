@@ -11,7 +11,7 @@ bool                     GLSandboxRenderer::sErrorFlag = false;
 GLSandboxRenderer::GLSandboxRenderer() : Renderer() {
     mDefaultMesh = std::make_unique<Mesh>();
     Mesh::makeScreenQuad(*mDefaultMesh);
-    mDefaultShader = std::make_unique<Shader>("Shaders/Skybox.vert", "Shaders/Skybox.frag");
+    mDefaultShader = std::make_unique<Shader>("Shaders/simple-quad.vert", "Shaders/simple-quad.frag");
     mRenderPipeline = {
             [&]() {
                 mDefaultShader->bind();
