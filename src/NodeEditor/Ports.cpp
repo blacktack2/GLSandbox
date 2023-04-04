@@ -9,13 +9,12 @@
 
 static int gPortIDCounter = 1;
 
-Port::Port(const Node& parent, std::string displayName, int id) :
-mParentNode(parent), mDisplayName(std::move(displayName)), mID{id == 0 ? gPortIDCounter : id} {
-    gPortIDCounter = std::max(gPortIDCounter, mID + 1);
+Port::Port(const Node& parent, std::string displayName) :
+mParentNode(parent), mDisplayName(std::move(displayName)), mID{gPortIDCounter++} {
 }
 
-OutPort::OutPort(const Node& parent, const std::string& displayName, get_node_value_callback getValue, int id) :
-Port(parent, displayName, id), mGetValue(std::move(getValue)) {
+OutPort::OutPort(const Node& parent, const std::string& displayName, get_node_value_callback getValue) :
+Port(parent, displayName), mGetValue(std::move(getValue)) {
 }
 
 void OutPort::draw() const {
@@ -79,8 +78,8 @@ const Node& OutPort::getLinkParent() const {
 }
 
 InPort::InPort(const Node& parent, const std::string& displayName,
-               std::vector<const std::type_info*> validConnections, int id) :
-Port(parent, displayName, id), mValidConnections(std::move(validConnections)) {
+               std::vector<const std::type_info*> validConnections) :
+Port(parent, displayName), mValidConnections(std::move(validConnections)) {
 }
 
 void InPort::draw() const {

@@ -7,9 +7,8 @@
 
 static int gNodeIDCounter = 1;
 
-Node::Node(std::string title, int id) : mTitle(std::move(title)), mID{id == 0 ? gNodeIDCounter : id} {
-    gNodeIDCounter = std::max(gNodeIDCounter, mID + 1);
-    ImNodes::SetNodeEditorSpacePos(getID(), ImVec2(0.0f, 0.0f));
+Node::Node(std::string title) : mTitle(std::move(title)), mID{gNodeIDCounter++} {
+    ImNodes::SetNodeScreenSpacePos(getID(), ImVec2(0.0f, 0.0f));
 }
 
 void Node::serialize(std::ofstream& streamOut) const {

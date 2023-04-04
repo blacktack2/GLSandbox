@@ -64,7 +64,7 @@ public:
         return nullptr;
     }
 protected:
-    explicit Node(std::string title, int id = 0);
+    explicit Node(std::string title);
 
     virtual void serializeContents(std::ofstream& streamOut) const = 0;
     virtual void deserializeContents(std::ifstream& streamIn) = 0;

@@ -53,7 +53,7 @@ public:
         return mParentNode;
     }
 protected:
-    Port(const Node& parent, std::string displayName, int id = 0);
+    Port(const Node& parent, std::string displayName);
 
     inline void onLink() {
         for (const auto& callback : mOnLinks)
@@ -75,7 +75,7 @@ class OutPort final : public Port {
 public:
     typedef std::function<std::any()> get_node_value_callback;
 
-    OutPort(const Node& parent, const std::string& displayName, get_node_value_callback getValue, int id = 0);
+    OutPort(const Node& parent, const std::string& displayName, get_node_value_callback getValue);
     ~OutPort() final = default;
 
     void draw() const override;
@@ -117,7 +117,7 @@ private:
 class InPort final : public Port {
 public:
     explicit InPort(const Node& parent, const std::string& displayName,
-                    std::vector<const std::type_info*> validConnections = {}, int id = 0);
+                    std::vector<const std::type_info*> validConnections = {});
     ~InPort() final = default;
 
     void draw() const final;
