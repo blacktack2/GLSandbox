@@ -36,6 +36,8 @@ protected:
         mNodes.push_back(std::move(node));
     }
 private:
+    void checkPanning();
+
     void drawEditor();
     void drawConfig();
 
@@ -49,5 +51,8 @@ private:
     std::vector<std::unique_ptr<Node>> mNodes{};
 
     bool mConfigPanelOpen = true;
+
+    bool mIsPanning = false;
+    float mPanOriginX = 0, mPanOriginY = 0;
 };
 

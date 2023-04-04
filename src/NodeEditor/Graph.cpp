@@ -43,7 +43,7 @@ void Graph::deserialize(std::ifstream& streamIn) {
 }
 
 void Graph::preDraw() {
-
+    checkPanning();
 }
 
 void Graph::draw() {
@@ -57,6 +57,25 @@ void Graph::postDraw() {
     checkLinkDestroyed();
     checkLinksDeleted();
     checkNodesDeleted();
+}
+
+void Graph::checkPanning() {
+    if (mIsPanning && (ImGui::GetIO().MouseReleased[1] || !ImGui::GetIO().MouseDown[1])) {
+        mIsPanning = false;
+        return;
+    }
+
+    if (mIsPanning) {
+        ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
+        ImNodes::EditorContextResetPanning(ImVec2(mPanOriginX + delta.x, mPanOriginY + delta.y));
+    } else {
+        if (!ImGui::GetIO().MouseClicked[1])
+            return;
+        mIsPanning = true;
+        ImVec2 current = ImNodes::EditorContextGetPanning();
+        mPanOriginX = current.x;
+        mPanOriginY = current.y;
+    }
 }
 
 void Graph::drawEditor() {
