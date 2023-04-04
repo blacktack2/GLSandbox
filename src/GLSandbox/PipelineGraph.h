@@ -16,6 +16,8 @@ class PipelineGraph final : public Graph {
 public:
     explicit PipelineGraph(IPipelineHandler& pipelineHandler);
     ~PipelineGraph() final = default;
+
+    void initializeDefault() final;
 protected:
     std::unique_ptr<Node> deserializeNodeType(unsigned int nodeType) final;
 

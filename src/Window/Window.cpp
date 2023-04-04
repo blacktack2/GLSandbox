@@ -71,6 +71,8 @@ mWidth(width), mHeight(height) {
         std::ifstream stream("state.graph");
         if (stream)
             mGraph->deserialize(stream);
+        else
+            mGraph->initializeDefault();
     }
     mInitSuccess = true;
 }

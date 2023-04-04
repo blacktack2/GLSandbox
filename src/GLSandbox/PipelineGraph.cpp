@@ -35,12 +35,10 @@ PipelineGraph::PipelineGraph(IPipelineHandler& pipelineHandler) : mPipelineHandl
             NodeType::Mesh, NodeType::Shader,
         }},
     };
+}
 
-    ShaderNode::findVertexFiles();
-    ShaderNode::findFragmentFiles();
-    ShaderNode::findTessContFiles();
-    ShaderNode::findTessEvalFiles();
-    ShaderNode::findGeometryFiles();
+void PipelineGraph::initializeDefault() {
+    clearNodes();
 
     std::unique_ptr<EntryNode> defaultEntry = std::make_unique<EntryNode>(mPipelineHandler);
     std::unique_ptr<RenderPassNode> defaultPass = std::make_unique<RenderPassNode>();

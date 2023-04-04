@@ -11,12 +11,18 @@ public:
     Graph();
     virtual ~Graph();
 
+    virtual void initializeDefault() = 0;
+
     void serialize(std::ofstream& streamOut) const;
     void deserialize(std::ifstream& streamIn);
 
     void preDraw();
     void draw();
     void postDraw();
+
+    inline void clearNodes() {
+        mNodes.clear();
+    }
 
     [[nodiscard]] inline size_t getNumNodes() const {
         return mNodes.size();
