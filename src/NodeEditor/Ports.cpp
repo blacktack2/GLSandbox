@@ -59,6 +59,8 @@ void OutPort::link(InPort& port) {
     }
     linkSoft(port);
     mLink->linkSoft(*this);
+
+    onLink();
 }
 
 void OutPort::unlinkSoft() {
@@ -68,6 +70,8 @@ void OutPort::unlinkSoft() {
 void OutPort::linkSoft(InPort& port) {
     static int cLinkIDCounter = 1;
     mLink = &port;
+
+    onLink();
 }
 
 const Node& OutPort::getLinkParent() const {
@@ -123,6 +127,8 @@ void InPort::link(OutPort& port) {
     }
     linkSoft(port);
     mLink->linkSoft(*this);
+
+    onLink();
 }
 
 void InPort::unlinkSoft() {
@@ -133,6 +139,8 @@ void InPort::linkSoft(OutPort& port) {
     static int cLinkIDCounter = 1;
     mLink = &port;
     mLinkID = cLinkIDCounter++;
+
+    onLink();
 }
 
 bool InPort::isConnectionValid(const IPort& port) {

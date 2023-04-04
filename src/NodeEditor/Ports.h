@@ -10,10 +10,14 @@ class Node;
 
 class IPort {
 public:
+    typedef std::function<void()> on_link_callback;
+
     virtual ~IPort() = default;
 
     virtual void draw() const = 0;
     virtual void drawLinks() const = 0;
+
+    virtual void addOnLinkCallback(const on_link_callback& callback) = 0;
 
     [[nodiscard]] virtual int getID() const = 0;
 
@@ -33,6 +37,10 @@ class Port : public IPort {
 public:
     ~Port() override = default;
 
+    void addOnLinkCallback(const on_link_callback& callback) final {
+        mOnLinks.emplace_back(callback);
+    }
+
     [[nodiscard]] int getID() const final {
         return mID;
     }
@@ -46,12 +54,19 @@ public:
     }
 protected:
     Port(const Node& parent, std::string displayName, int id = 0);
+
+    inline void onLink() {
+        for (const auto& callback : mOnLinks)
+            callback();
+    }
 private:
     int mID;
 
     std::string mDisplayName;
 
     const Node& mParentNode;
+
+    std::vector<on_link_callback> mOnLinks{};
 };
 
 class InPort;
@@ -92,7 +107,7 @@ public:
      */
     void linkSoft(InPort& port);
 
-    const Node& getLinkParent() const;
+    [[nodiscard]] const Node& getLinkParent() const;
 private:
     InPort* mLink = nullptr;
 
