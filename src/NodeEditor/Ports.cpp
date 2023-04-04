@@ -48,10 +48,12 @@ int OutPort::getLinkID() const {
 }
 
 void OutPort::unlink() {
-    if (mLink) {
-        mLink->unlinkSoft();
-        mLink = nullptr;
-    }
+    if (!mLink)
+        return;
+    mLink->unlinkSoft();
+    mLink = nullptr;
+
+    onUnlink();
 }
 
 void OutPort::link(InPort& port) {
@@ -68,6 +70,8 @@ void OutPort::link(InPort& port) {
 
 void OutPort::unlinkSoft() {
     mLink = nullptr;
+
+    onUnlink();
 }
 
 void OutPort::linkSoft(InPort& port) {
@@ -120,10 +124,13 @@ int InPort::getLinkedPortID() const {
 }
 
 void InPort::unlink() {
-    if (mLink) {
-        mLink->unlinkSoft();
-        mLink = nullptr;
-    }
+    if (!mLink)
+        return;
+
+    mLink->unlinkSoft();
+    mLink = nullptr;
+
+    onUnlink();
 }
 
 void InPort::link(OutPort& port) {
@@ -140,6 +147,8 @@ void InPort::link(OutPort& port) {
 
 void InPort::unlinkSoft() {
     mLink = nullptr;
+
+    onUnlink();
 }
 
 void InPort::linkSoft(OutPort& port) {

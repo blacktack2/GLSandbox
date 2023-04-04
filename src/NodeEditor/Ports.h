@@ -11,6 +11,7 @@ class Node;
 class IPort {
 public:
     typedef std::function<void()> on_link_callback;
+    typedef std::function<void()> on_unlink_callback;
 
     virtual ~IPort() = default;
 
@@ -18,6 +19,7 @@ public:
     virtual void drawLinks() const = 0;
 
     virtual void addOnLinkCallback(const on_link_callback& callback) = 0;
+    virtual void addOnUnlinkCallback(const on_unlink_callback& callback) = 0;
 
     [[nodiscard]] virtual int getID() const = 0;
 
@@ -40,6 +42,9 @@ public:
     void addOnLinkCallback(const on_link_callback& callback) final {
         mOnLinks.emplace_back(callback);
     }
+    void addOnUnlinkCallback(const on_unlink_callback& callback) final {
+        mOnUnlinks.emplace_back(callback);
+    }
 
     [[nodiscard]] int getID() const final {
         return mID;
@@ -59,6 +64,10 @@ protected:
         for (const auto& callback : mOnLinks)
             callback();
     }
+    inline void onUnlink() {
+        for (const auto& callback : mOnUnlinks)
+            callback();
+    }
 private:
     int mID;
 
@@ -67,6 +76,7 @@ private:
     const Node& mParentNode;
 
     std::vector<on_link_callback> mOnLinks{};
+    std::vector<on_link_callback> mOnUnlinks{};
 };
 
 class InPort;

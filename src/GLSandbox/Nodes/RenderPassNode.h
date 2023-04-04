@@ -32,6 +32,8 @@ protected:
 
     void drawContents() final;
 private:
+    void onShaderLink();
+
     InPort mExecutionInPort = InPort(*this, "In", {&typeid(void*), &typeid(RenderPassNode*)});
     OutPort mExecutionOutPort = OutPort(*this, "Out", [&]() { return this; });
 

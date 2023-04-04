@@ -43,3 +43,7 @@ RenderPassNode::pipeline_callback RenderPassNode::generateCallback() const {
         mesh->draw();
     };
 }
+
+void RenderPassNode::onShaderLink() {
+
+}
