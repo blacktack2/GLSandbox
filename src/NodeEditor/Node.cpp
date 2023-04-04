@@ -148,3 +148,25 @@ glm::vec2 Node::getSize() const {
     ImVec2 size = ImNodes::GetNodeDimensions(getID());
     return glm::vec2(size.x, size.y);
 }
+
+void Node::addPort(IPort& port) {
+    mPorts.emplace_back(port);
+    if (InPort* inPort = dynamic_cast<InPort*>(&port))
+        mInPorts.emplace_back(*inPort);
+    else if (OutPort* outPort = dynamic_cast<OutPort*>(&port))
+        mOutPorts.emplace_back(*outPort);
+    else
+        assert(false); // Port must be an input or an output
+}
+
+void Node::removePort(IPort& port) {
+    mPorts.erase(std::remove_if(mPorts.begin(), mPorts.end(),
+                               [&port](const auto& other) { return port.getID() == other.get().getID(); }),
+                 mPorts.end());
+    mInPorts.erase(std::remove_if(mInPorts.begin(), mInPorts.end(),
+                               [&port](const auto& other) { return port.getID() == other.get().getID(); }),
+                   mInPorts.end());
+    mOutPorts.erase(std::remove_if(mOutPorts.begin(), mOutPorts.end(),
+                               [&port](const auto& other) { return port.getID() == other.get().getID(); }),
+                    mOutPorts.end());
+}

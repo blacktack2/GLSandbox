@@ -71,15 +71,8 @@ protected:
 
     virtual void drawContents() = 0;
 
-    inline void addPort(IPort& port) {
-        mPorts.emplace_back(port);
-        if (InPort* inPort = dynamic_cast<InPort*>(&port))
-            mInPorts.emplace_back(*inPort);
-        else if (OutPort* outPort = dynamic_cast<OutPort*>(&port))
-            mOutPorts.emplace_back(*outPort);
-        else
-            assert(false); // Port must be an input or an output
-    }
+    void addPort(IPort& port);
+    void removePort(IPort& port);
 private:
     int mID;
 
