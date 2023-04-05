@@ -3,7 +3,7 @@
 #include <functional>
 #include <optional>
 #include <string>
-#include <typeinfo>
+#include <typeindex>
 #include <vector>
 
 class Node;
@@ -12,6 +12,7 @@ class IPort {
 public:
     typedef std::function<void()> on_link_callback;
     typedef std::function<void()> on_unlink_callback;
+    typedef std::function<void()> on_update_callback;
 
     virtual ~IPort() = default;
 
@@ -20,6 +21,9 @@ public:
 
     virtual void addOnLinkCallback(const on_link_callback& callback) = 0;
     virtual void addOnUnlinkCallback(const on_unlink_callback& callback) = 0;
+    virtual void addOnUpdateCallback(const on_update_callback& callback) = 0;
+
+    virtual void valueUpdated() = 0;
 
     [[nodiscard]] virtual int getID() const = 0;
 
@@ -45,6 +49,20 @@ public:
     void addOnUnlinkCallback(const on_unlink_callback& callback) final {
         mOnUnlinks.emplace_back(callback);
     }
+    void addOnUpdateCallback(const on_update_callback& callback) final {
+        mOnUpdates.emplace_back(callback);
+    }
+
+    void valueUpdated() final {
+        valueUpdatedSoft();
+        Port* link = getLinkedPort();
+        if (link)
+            link->valueUpdatedSoft();
+    }
+    void valueUpdatedSoft() {
+        for (const auto& callback : mOnUpdates)
+            callback();
+    }
 
     [[nodiscard]] int getID() const final {
         return mID;
@@ -55,28 +73,34 @@ public:
     }
 
     [[nodiscard]] const Node& getParent() const final {
-        return mParentNode;
+        return *mParentNode;
     }
 protected:
+    Port();
     Port(const Node& parent, std::string displayName);
+
+    virtual Port* getLinkedPort() = 0;
 
     inline void onLink() {
         for (const auto& callback : mOnLinks)
             callback();
+        valueUpdated();
     }
     inline void onUnlink() {
         for (const auto& callback : mOnUnlinks)
             callback();
+        valueUpdated();
     }
 private:
     int mID;
 
     std::string mDisplayName;
 
-    const Node& mParentNode;
+    const Node* mParentNode;
 
     std::vector<on_link_callback> mOnLinks{};
-    std::vector<on_link_callback> mOnUnlinks{};
+    std::vector<on_unlink_callback> mOnUnlinks{};
+    std::vector<on_update_callback> mOnUpdates{};
 };
 
 class InPort;
@@ -85,8 +109,9 @@ class OutPort final : public Port {
 public:
     typedef std::function<std::any()> get_node_value_callback;
 
+    OutPort();
     OutPort(const Node& parent, const std::string& displayName, get_node_value_callback getValue);
-    ~OutPort() final;
+    ~OutPort() final = default;
 
     void draw() const override;
     void drawLinks() const override;
@@ -118,6 +143,8 @@ public:
     void linkSoft(InPort& port);
 
     [[nodiscard]] const Node& getLinkParent() const;
+protected:
+    Port* getLinkedPort() final;
 private:
     InPort* mLink = nullptr;
 
@@ -126,9 +153,10 @@ private:
 
 class InPort final : public Port {
 public:
-    explicit InPort(const Node& parent, const std::string& displayName,
-                    std::vector<const std::type_info*> validConnections = {});
-    ~InPort() final;
+    InPort();
+    InPort(const Node& parent, const std::string& displayName,
+                    std::vector<std::type_index> validConnections = {});
+    ~InPort() final = default;
 
     void draw() const final;
     void drawLinks() const final;
@@ -161,10 +189,12 @@ public:
     void linkSoft(OutPort& port);
 
     bool isConnectionValid(const IPort& port);
+protected:
+    Port* getLinkedPort() final;
 private:
     OutPort* mLink = nullptr;
 
     int mLinkID = 0;
 
-    std::vector<const std::type_info*> mValidConnections;
+    std::vector<std::type_index> mValidConnections;
 };

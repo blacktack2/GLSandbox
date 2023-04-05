@@ -158,7 +158,7 @@ void Node::addPort(IPort& port) {
         assert(false); // Port must be an input or an output
 }
 
-void Node::removePort(IPort& port) {
+void Node::removePort(const IPort& port) {
     mPorts.erase(std::remove_if(mPorts.begin(), mPorts.end(),
                                [&port](const auto& other) { return port.getID() == other.get().getID(); }),
                  mPorts.end());

@@ -7,6 +7,8 @@ RenderPassNode::RenderPassNode() : Node("Render Pass") {
     addPort(mExecutionOutPort);
     addPort(mMeshInPort);
     addPort(mShaderInPort);
+
+    mShaderInPort.addOnUpdateCallback([this]() { onShaderUpdate(); });
 }
 
 void RenderPassNode::serializeContents(std::ofstream& streamOut) const {
@@ -44,6 +46,30 @@ RenderPassNode::pipeline_callback RenderPassNode::generateCallback() const {
     };
 }
 
-void RenderPassNode::onShaderLink() {
+void RenderPassNode::onShaderUpdate() {
+    clearUniformPorts();
+    if (!mShaderInPort.isLinked())
+        return;
+    const auto uniforms = std::any_cast<Shader*>(mShaderInPort.getLinkValue())->getUniforms();
+    mUniformInPorts.resize(uniforms.size());
+    for (size_t i = 0; i < uniforms.size(); i++) {
+        std::string& portName = mUniformInPorts[i].first;
+        const std::string& uniformName = uniforms[i].first;
+        portName = uniformName;
 
+        auto& portVec = mUniformInPorts[i].second;
+        auto& uniformVec = uniforms[i].second;
+        portVec.resize(uniformVec.size());
+        for (size_t j = 0; j < uniformVec.size(); j++) {
+            portVec[j] = InPort(*this, uniformVec[j].first, {uniformVec[j].second});
+            addPort(portVec[j]);
+        }
+    }
+}
+
+void RenderPassNode::clearUniformPorts() {
+    for (const auto& shaderPass : mUniformInPorts)
+        for (const auto& port : shaderPass.second)
+            removePort(port);
+    mUniformInPorts.clear();
 }

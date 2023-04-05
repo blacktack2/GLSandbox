@@ -32,13 +32,17 @@ protected:
 
     void drawContents() final;
 private:
-    void onShaderLink();
+    void onShaderUpdate();
 
-    InPort mExecutionInPort = InPort(*this, "In", {&typeid(void*), &typeid(RenderPassNode*)});
+    void clearUniformPorts();
+
+    InPort mExecutionInPort = InPort(*this, "In", {typeid(void*), typeid(RenderPassNode*)});
     OutPort mExecutionOutPort = OutPort(*this, "Out", [&]() { return this; });
 
-    InPort mMeshInPort = InPort(*this, "Mesh", {&typeid(Mesh*)});
-    InPort mShaderInPort = InPort(*this, "Shader", {&typeid(Shader*)});
+    InPort mMeshInPort = InPort(*this, "Mesh", {typeid(Mesh*)});
+    InPort mShaderInPort = InPort(*this, "Shader", {typeid(Shader*)});
+
+    std::vector<std::pair<std::string, std::vector<InPort>>> mUniformInPorts{};
 
     std::string errorText;
 };

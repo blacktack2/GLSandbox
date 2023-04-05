@@ -72,7 +72,7 @@ protected:
     virtual void drawContents() = 0;
 
     void addPort(IPort& port);
-    void removePort(IPort& port);
+    void removePort(const IPort& port);
 private:
     int mID;
 

@@ -70,8 +70,10 @@ void ShaderNode::drawContents() {
     drawShaderChooseButton("Geometry",  mGeomFile, findGeometryFiles, getGeometryFiles);
 
     const std::string loadShaderLabel = std::string("Reload Shader##Button_LoadShader_Node").append(std::to_string(getID()));
-    if (ImGui::Button(loadShaderLabel.c_str()))
+    if (ImGui::Button(loadShaderLabel.c_str())) {
         updateShader();
+        mShaderOutPort.valueUpdated();
+    }
 
     drawShaderStatus();
 }

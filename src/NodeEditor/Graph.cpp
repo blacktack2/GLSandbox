@@ -31,6 +31,8 @@ void Graph::deserialize(std::ifstream& streamIn) {
         unsigned int nodeType;
         streamIn >> nodeType;
         std::unique_ptr<Node> node = deserializeNodeType(nodeType);
+        if (!node)
+            continue;
         node->deserialize(streamIn, outPorts, links);
         addNode(std::move(node));
     }

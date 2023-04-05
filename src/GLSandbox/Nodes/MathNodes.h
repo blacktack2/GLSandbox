@@ -62,8 +62,8 @@ private:
         return OPERATIONS;
     };
 
-    InPort mValueAIn = InPort(*this, "A", {&typeid(float), &typeid(int)});
-    InPort mValueBIn = InPort(*this, "B", {&typeid(float), &typeid(int)});
+    InPort mValueAIn = InPort(*this, "A", {typeid(float), typeid(int)});
+    InPort mValueBIn = InPort(*this, "B", {typeid(float), typeid(int)});
 
     OutPort mValueOut = OutPort(*this, "Out", [&]() { return calculateValue(); });
 

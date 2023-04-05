@@ -9,16 +9,20 @@
 
 static int gPortIDCounter = 1;
 
+Port::Port() : mParentNode(nullptr), mDisplayName("INVALID"), mID(-1) {
+
+}
+
 Port::Port(const Node& parent, std::string displayName) :
-mParentNode(parent), mDisplayName(std::move(displayName)), mID{gPortIDCounter++} {
+mParentNode(&parent), mDisplayName(std::move(displayName)), mID{gPortIDCounter++} {
+}
+
+OutPort::OutPort() : Port(), mGetValue(nullptr) {
+
 }
 
 OutPort::OutPort(const Node& parent, const std::string& displayName, get_node_value_callback getValue) :
 Port(parent, displayName), mGetValue(std::move(getValue)) {
-}
-
-OutPort::~OutPort() {
-    unlink();
 }
 
 void OutPort::draw() const {
@@ -85,13 +89,17 @@ const Node& OutPort::getLinkParent() const {
     return mLink->getParent();
 }
 
-InPort::InPort(const Node& parent, const std::string& displayName,
-               std::vector<const std::type_info*> validConnections) :
-Port(parent, displayName), mValidConnections(std::move(validConnections)) {
+Port* OutPort::getLinkedPort() {
+    return mLink;
 }
 
-InPort::~InPort() {
-    unlink();
+InPort::InPort() : Port(), mValidConnections() {
+
+}
+
+InPort::InPort(const Node& parent, const std::string& displayName,
+               std::vector<std::type_index> validConnections) :
+Port(parent, displayName), mValidConnections(std::move(validConnections)) {
 }
 
 void InPort::draw() const {
@@ -162,7 +170,11 @@ void InPort::linkSoft(OutPort& port) {
 bool InPort::isConnectionValid(const IPort& port) {
     if (mValidConnections.empty())
         return true;
-    const std::type_info& type = port.getLinkValue().type();
+    const std::type_index type = port.getLinkValue().type();
     return std::any_of(mValidConnections.begin(), mValidConnections.end(),
-                       [&type](const std::type_info* other) { return *other == type; });
+                       [&type](const std::type_index other) { return other == type; });
+}
+
+Port* InPort::getLinkedPort() {
+    return mLink;
 }
