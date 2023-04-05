@@ -30,7 +30,7 @@ public:
     static void findTessEvalFiles();
     static void findGeometryFiles();
 protected:
-    [[nodiscard]] std::map<std::string, std::string> generateSerializedData() const final;
+    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
     void drawContents() override;

@@ -11,8 +11,8 @@ RenderPassNode::RenderPassNode() : Node("Render Pass") {
     mShaderInPort.addOnUpdateCallback([this]() { onShaderUpdate(); });
 }
 
-std::map<std::string, std::string> RenderPassNode::generateSerializedData() const {
-    return std::map<std::string, std::string>();
+std::vector<std::pair<std::string, std::string>> RenderPassNode::generateSerializedData() const {
+    return {};
 }
 
 void RenderPassNode::deserializeData(const std::string& dataID, std::ifstream& stream) {

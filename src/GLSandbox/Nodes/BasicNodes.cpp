@@ -6,8 +6,8 @@ IntegerNode::IntegerNode() : Node("Integer") {
     addPort(mIntOut);
 }
 
-std::map<std::string, std::string> IntegerNode::generateSerializedData() const {
-    return std::map<std::string, std::string>{
+std::vector<std::pair<std::string, std::string>> IntegerNode::generateSerializedData() const {
+    return {
         {"Value", std::to_string(mValue)},
     };
 }
@@ -26,8 +26,8 @@ FloatNode::FloatNode() : Node("Float") {
     addPort(mFloatOut);
 }
 
-std::map<std::string, std::string> FloatNode::generateSerializedData() const {
-    return std::map<std::string, std::string>{
+std::vector<std::pair<std::string, std::string>> FloatNode::generateSerializedData() const {
+    return {
         {"Value", std::to_string(mValue)},
     };
 }

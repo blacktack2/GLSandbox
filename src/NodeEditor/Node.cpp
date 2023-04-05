@@ -29,17 +29,17 @@ void Node::serialize(std::ofstream& streamOut) const {
     glm::vec2 position = getAbsolutePositionC();
     std::string serializedPosition = std::to_string(position.x).append(" ").append(std::to_string(position.y));
 
-    std::map<std::string, std::string> data{};
+    std::vector<std::pair<std::string, std::string>> data{};
 
-    data.emplace(gSERIAL_DATA_ID, serializedID);
-    data.emplace(gSERIAL_DATA_POSITION, serializedPosition);
+    data.emplace_back(gSERIAL_DATA_ID, serializedID);
+    data.emplace_back(gSERIAL_DATA_POSITION, serializedPosition);
 
     for (const InPort& port : mInPorts)
-        data.emplace(gSERIAL_DATA_INPORT, std::string(port.getUniqueName()).append(" ")
-                     .append(std::to_string(port.getLinkedPortID())));
+        data.emplace_back(gSERIAL_DATA_INPORT, std::string(port.getUniqueName()).append(" ")
+                          .append(std::to_string(port.getLinkedPortID())));
     for (const OutPort& port : mOutPorts)
-        data.emplace(gSERIAL_DATA_OUTPORT, std::string(port.getUniqueName()).append(" ")
-                     .append(std::to_string(port.getID())));
+        data.emplace_back(gSERIAL_DATA_OUTPORT, std::string(port.getUniqueName()).append(" ")
+                          .append(std::to_string(port.getID())));
 
     writeDataPoints(streamOut, gSERIAL_DATA_PREFIX, data);
 
@@ -219,7 +219,7 @@ void Node::removePort(const IPort& port) {
 }
 
 void Node::writeDataPoints(std::ofstream& streamOut, char prefix,
-                           const std::map<std::string, std::string>& dataPoints) const {
+                           const std::vector<std::pair<std::string, std::string>>& dataPoints) const {
     for (const auto& dataPair : dataPoints)
         SerializationUtils::writeDataPoint(streamOut, prefix, dataPair.first, dataPair.second);
 }

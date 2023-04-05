@@ -73,8 +73,8 @@ void MeshNode::clearAttributes() {
     mIndices.clear();
 }
 
-std::map<std::string, std::string> MeshNode::generateSerializedData() const {
-    return std::map<std::string, std::string>{
+std::vector<std::pair<std::string, std::string>> MeshNode::generateSerializedData() const {
+    return {
         {"File", mFilename},
         {"Type", std::to_string((unsigned int)mType)},
         {"VertexCount", std::to_string(mNumVertices)},

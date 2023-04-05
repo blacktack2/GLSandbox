@@ -35,19 +35,19 @@ void ShaderNode::findGeometryFiles() {
     findFiles(getGeometryFiles(), getValidGeometryFileExtensions());
 }
 
-std::map<std::string, std::string> ShaderNode::generateSerializedData() const {
-    std::map<std::string, std::string> data;
+std::vector<std::pair<std::string, std::string>> ShaderNode::generateSerializedData() const {
+    std::vector<std::pair<std::string, std::string>> data;
 
     if (!mVertFile.empty())
-        data.emplace("Vertex", mVertFile);
+        data.emplace_back("Vertex", mVertFile);
     if (!mFragFile.empty())
-        data.emplace("Fragment", mFragFile);
+        data.emplace_back("Fragment", mFragFile);
     if (!mTescFile.empty())
-        data.emplace("TessCont", mTescFile);
+        data.emplace_back("TessCont", mTescFile);
     if (!mTeseFile.empty())
-        data.emplace("TessEval", mTeseFile);
+        data.emplace_back("TessEval", mTeseFile);
     if (!mGeomFile.empty())
-        data.emplace("Geometry", mGeomFile);
+        data.emplace_back("Geometry", mGeomFile);
 
     return data;
 }

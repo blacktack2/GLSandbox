@@ -2,8 +2,8 @@
 
 #include <imgui.h>
 
-std::map<std::string, std::string> ArithmeticNode::generateSerializedData() const {
-    return std::map<std::string, std::string>();
+std::vector<std::pair<std::string, std::string>> ArithmeticNode::generateSerializedData() const {
+    return {};
 }
 
 void ArithmeticNode::deserializeData(const std::string& dataID, std::ifstream& stream) {

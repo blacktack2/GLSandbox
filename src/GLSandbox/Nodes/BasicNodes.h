@@ -14,7 +14,7 @@ public:
         return (unsigned int)NodeType::Integer;
     }
 protected:
-    [[nodiscard]] std::map<std::string, std::string> generateSerializedData() const final;
+    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
     void drawContents() final;
@@ -32,7 +32,7 @@ public:
         return (unsigned int)NodeType::Float;
     }
 protected:
-    [[nodiscard]] std::map<std::string, std::string> generateSerializedData() const final;
+    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
     void drawContents() final;

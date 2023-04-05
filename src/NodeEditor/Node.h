@@ -68,7 +68,7 @@ public:
 protected:
     explicit Node(std::string title);
 
-    [[nodiscard]] virtual std::map<std::string, std::string> generateSerializedData() const = 0;
+    [[nodiscard]] virtual std::vector<std::pair<std::string, std::string>> generateSerializedData() const = 0;
     virtual void deserializeData(const std::string& dataID, std::ifstream& stream) = 0;
 
     virtual void onSerialize() const {};
@@ -79,7 +79,7 @@ protected:
     void removePort(const IPort& port);
 private:
     void writeDataPoints(std::ofstream& streamOut, char prefix,
-                         const std::map<std::string, std::string>& dataPoints) const;
+                         const std::vector<std::pair<std::string, std::string>>& dataPoints) const;
 
     int mID;
 

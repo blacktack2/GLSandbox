@@ -8,8 +8,8 @@ EntryNode::EntryNode(IPipelineHandler& pipelineHandler) : Node("Entry"), mPipeli
     addPort(mExecutionOutPort);
 }
 
-std::map<std::string, std::string> EntryNode::generateSerializedData() const {
-    return std::map<std::string, std::string>();
+std::vector<std::pair<std::string, std::string>> EntryNode::generateSerializedData() const {
+    return {};
 }
 
 void EntryNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
@@ -52,8 +52,8 @@ ExitNode::ExitNode() : Node("Exit") {
     addPort(mExecutionInPort);
 }
 
-std::map<std::string, std::string> ExitNode::generateSerializedData() const {
-    return std::map<std::string, std::string>();
+std::vector<std::pair<std::string, std::string>> ExitNode::generateSerializedData() const {
+    return {};
 }
 
 void ExitNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
