@@ -71,8 +71,6 @@ protected:
     [[nodiscard]] virtual std::vector<std::pair<std::string, std::string>> generateSerializedData() const = 0;
     virtual void deserializeData(const std::string& dataID, std::ifstream& stream) = 0;
 
-    virtual void onSerialize() const {};
-
     virtual void drawContents() = 0;
 
     void addPort(IPort& port);

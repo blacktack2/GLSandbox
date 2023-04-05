@@ -46,8 +46,6 @@ void Node::serialize(std::ofstream& streamOut) const {
     SerializationUtils::writeBeginMark(streamOut, gSERIAL_MARK_DATA);
     writeDataPoints(streamOut, gSERIAL_SUBDATA_PREFIX, generateSerializedData());
     SerializationUtils::writeEndMark(streamOut, gSERIAL_MARK_DATA);
-
-    onSerialize();
 }
 
 void Node::deserialize(std::ifstream& streamIn, std::streampos end,

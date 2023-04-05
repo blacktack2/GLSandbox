@@ -35,8 +35,6 @@ protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
-    void onSerialize() const final;
-
     void drawContents() override;
 private:
     class IAttribute {
@@ -170,10 +168,10 @@ private:
     typedef std::function<std::unique_ptr<IAttribute>()> create_attribute_callback;
 
     void loadFromStreamOBJ(std::ifstream& stream);
-    void loadFromStreamOBJEXT(std::ifstream& stream);
-    void writeToStreamOBJEXT(std::ofstream& stream) const;
+    void loadFromStreamMSH(std::ifstream& stream);
+    void writeToStreamMSH(std::ofstream& stream) const;
 
-    void generateFilename();
+    std::string generateFilename() const;
 
     void uploadMesh();
 

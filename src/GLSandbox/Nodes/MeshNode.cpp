@@ -74,8 +74,16 @@ void MeshNode::clearAttributes() {
 }
 
 std::vector<std::pair<std::string, std::string>> MeshNode::generateSerializedData() const {
+    std::string filename = mFilename;
+    if (filename.empty())
+        filename = generateFilename();
+
+    std::ofstream meshStream(std::string(gMESH_ASSET_DIR).append(filename).append(gMESH_ASSET_EXTENSION));
+    if (meshStream)
+        writeToStreamMSH(meshStream);
+
     return {
-        {"File", mFilename},
+        {"File", filename},
         {"Type", std::to_string((unsigned int)mType)},
         {"VertexCount", std::to_string(mNumVertices)},
         {"IndexCount", std::to_string(mNumIndices)},
@@ -87,7 +95,7 @@ void MeshNode::deserializeData(const std::string& dataID, std::ifstream& stream)
         stream >> mFilename;
         std::ifstream meshStream(std::string(gMESH_ASSET_DIR).append(mFilename).append(gMESH_ASSET_EXTENSION));
         if (meshStream)
-            loadFromStreamOBJEXT(meshStream);
+            loadFromStreamMSH(meshStream);
     } else if (dataID == "Type") {
         unsigned int type;
         stream >> type;
@@ -97,12 +105,6 @@ void MeshNode::deserializeData(const std::string& dataID, std::ifstream& stream)
     } else if (dataID == "IndexCount") {
         stream >> mNumIndices;
     }
-}
-
-void MeshNode::onSerialize() const {
-    std::ofstream meshStream(std::string(gMESH_ASSET_DIR).append(mFilename).append(gMESH_ASSET_EXTENSION));
-    if (meshStream)
-        writeToStreamOBJEXT(meshStream);
 }
 
 void MeshNode::drawContents() {
@@ -192,7 +194,7 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
     normAttr->setName("normal");
 }
 
-void MeshNode::loadFromStreamOBJEXT(std::ifstream& stream) {
+void MeshNode::loadFromStreamMSH(std::ifstream& stream) {
     clearAttributes();
     while (!stream.eof()) {
         std::string name;
@@ -243,8 +245,8 @@ void MeshNode::loadFromStreamOBJEXT(std::ifstream& stream) {
     }
 }
 
-void MeshNode::writeToStreamOBJEXT(std::ofstream& stream) const {
-    stream << "# GLSandbox OBJEXT File: " << mFilename << "\n";
+void MeshNode::writeToStreamMSH(std::ofstream& stream) const {
+    stream << "# GLSandbox MSH File: " << mFilename << "\n";
 
     for (const auto& attrPair : mAttributes)
         for (const auto& attr : attrPair.second)
@@ -254,7 +256,7 @@ void MeshNode::writeToStreamOBJEXT(std::ofstream& stream) const {
     }
 }
 
-void MeshNode::generateFilename() {
+std::string MeshNode::generateFilename() const {
     static const std::regex cDEFAULT_FILE_REGEX("^Mesh(0-9)+$");
 
     std::unordered_set<unsigned int> paths;
@@ -269,7 +271,7 @@ void MeshNode::generateFilename() {
     unsigned int counter = 0;
     while (paths.contains(++counter)) {}
 
-    mFilename = std::string("Mesh").append(std::to_string(counter));
+    return std::string("Mesh").append(std::to_string(counter));
 }
 
 void MeshNode::uploadMesh() {
