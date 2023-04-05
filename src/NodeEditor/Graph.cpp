@@ -1,6 +1,13 @@
 #include "Graph.h"
 
+#include "SerializationUtils.h"
+
 #include <imnodes.h>
+
+static constexpr char gSERIAL_MARK_NODE[] = "Node";
+
+static constexpr char gSERIAL_DATA_PREFIX = '^';
+static constexpr char gSERIAL_DATA_NODE_TYPE[] = "Type";
 
 Graph::Graph() {
     mContext = ImNodes::CreateContext();
@@ -12,10 +19,12 @@ Graph::~Graph() {
 }
 
 void Graph::serialize(std::ofstream& streamOut) const {
-    streamOut << mNodes.size() << "\n";
     for (const auto& node : mNodes) {
-        streamOut << node->getTypeID() << "\n";
+        SerializationUtils::writeBeginMark(streamOut, gSERIAL_MARK_NODE);
+        SerializationUtils::writeDataPoint(streamOut, gSERIAL_DATA_PREFIX, gSERIAL_DATA_NODE_TYPE,
+                                           std::to_string(node->getTypeID()));
         node->serialize(streamOut);
+        SerializationUtils::writeEndMark(streamOut, gSERIAL_MARK_NODE);
     }
 }
 
@@ -25,16 +34,32 @@ void Graph::deserialize(std::ifstream& streamIn) {
     std::unordered_map<int, std::reference_wrapper<OutPort>> outPorts;
     std::vector<std::pair<std::reference_wrapper<InPort>, int>> links;
 
-    size_t numNodes;
-    streamIn >> numNodes;
-    for (size_t i = 0; i < numNodes; i++) {
+    std::streampos begin = streamIn.tellg();
+    std::streampos end = SerializationUtils::findEnd(streamIn);
+
+    std::streampos markBegin, markEnd;
+    while (SerializationUtils::findNextMarkPair(streamIn, end, gSERIAL_MARK_NODE, markBegin, markEnd)) {
+        streamIn.seekg(markBegin);
+
         unsigned int nodeType;
-        streamIn >> nodeType;
+
+        std::string dataID;
+        while (SerializationUtils::seekNextDataPoint(streamIn, markEnd, gSERIAL_DATA_PREFIX, dataID)) {
+            if (dataID == gSERIAL_DATA_NODE_TYPE) {
+                streamIn >> nodeType;
+                continue;
+            }
+            SerializationUtils::skipToNextLine(streamIn);
+        }
+
         std::unique_ptr<Node> node = deserializeNodeType(nodeType);
-        if (!node)
-            continue;
-        node->deserialize(streamIn, outPorts, links);
-        addNode(std::move(node));
+
+        streamIn.seekg(markBegin);
+        if (node) {
+            node->deserialize(streamIn, markEnd, outPorts, links);
+            addNode(std::move(node));
+        }
+        streamIn.seekg(markEnd);
     }
 
     for (auto& link : links) {

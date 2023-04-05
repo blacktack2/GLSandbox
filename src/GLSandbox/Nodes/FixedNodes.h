@@ -13,8 +13,8 @@ public:
         return (unsigned int)NodeType::Entry;
     }
 protected:
-    void serializeContents(std::ofstream& streamOut) const final;
-    void deserializeContents(std::ifstream& streamIn) final;
+    [[nodiscard]] std::map<std::string, std::string> generateSerializedData() const final;
+    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
     void drawContents() final;
 private:
@@ -23,7 +23,7 @@ private:
 
     IPipelineHandler& mPipelineHandler;
 
-    OutPort mExecutionOutPort = OutPort(*this, "Out", [&]() { return (void*)nullptr; });
+    OutPort mExecutionOutPort = OutPort(*this, "ExecutionOut", "Out", [&]() { return (void*)nullptr; });
 };
 
 class ExitNode final : public Node {
@@ -35,10 +35,10 @@ public:
         return (unsigned int)NodeType::Exit;
     }
 protected:
-    void serializeContents(std::ofstream& streamOut) const final;
-    void deserializeContents(std::ifstream& streamIn) final;
+    [[nodiscard]] std::map<std::string, std::string> generateSerializedData() const final;
+    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
     void drawContents() final;
 private:
-    InPort mExecutionInPort = InPort(*this, "In");
+    InPort mExecutionInPort = InPort(*this, "ExecutionIn", "In");
 };

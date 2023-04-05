@@ -30,8 +30,8 @@ public:
     static void findTessEvalFiles();
     static void findGeometryFiles();
 protected:
-    void serializeContents(std::ofstream& streamOut) const final;
-    void deserializeContents(std::ifstream& streamIn) final;
+    [[nodiscard]] std::map<std::string, std::string> generateSerializedData() const final;
+    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
     void drawContents() override;
 private:
@@ -90,7 +90,7 @@ private:
     }
 
     std::unique_ptr<Shader> mShader = std::make_unique<Shader>();
-    OutPort mShaderOutPort = OutPort(*this, "Shader", [&]() { return mShader.get(); });
+    OutPort mShaderOutPort = OutPort(*this, "ShaderOut", "Shader", [&]() { return mShader.get(); });
 
     std::string mVertFile;
     std::string mFragFile;

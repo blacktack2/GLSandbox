@@ -8,11 +8,11 @@ EntryNode::EntryNode(IPipelineHandler& pipelineHandler) : Node("Entry"), mPipeli
     addPort(mExecutionOutPort);
 }
 
-void EntryNode::serializeContents(std::ofstream& streamOut) const {
-
+std::map<std::string, std::string> EntryNode::generateSerializedData() const {
+    return std::map<std::string, std::string>();
 }
 
-void EntryNode::deserializeContents(std::ifstream& streamIn) {
+void EntryNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
 
 }
 
@@ -30,7 +30,9 @@ bool EntryNode::validatePipeline() {
         if (!current->validate())
             return false;
 
-        current = current->getNextPass();
+        const RenderPassNode* next = current->getNextPass();
+        if (next == current)
+            return false;
     }
     return true;
 }
@@ -50,11 +52,11 @@ ExitNode::ExitNode() : Node("Exit") {
     addPort(mExecutionInPort);
 }
 
-void ExitNode::serializeContents(std::ofstream& streamOut) const {
-
+std::map<std::string, std::string> ExitNode::generateSerializedData() const {
+    return std::map<std::string, std::string>();
 }
 
-void ExitNode::deserializeContents(std::ifstream& streamIn) {
+void ExitNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
 
 }
 

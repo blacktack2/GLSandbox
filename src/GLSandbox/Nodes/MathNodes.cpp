@@ -2,11 +2,11 @@
 
 #include <imgui.h>
 
-void ArithmeticNode::serializeContents(std::ofstream& streamOut) const {
-
+std::map<std::string, std::string> ArithmeticNode::generateSerializedData() const {
+    return std::map<std::string, std::string>();
 }
 
-void ArithmeticNode::deserializeContents(std::ifstream& streamIn) {
+void ArithmeticNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
 
 }
 

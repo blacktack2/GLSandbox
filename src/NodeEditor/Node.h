@@ -5,6 +5,7 @@
 
 #include <functional>
 #include <fstream>
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -22,7 +23,8 @@ public:
     [[nodiscard]] virtual unsigned int getTypeID() = 0;
 
     void serialize(std::ofstream& streamOut) const;
-    void deserialize(std::ifstream& streamIn, std::unordered_map<int, std::reference_wrapper<OutPort>>& outPorts,
+    void deserialize(std::ifstream& streamIn, std::streampos end,
+                     std::unordered_map<int, std::reference_wrapper<OutPort>>& outPorts,
                      std::vector<std::pair<std::reference_wrapper<InPort>, int>>& links);
 
     void draw();
@@ -66,14 +68,19 @@ public:
 protected:
     explicit Node(std::string title);
 
-    virtual void serializeContents(std::ofstream& streamOut) const = 0;
-    virtual void deserializeContents(std::ifstream& streamIn) = 0;
+    [[nodiscard]] virtual std::map<std::string, std::string> generateSerializedData() const = 0;
+    virtual void deserializeData(const std::string& dataID, std::ifstream& stream) = 0;
+
+    virtual void onSerialize() const {};
 
     virtual void drawContents() = 0;
 
     void addPort(IPort& port);
     void removePort(const IPort& port);
 private:
+    void writeDataPoints(std::ofstream& streamOut, char prefix,
+                         const std::map<std::string, std::string>& dataPoints) const;
+
     int mID;
 
     std::string mTitle;

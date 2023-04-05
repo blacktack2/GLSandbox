@@ -14,13 +14,13 @@ public:
         return (unsigned int)NodeType::Integer;
     }
 protected:
-    void serializeContents(std::ofstream& streamOut) const final;
-    void deserializeContents(std::ifstream& streamIn) final;
+    [[nodiscard]] std::map<std::string, std::string> generateSerializedData() const final;
+    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
     void drawContents() final;
 private:
     int mValue = 0;
-    OutPort mIntOut = OutPort(*this, "Value", [&]() { return mValue; });
+    OutPort mIntOut = OutPort(*this, "IntOut", "Value", [&]() { return mValue; });
 };
 
 class FloatNode final : public Node {
@@ -32,11 +32,11 @@ public:
         return (unsigned int)NodeType::Float;
     }
 protected:
-    void serializeContents(std::ofstream& streamOut) const final;
-    void deserializeContents(std::ifstream& streamIn) final;
+    [[nodiscard]] std::map<std::string, std::string> generateSerializedData() const final;
+    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
     void drawContents() final;
 private:
     float mValue = 0.0f;
-    OutPort mFloatOut = OutPort(*this, "Value", [&]() { return mValue; });
+    OutPort mFloatOut = OutPort(*this, "FloatOut", "Value", [&]() { return mValue; });
 };

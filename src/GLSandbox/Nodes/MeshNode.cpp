@@ -73,30 +73,36 @@ void MeshNode::clearAttributes() {
     mIndices.clear();
 }
 
-void MeshNode::serializeContents(std::ofstream& streamOut) const {
-    if (mFilename.empty())
-        const_cast<MeshNode*>(this)->generateFilename();
-    streamOut << mFilename << "\n";
-    streamOut << (unsigned int)mType << "\n";
-    streamOut << mNumVertices << "\n";
-    streamOut << mNumIndices << "\n";
+std::map<std::string, std::string> MeshNode::generateSerializedData() const {
+    return std::map<std::string, std::string>{
+        {"File", mFilename},
+        {"Type", std::to_string((unsigned int)mType)},
+        {"VertexCount", std::to_string(mNumVertices)},
+        {"IndexCount", std::to_string(mNumIndices)},
+    };
+}
 
+void MeshNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
+    if (dataID == "File") {
+        stream >> mFilename;
+        std::ifstream meshStream(std::string(gMESH_ASSET_DIR).append(mFilename).append(gMESH_ASSET_EXTENSION));
+        if (meshStream)
+            loadFromStreamOBJEXT(meshStream);
+    } else if (dataID == "Type") {
+        unsigned int type;
+        stream >> type;
+        mType = (Mesh::Type)type;
+    } else if (dataID == "VertexCount") {
+        stream >> mNumVertices;
+    } else if (dataID == "IndexCount") {
+        stream >> mNumIndices;
+    }
+}
+
+void MeshNode::onSerialize() const {
     std::ofstream meshStream(std::string(gMESH_ASSET_DIR).append(mFilename).append(gMESH_ASSET_EXTENSION));
     if (meshStream)
         writeToStreamOBJEXT(meshStream);
-}
-
-void MeshNode::deserializeContents(std::ifstream& streamIn) {
-    streamIn >> mFilename;
-    unsigned int type;
-    streamIn >> type;
-    mType = (Mesh::Type)type;
-    streamIn >> mNumVertices;
-    streamIn >> mNumIndices;
-
-    std::ifstream meshStream(std::string(gMESH_ASSET_DIR).append(mFilename).append(gMESH_ASSET_EXTENSION));
-    if (meshStream)
-        loadFromStreamOBJEXT(meshStream);
 }
 
 void MeshNode::drawContents() {

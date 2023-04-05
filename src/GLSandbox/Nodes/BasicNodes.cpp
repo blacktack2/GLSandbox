@@ -6,12 +6,15 @@ IntegerNode::IntegerNode() : Node("Integer") {
     addPort(mIntOut);
 }
 
-void IntegerNode::serializeContents(std::ofstream& streamOut) const {
-    streamOut << mValue;
+std::map<std::string, std::string> IntegerNode::generateSerializedData() const {
+    return std::map<std::string, std::string>{
+        {"Value", std::to_string(mValue)},
+    };
 }
 
-void IntegerNode::deserializeContents(std::ifstream& streamIn) {
-    streamIn >> mValue;
+void IntegerNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
+    if (dataID == "Value")
+        stream >> mValue;
 }
 
 void IntegerNode::drawContents() {
@@ -23,12 +26,15 @@ FloatNode::FloatNode() : Node("Float") {
     addPort(mFloatOut);
 }
 
-void FloatNode::serializeContents(std::ofstream& streamOut) const {
-    streamOut << mValue;
+std::map<std::string, std::string> FloatNode::generateSerializedData() const {
+    return std::map<std::string, std::string>{
+        {"Value", std::to_string(mValue)},
+    };
 }
 
-void FloatNode::deserializeContents(std::ifstream& streamIn) {
-    streamIn >> mValue;
+void FloatNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
+    if (dataID == "Value")
+        stream >> mValue;
 }
 
 void FloatNode::drawContents() {

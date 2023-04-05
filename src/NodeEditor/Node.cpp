@@ -1,5 +1,7 @@
 #include "Node.h"
 
+#include "SerializationUtils.h"
+
 #include <imgui.h>
 #include <imnodes.h>
 
@@ -7,56 +9,102 @@
 
 static int gNodeIDCounter = 1;
 
+static constexpr char gSERIAL_MARK_PREFIX = '%';
+static constexpr char gSERIAL_MARK_DATA[] = "Data";
+
+static constexpr char gSERIAL_DATA_PREFIX = '-';
+static constexpr char gSERIAL_DATA_ID[] = "ID";
+static constexpr char gSERIAL_DATA_POSITION[] = "Position";
+static constexpr char gSERIAL_DATA_INPORT[] = "InPort";
+static constexpr char gSERIAL_DATA_OUTPORT[] = "OutPort";
+
+static constexpr char gSERIAL_SUBDATA_PREFIX = '-';
+
 Node::Node(std::string title) : mTitle(std::move(title)), mID{gNodeIDCounter++} {
     ImNodes::SetNodeScreenSpacePos(getID(), ImVec2(0.0f, 0.0f));
 }
 
 void Node::serialize(std::ofstream& streamOut) const {
-    streamOut << getID() << "\n";
-
+    std::string serializedID = std::to_string(getID());
     glm::vec2 position = getAbsolutePositionC();
-    streamOut << position.x << "\n";
-    streamOut << position.y << "\n";
+    std::string serializedPosition = std::to_string(position.x).append(" ").append(std::to_string(position.y));
 
-    for (InPort& port : mInPorts) {
-        streamOut << port.getID() << "\n";
-        streamOut << port.getLinkedPortID() << "\n";
-    }
+    std::map<std::string, std::string> data{};
 
-    for (OutPort& port : mOutPorts) {
-        streamOut << port.getID() << "\n";
-    }
+    data.emplace(gSERIAL_DATA_ID, serializedID);
+    data.emplace(gSERIAL_DATA_POSITION, serializedPosition);
 
-    serializeContents(streamOut);
+    for (const InPort& port : mInPorts)
+        data.emplace(gSERIAL_DATA_INPORT, std::string(port.getUniqueName()).append(" ")
+                     .append(std::to_string(port.getLinkedPortID())));
+    for (const OutPort& port : mOutPorts)
+        data.emplace(gSERIAL_DATA_OUTPORT, std::string(port.getUniqueName()).append(" ")
+                     .append(std::to_string(port.getID())));
+
+    writeDataPoints(streamOut, gSERIAL_DATA_PREFIX, data);
+
+    SerializationUtils::writeBeginMark(streamOut, gSERIAL_MARK_DATA);
+    writeDataPoints(streamOut, gSERIAL_SUBDATA_PREFIX, generateSerializedData());
+    SerializationUtils::writeEndMark(streamOut, gSERIAL_MARK_DATA);
+
+    onSerialize();
 }
 
-void Node::deserialize(std::ifstream& streamIn, std::unordered_map<int, std::reference_wrapper<OutPort>>& outPorts,
+void Node::deserialize(std::ifstream& streamIn, std::streampos end,
+                       std::unordered_map<int, std::reference_wrapper<OutPort>>& outPorts,
                        std::vector<std::pair<std::reference_wrapper<InPort>, int>>& links) {
-    int id;
-    streamIn >> id;
-    if (id != -1)
-        mID = id;
+    std::streampos begin = streamIn.tellg();
 
-    float posX, posY;
-    streamIn >> posX;
-    streamIn >> posY;
-    setAbsolutePosition({posX, posY});
-
-    for (InPort& port : mInPorts) {
-        int portID, linkID;
-        streamIn >> portID;
-        streamIn >> linkID;
-        if (linkID != -1)
-            links.emplace_back(port, linkID);
+    std::string dataID;
+    while (SerializationUtils::seekNextDataPoint(streamIn, end, gSERIAL_DATA_PREFIX, dataID)) {
+        if (dataID == gSERIAL_DATA_ID) {
+            streamIn >> dataID;
+        } else if (dataID == gSERIAL_DATA_POSITION) {
+            glm::vec2 position;
+            streamIn >> position.x;
+            streamIn >> position.y;
+            setAbsolutePosition(position);
+        } else if (dataID == gSERIAL_DATA_INPORT) {
+            std::string uniqueName;
+            int linkID;
+            streamIn >> uniqueName;
+            streamIn >> linkID;
+            for (InPort& port : mInPorts) {
+                if (port.getUniqueName() == uniqueName) {
+                    links.emplace_back(port, linkID);
+                    break;
+                }
+            }
+        } else if (dataID == gSERIAL_DATA_OUTPORT) {
+            std::string uniqueName;
+            int id;
+            streamIn >> uniqueName;
+            streamIn >> id;
+            for (OutPort& port : mOutPorts) {
+                if (port.getUniqueName() == uniqueName) {
+                    outPorts.emplace(id, port);
+                    break;
+                }
+            }
+        } else {
+            SerializationUtils::skipToNextLine(streamIn);
+        }
     }
 
-    for (OutPort& port : mOutPorts) {
-        int portID;
-        streamIn >> portID;
-        outPorts.emplace(portID, port);
+    streamIn.seekg(begin);
+    std::streampos markBegin, markEnd;
+    while (SerializationUtils::findNextMarkPair(streamIn, end, gSERIAL_MARK_DATA, markBegin, markEnd)) {
+        streamIn.seekg(markBegin);
+        std::string subdataID;
+        while (SerializationUtils::seekNextDataPoint(streamIn, markEnd, gSERIAL_SUBDATA_PREFIX, subdataID)) {
+            std::streampos current = streamIn.tellg();
+            deserializeData(subdataID, streamIn);
+            streamIn.seekg(current);
+            SerializationUtils::skipToNextLine(streamIn);
+        }
+        streamIn.seekg(markEnd);
     }
-
-    deserializeContents(streamIn);
+    streamIn.seekg(end);
 }
 
 void Node::draw() {
@@ -168,4 +216,10 @@ void Node::removePort(const IPort& port) {
     mOutPorts.erase(std::remove_if(mOutPorts.begin(), mOutPorts.end(),
                                [&port](const auto& other) { return port.getID() == other.get().getID(); }),
                     mOutPorts.end());
+}
+
+void Node::writeDataPoints(std::ofstream& streamOut, char prefix,
+                           const std::map<std::string, std::string>& dataPoints) const {
+    for (const auto& dataPair : dataPoints)
+        SerializationUtils::writeDataPoint(streamOut, prefix, dataPair.first, dataPair.second);
 }

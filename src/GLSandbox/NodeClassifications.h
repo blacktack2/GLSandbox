@@ -12,6 +12,8 @@ enum class NodeType {
 
     Mesh   = 400,
     Shader = 401,
+
+    Undefined = -1
 };
 
 enum class NodeGroup {

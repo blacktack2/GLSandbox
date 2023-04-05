@@ -35,31 +35,35 @@ void ShaderNode::findGeometryFiles() {
     findFiles(getGeometryFiles(), getValidGeometryFileExtensions());
 }
 
-void ShaderNode::serializeContents(std::ofstream& streamOut) const {
-    streamOut << (mVertFile.empty() ? "null" : mVertFile) << "\n";
-    streamOut << (mFragFile.empty() ? "null" : mFragFile) << "\n";
-    streamOut << (mTescFile.empty() ? "null" : mTescFile) << "\n";
-    streamOut << (mTeseFile.empty() ? "null" : mTeseFile) << "\n";
-    streamOut << (mGeomFile.empty() ? "null" : mGeomFile) << "\n";
+std::map<std::string, std::string> ShaderNode::generateSerializedData() const {
+    std::map<std::string, std::string> data;
+
+    if (!mVertFile.empty())
+        data.emplace("Vertex", mVertFile);
+    if (!mFragFile.empty())
+        data.emplace("Fragment", mFragFile);
+    if (!mTescFile.empty())
+        data.emplace("TessCont", mTescFile);
+    if (!mTeseFile.empty())
+        data.emplace("TessEval", mTeseFile);
+    if (!mGeomFile.empty())
+        data.emplace("Geometry", mGeomFile);
+
+    return data;
 }
 
-void ShaderNode::deserializeContents(std::ifstream& streamIn) {
-    std::string vert, frag, tesc, tese, geom;
-
-    streamIn >> vert;
-    mVertFile = vert == "null" ? "" : vert;
-
-    streamIn >> frag;
-    mFragFile = frag == "null" ? "" : frag;
-
-    streamIn >> tesc;
-    mTescFile = tesc == "null" ? "" : tesc;
-
-    streamIn >> tese;
-    mTeseFile = tese == "null" ? "" : tese;
-
-    streamIn >> geom;
-    mGeomFile = geom == "null" ? "" : geom;
+void ShaderNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
+    if (dataID == "Vertex") {
+        stream >> mVertFile;
+    } else if (dataID == "Fragment") {
+        stream >> mFragFile;
+    } else if (dataID == "TessCont") {
+        stream >> mTescFile;
+    } else if (dataID == "TessEval") {
+        stream >> mTeseFile;
+    } else if (dataID == "Geometry") {
+        stream >> mGeomFile;
+    }
 }
 
 void ShaderNode::drawContents() {

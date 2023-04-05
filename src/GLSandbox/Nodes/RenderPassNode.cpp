@@ -11,11 +11,11 @@ RenderPassNode::RenderPassNode() : Node("Render Pass") {
     mShaderInPort.addOnUpdateCallback([this]() { onShaderUpdate(); });
 }
 
-void RenderPassNode::serializeContents(std::ofstream& streamOut) const {
-
+std::map<std::string, std::string> RenderPassNode::generateSerializedData() const {
+    return std::map<std::string, std::string>();
 }
 
-void RenderPassNode::deserializeContents(std::ifstream& streamIn) {
+void RenderPassNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
 
 }
 
@@ -61,7 +61,7 @@ void RenderPassNode::onShaderUpdate() {
         auto& uniformVec = uniforms[i].second;
         portVec.resize(uniformVec.size());
         for (size_t j = 0; j < uniformVec.size(); j++) {
-            portVec[j] = InPort(*this, uniformVec[j].first, {uniformVec[j].second});
+            portVec[j] = InPort(*this, std::string("DynamicIn").append(std::to_string(j)), uniformVec[j].first, {uniformVec[j].second});
             addPort(portVec[j]);
         }
     }

@@ -75,9 +75,13 @@ public:
     [[nodiscard]] const Node& getParent() const final {
         return *mParentNode;
     }
+
+    inline const std::string& getUniqueName() const {
+        return mUniqueName;
+    }
 protected:
     Port();
-    Port(const Node& parent, std::string displayName);
+    Port(const Node& parent, const std::string& uniqueName, std::string displayName);
 
     virtual Port* getLinkedPort() = 0;
 
@@ -95,6 +99,7 @@ private:
     int mID;
 
     std::string mDisplayName;
+    std::string mUniqueName;
 
     const Node* mParentNode;
 
@@ -110,7 +115,7 @@ public:
     typedef std::function<std::any()> get_node_value_callback;
 
     OutPort();
-    OutPort(const Node& parent, const std::string& displayName, get_node_value_callback getValue);
+    OutPort(const Node& parent, const std::string& uniqueName, const std::string& displayName, get_node_value_callback getValue);
     ~OutPort() final = default;
 
     void draw() const override;
@@ -154,7 +159,7 @@ private:
 class InPort final : public Port {
 public:
     InPort();
-    InPort(const Node& parent, const std::string& displayName,
+    InPort(const Node& parent, const std::string& uniqueName, const std::string& displayName,
                     std::vector<std::type_index> validConnections = {});
     ~InPort() final = default;
 

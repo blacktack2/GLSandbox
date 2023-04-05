@@ -22,8 +22,8 @@ public:
         return (unsigned int)NodeType::Arithmetic;
     }
 protected:
-    void serializeContents(std::ofstream& streamOut) const final;
-    void deserializeContents(std::ifstream& streamIn) final;
+    [[nodiscard]] std::map<std::string, std::string> generateSerializedData() const final;
+    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
     void drawContents() final;
 private:
@@ -62,10 +62,10 @@ private:
         return OPERATIONS;
     };
 
-    InPort mValueAIn = InPort(*this, "A", {typeid(float), typeid(int)});
-    InPort mValueBIn = InPort(*this, "B", {typeid(float), typeid(int)});
+    InPort mValueAIn = InPort(*this, "ValueAIn", "A", {typeid(float), typeid(int)});
+    InPort mValueBIn = InPort(*this, "ValueBIn", "B", {typeid(float), typeid(int)});
 
-    OutPort mValueOut = OutPort(*this, "Out", [&]() { return calculateValue(); });
+    OutPort mValueOut = OutPort(*this, "ValueOut", "Out", [&]() { return calculateValue(); });
 
     Operation mCurrentOperation = Operation::Add;
 };

@@ -32,8 +32,10 @@ public:
         return mMesh;
     }
 protected:
-    void serializeContents(std::ofstream& streamOut) const final;
-    void deserializeContents(std::ifstream& streamIn) final;
+    [[nodiscard]] std::map<std::string, std::string> generateSerializedData() const final;
+    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
+
+    void onSerialize() const final;
 
     void drawContents() override;
 private:
@@ -193,7 +195,7 @@ private:
     void resizeAttributes();
 
     Mesh mMesh;
-    OutPort mMeshOutPort = OutPort(*this, "Mesh", [&]() { return &mMesh; });
+    OutPort mMeshOutPort = OutPort(*this, "MeshOut", "Mesh", [&]() { return &mMesh; });
 
     unsigned int mNumVertices = 1;
     unsigned int mNumIndices = 0;

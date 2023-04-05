@@ -9,20 +9,20 @@
 
 static int gPortIDCounter = 1;
 
-Port::Port() : mParentNode(nullptr), mDisplayName("INVALID"), mID(-1) {
+Port::Port() : mParentNode(nullptr), mUniqueName("INVALID"), mDisplayName("INVALID"), mID(-1) {
 
 }
 
-Port::Port(const Node& parent, std::string displayName) :
-mParentNode(&parent), mDisplayName(std::move(displayName)), mID{gPortIDCounter++} {
+Port::Port(const Node& parent, const std::string& uniqueName, std::string displayName) :
+mParentNode(&parent), mUniqueName(uniqueName), mDisplayName(std::move(displayName)), mID{gPortIDCounter++} {
 }
 
 OutPort::OutPort() : Port(), mGetValue(nullptr) {
 
 }
 
-OutPort::OutPort(const Node& parent, const std::string& displayName, get_node_value_callback getValue) :
-Port(parent, displayName), mGetValue(std::move(getValue)) {
+OutPort::OutPort(const Node& parent, const std::string& uniqueName, const std::string& displayName, get_node_value_callback getValue) :
+Port(parent, uniqueName, displayName), mGetValue(std::move(getValue)) {
 }
 
 void OutPort::draw() const {
@@ -97,9 +97,9 @@ InPort::InPort() : Port(), mValidConnections() {
 
 }
 
-InPort::InPort(const Node& parent, const std::string& displayName,
+InPort::InPort(const Node& parent, const std::string& uniqueName, const std::string& displayName,
                std::vector<std::type_index> validConnections) :
-Port(parent, displayName), mValidConnections(std::move(validConnections)) {
+Port(parent, uniqueName, displayName), mValidConnections(std::move(validConnections)) {
 }
 
 void InPort::draw() const {
