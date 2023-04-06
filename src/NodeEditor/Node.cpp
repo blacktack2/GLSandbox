@@ -103,6 +103,8 @@ void Node::deserialize(std::ifstream& streamIn, std::streampos end,
         streamIn.seekg(markEnd);
     }
     streamIn.seekg(end);
+
+    onDeserialize();
 }
 
 void Node::draw() {

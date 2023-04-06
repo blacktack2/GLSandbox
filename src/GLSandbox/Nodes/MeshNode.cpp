@@ -101,6 +101,10 @@ void MeshNode::deserializeData(const std::string& dataID, std::ifstream& stream)
     }
 }
 
+void MeshNode::onDeserialize() {
+    uploadMesh();
+}
+
 void MeshNode::drawContents() {
     drawGlobalParameters();
 

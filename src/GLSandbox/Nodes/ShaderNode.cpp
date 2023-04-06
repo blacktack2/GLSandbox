@@ -65,6 +65,9 @@ void ShaderNode::deserializeData(const std::string& dataID, std::ifstream& strea
         stream >> mGeomFile;
     }
 }
+void ShaderNode::onDeserialize() {
+    uploadShader();
+}
 
 void ShaderNode::drawContents() {
     drawShaderChooseButton("Vertex",    mVertFile, findVertexFiles,   getVertexFiles);
@@ -75,7 +78,7 @@ void ShaderNode::drawContents() {
 
     const std::string loadShaderLabel = std::string("Reload Shader##Button_LoadShader_Node").append(std::to_string(getID()));
     if (ImGui::Button(loadShaderLabel.c_str())) {
-        updateShader();
+        uploadShader();
         mShaderOutPort.valueUpdated();
     }
 
@@ -145,7 +148,7 @@ void ShaderNode::drawShaderStatus() {
     ImGui::TextColored(colour, "%s", text.c_str());
 }
 
-void ShaderNode::updateShader() {
+void ShaderNode::uploadShader() {
     if (mVertFile.empty() || mFragFile.empty() || (mTescFile.empty() != mTeseFile.empty())) {
         mShader = std::make_unique<Shader>();
         return;
@@ -170,3 +173,4 @@ void ShaderNode::findFiles(std::vector<std::string>& files, const std::vector<st
             files.push_back(file.path().filename().string());
     }
 }
+

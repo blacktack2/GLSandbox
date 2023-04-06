@@ -33,6 +33,8 @@ protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
+    void onDeserialize() final;
+
     void drawContents() override;
 private:
     typedef std::function<void()> update_files_callback;
@@ -43,7 +45,7 @@ private:
     void drawShaderChoosePopup(const std::string& popupLabel, const std::vector<std::string>& files, std::string& value);
     void drawShaderStatus();
 
-    void updateShader();
+    void uploadShader();
 
     static void findFiles(std::vector<std::string>& files, const std::vector<std::string>& extensions);
 

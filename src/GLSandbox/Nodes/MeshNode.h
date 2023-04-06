@@ -31,6 +31,8 @@ protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
+    void onDeserialize() final;
+
     void drawContents() override;
 private:
     class IAttribute {
