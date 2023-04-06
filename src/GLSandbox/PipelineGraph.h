@@ -23,10 +23,11 @@ protected:
 
     void drawNodeCreation() final;
 private:
-    typedef std::function<std::unique_ptr<Node>()> factory_callback;
+    [[nodiscard]] std::unique_ptr<Node> generateNode(NodeType type) const;
+
+    [[nodiscard]] static NodeGroup getNodeGroup(NodeType type);
+    [[nodiscard]] static std::string getNodeName(NodeType type);
+    [[nodiscard]] static std::string getGroupName(NodeGroup group);
 
     IPipelineHandler& mPipelineHandler;
-
-    std::unordered_map<NodeType, factory_callback> mNodeFactories;
-    std::map<NodeGroup, std::vector<NodeType>> mNodeGroups;
 };
