@@ -27,10 +27,6 @@ public:
     [[nodiscard]] unsigned int getTypeID() final {
         return (unsigned int)NodeType::Mesh;
     }
-
-    [[nodiscard]] inline const Mesh& getMesh() const {
-        return mMesh;
-    }
 protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;
@@ -167,6 +163,7 @@ private:
     using draw_attribute_input_callback = std::function<void(const std::string&, T&)>;
     typedef std::function<std::unique_ptr<IAttribute>()> create_attribute_callback;
 
+    void loadFromStream(std::ifstream& stream, const std::string& extension);
     void loadFromStreamOBJ(std::ifstream& stream);
     void loadFromStreamMSH(std::ifstream& stream);
     void writeToStreamMSH(std::ofstream& stream) const;
@@ -192,7 +189,7 @@ private:
 
     void resizeAttributes();
 
-    Mesh mMesh;
+    std::unique_ptr<Mesh> mMesh;
     OutPort mMeshOutPort = OutPort(*this, "MeshOut", "Mesh", [&]() { return &mMesh; });
 
     unsigned int mNumVertices = 1;

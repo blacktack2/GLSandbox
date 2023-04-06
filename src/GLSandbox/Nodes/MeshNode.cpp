@@ -2,7 +2,7 @@
 
 #include "../Assets.h"
 
-#include <glm/gtc/type_ptr.hpp>
+#include "../../NodeEditor/SerializationUtils.h"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
@@ -44,14 +44,14 @@ static const std::unordered_map<std::type_index, size_t> gTYPE_SIZES = {
     {typeid(glm::vec4),  sizeof(glm::vec4)},
 };
 static const std::unordered_map<std::type_index, unsigned int> gTYPE_ATTR_COUNTS = {
-        {typeid(int),        1},
-        {typeid(glm::ivec2), 2},
-        {typeid(glm::ivec3), 3},
-        {typeid(glm::ivec4), 4},
-        {typeid(float),      1},
-        {typeid(glm::vec2),  2},
-        {typeid(glm::vec3),  3},
-        {typeid(glm::vec4),  4},
+    {typeid(int),        1},
+    {typeid(glm::ivec2), 2},
+    {typeid(glm::ivec3), 3},
+    {typeid(glm::ivec4), 4},
+    {typeid(float),      1},
+    {typeid(glm::vec2),  2},
+    {typeid(glm::vec3),  3},
+    {typeid(glm::vec4),  4},
 };
 
 MeshNode::MeshNode() : Node("Mesh") {
@@ -63,6 +63,8 @@ MeshNode::MeshNode() : Node("Mesh") {
     mAttributes.emplace(typeid(glm::vec2),  std::vector<std::unique_ptr<IAttribute>>());
     mAttributes.emplace(typeid(glm::vec3),  std::vector<std::unique_ptr<IAttribute>>());
     mAttributes.emplace(typeid(glm::vec4),  std::vector<std::unique_ptr<IAttribute>>());
+
+    mMesh = std::make_unique<Mesh>();
 
     addPort(mMeshOutPort);
 }
@@ -95,15 +97,7 @@ void MeshNode::deserializeData(const std::string& dataID, std::ifstream& stream)
         stream >> mFilename;
         std::ifstream meshStream(std::string(gMESH_ASSET_DIR).append(mFilename).append(gMESH_ASSET_EXTENSION));
         if (meshStream)
-            loadFromStreamMSH(meshStream);
-    } else if (dataID == "Type") {
-        unsigned int type;
-        stream >> type;
-        mType = (Mesh::Type)type;
-    } else if (dataID == "VertexCount") {
-        stream >> mNumVertices;
-    } else if (dataID == "IndexCount") {
-        stream >> mNumIndices;
+            loadFromStream(meshStream, gMESH_ASSET_EXTENSION);
     }
 }
 
@@ -118,6 +112,13 @@ void MeshNode::drawContents() {
     drawUploadButton();
 
     drawMeshStatus();
+}
+
+void MeshNode::loadFromStream(std::ifstream& stream, const std::string& extension) {
+    if (extension == ".obj")
+        loadFromStreamOBJ(stream);
+    else if (extension == ".msh")
+        loadFromStreamMSH(stream);
 }
 
 void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
@@ -167,7 +168,7 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
             indices.push_back(v3.y);
             indices.push_back(v3.z);
         } else {
-            stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            SerializationUtils::skipToNextLine(stream);
             continue;
         }
     }
@@ -181,26 +182,37 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
 
     mIndices = indices;
 
-    std::unique_ptr<IAttribute> posAttr = mAttributeFactories.find(typeid(glm::vec3))->second();
+    std::unique_ptr<IAttribute> posAttr = mAttributeFactories.find(typeid(glm::vec3))->second();;
     dynamic_cast<Attribute<glm::vec3>*>(posAttr.get())->setData(positions);
     posAttr->setName("position");
 
     std::unique_ptr<IAttribute> uvAttr = mAttributeFactories.find(typeid(glm::vec2))->second();
     dynamic_cast<Attribute<glm::vec2>*>(uvAttr.get())->setData(uvs);
+    uvAttr->resizeData(mNumVertices);
     uvAttr->setName("uv");
 
     std::unique_ptr<IAttribute> normAttr = mAttributeFactories.find(typeid(glm::vec3))->second();
     dynamic_cast<Attribute<glm::vec3>*>(normAttr.get())->setData(normals);
+    normAttr->resizeData(mNumVertices);
     normAttr->setName("normal");
 }
 
 void MeshNode::loadFromStreamMSH(std::ifstream& stream) {
     clearAttributes();
+
+    SerializationUtils::skipToNextLine(stream);
+    stream >> mNumVertices;
+    stream >> mNumIndices;
+    unsigned int type;
+    stream >> type;
+    mType = (Mesh::Type)type;
+
     while (!stream.eof()) {
         std::string name;
         stream >> name;
+
         if (name.empty() || name[0] == '#') {
-            stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            SerializationUtils::skipToNextLine(stream);
             continue;
         }
 
@@ -218,7 +230,7 @@ void MeshNode::loadFromStreamMSH(std::ifstream& stream) {
                     case 3: attrType = typeid(glm::ivec3); break;
                     case 4: attrType = typeid(glm::ivec4); break;
                     default:
-                        stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                        SerializationUtils::skipToNextLine(stream);
                         continue;
                 }
                 break;
@@ -230,7 +242,7 @@ void MeshNode::loadFromStreamMSH(std::ifstream& stream) {
                     case 3: attrType = typeid(glm::vec3); break;
                     case 4: attrType = typeid(glm::vec4); break;
                     default:
-                        stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                        SerializationUtils::skipToNextLine(stream);
                         continue;
                 }
                 break;
@@ -247,6 +259,8 @@ void MeshNode::loadFromStreamMSH(std::ifstream& stream) {
 
 void MeshNode::writeToStreamMSH(std::ofstream& stream) const {
     stream << "# GLSandbox MSH File: " << mFilename << "\n";
+
+    stream << mNumVertices << " " << mNumIndices << " " << (unsigned int)mType << "\n";
 
     for (const auto& attrPair : mAttributes)
         for (const auto& attr : attrPair.second)
@@ -275,15 +289,15 @@ std::string MeshNode::generateFilename() const {
 }
 
 void MeshNode::uploadMesh() {
-    mMesh.hardClean();
-    mMesh.setType(mType);
-    mMesh.setNumVertices(mNumVertices);
+    mMesh->hardClean();
+    mMesh->setType(mType);
+    mMesh->setNumVertices(mNumVertices);
     for (const auto& attrPair : mAttributes)
         for (const auto& attr : attrPair.second)
-            mMesh.addAttribute(attr->getData(), gTYPE_ATTR_COUNTS.find(attrPair.first)->second,
-                               gTYPE_SIZES.find(attrPair.first)->second, attr->getName());
+            mMesh->addAttribute(attr->getData(), gTYPE_ATTR_COUNTS.find(attrPair.first)->second,
+                                gTYPE_SIZES.find(attrPair.first)->second, attr->getName());
 
-    mMesh.bufferData();
+    mMesh->bufferData();
 }
 
 void MeshNode::drawGlobalParameters() {
@@ -380,7 +394,7 @@ void MeshNode::drawUploadButton() {
 void MeshNode::drawMeshStatus() {
     std::string text;
     ImVec4 colour;
-    switch (mMesh.getState()) {
+    switch (mMesh->getState()) {
         default:
         case Mesh::ErrorState::INVALID:
             text = "Mesh not uploaded";
