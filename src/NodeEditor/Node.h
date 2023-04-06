@@ -3,6 +3,8 @@
 
 #include <glm/vec2.hpp>
 
+#include <imgui.h>
+
 #include <functional>
 #include <fstream>
 #include <map>
@@ -66,6 +68,13 @@ public:
         return nullptr;
     }
 protected:
+    enum class MessageType {
+        Info,
+        Warning,
+        Error,
+        Confirmation,
+    };
+
     explicit Node(std::string title);
 
     [[nodiscard]] virtual std::vector<std::pair<std::string, std::string>> generateSerializedData() const = 0;
@@ -75,6 +84,16 @@ protected:
 
     void addPort(IPort& port);
     void removePort(const IPort& port);
+
+    static inline ImVec4 getMessageColour(MessageType type) {
+        switch (type) {
+            default:
+            case MessageType::Info         : return ImVec4(1, 1, 1, 1);
+            case MessageType::Warning      : return ImVec4(1, 1, 0, 1);
+            case MessageType::Error        : return ImVec4(1, 0, 0, 1);
+            case MessageType::Confirmation : return ImVec4(0, 1, 0, 1);
+        }
+    }
 private:
     void writeDataPoints(std::ofstream& streamOut, char prefix,
                          const std::vector<std::pair<std::string, std::string>>& dataPoints) const;

@@ -24,16 +24,20 @@ void RenderPassNode::drawContents() {
         ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", errorText.c_str());
 }
 
-bool RenderPassNode::validate() const {
-    if (!mMeshInPort.isLinked() || !mShaderInPort.isLinked())
-        return false;
+RenderPassNode::ValidationState RenderPassNode::validate() const {
+    if (!mMeshInPort.isLinked())
+        return ValidationState::NoMesh;
+    if (!mShaderInPort.isLinked())
+        return ValidationState::NoShader;
 
     const Mesh* mesh = std::any_cast<Mesh*>(mMeshInPort.getLinkValue());
     const Shader* shader = std::any_cast<Shader*>(mShaderInPort.getLinkValue());
-    if (mesh->getState() != Mesh::ErrorState::VALID || shader->getState() != Shader::ErrorState::VALID)
-        return false;
+    if (mesh->getState() != Mesh::ErrorState::VALID)
+        return ValidationState::InvalidShader;
+    if (shader->getState() != Shader::ErrorState::VALID)
+        return ValidationState::InvalidMesh;
 
-    return true;
+    return ValidationState::Valid;
 }
 
 RenderPassNode::pipeline_callback RenderPassNode::generateCallback() const {

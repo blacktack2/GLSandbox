@@ -12,6 +12,14 @@
 class RenderPassNode final : public Node {
 public:
     typedef std::function<void()> pipeline_callback;
+    enum class ValidationState {
+        Valid,
+        Invalid,
+        NoMesh,
+        NoShader,
+        InvalidMesh,
+        InvalidShader,
+    };
 
     RenderPassNode();
     ~RenderPassNode() override = default;
@@ -20,11 +28,12 @@ public:
         return (unsigned int)NodeType::RenderPass;
     }
 
-    [[nodiscard]] bool validate() const;
+    [[nodiscard]] ValidationState validate() const;
     [[nodiscard]] pipeline_callback generateCallback() const;
 
     [[nodiscard]] inline const RenderPassNode* getNextPass() const {
-        return mExecutionOutPort.isLinked() ? std::any_cast<RenderPassNode*>(mExecutionOutPort.getLinkValue()) : nullptr;
+        return mExecutionOutPort.isLinked() ?
+            dynamic_cast<const RenderPassNode*>(&mExecutionOutPort.getLinkParent()) : nullptr;
     }
 protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;

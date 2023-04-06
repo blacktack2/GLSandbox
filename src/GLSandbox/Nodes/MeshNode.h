@@ -190,7 +190,7 @@ private:
     void resizeAttributes();
 
     std::unique_ptr<Mesh> mMesh;
-    OutPort mMeshOutPort = OutPort(*this, "MeshOut", "Mesh", [&]() { return &mMesh; });
+    OutPort mMeshOutPort = OutPort(*this, "MeshOut", "Mesh", [&]() { return mMesh.get(); });
 
     unsigned int mNumVertices = 1;
     unsigned int mNumIndices = 0;

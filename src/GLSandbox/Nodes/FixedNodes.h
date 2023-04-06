@@ -24,6 +24,9 @@ private:
     IPipelineHandler& mPipelineHandler;
 
     OutPort mExecutionOutPort = OutPort(*this, "ExecutionOut", "Out", [&]() { return (void*)nullptr; });
+
+    std::string mMessage;
+    MessageType mMessageType = MessageType::Info;
 };
 
 class ExitNode final : public Node {

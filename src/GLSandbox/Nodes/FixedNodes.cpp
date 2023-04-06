@@ -20,20 +20,53 @@ void EntryNode::drawContents() {
     const std::string UPDATE_LABEL = std::string("Update##Node_").append(std::to_string(getID()));
     if (ImGui::Button(UPDATE_LABEL.c_str()) && validatePipeline())
         updatePipeline();
+    if (!mMessage.empty())
+        ImGui::TextColored(getMessageColour(mMessageType), "%s", mMessage.c_str());
 }
 
 bool EntryNode::validatePipeline() {
-    if (!mExecutionOutPort.isLinked())
+    if (!mExecutionOutPort.isLinked()) {
+        mMessage = "Not linked to a render pass";
         return false;
+    }
     const RenderPassNode* current = &dynamic_cast<const RenderPassNode&>(mExecutionOutPort.getLinkParent());
     while (current) {
-        if (!current->validate())
-            return false;
+        RenderPassNode::ValidationState state = current->validate();
+        switch (state) {
+            case RenderPassNode::ValidationState::NoMesh:
+                mMessage = "Missing mesh";
+                mMessageType = MessageType::Error;
+                return false;
+            case RenderPassNode::ValidationState::NoShader:
+                mMessage = "Missing shader";
+                mMessageType = MessageType::Error;
+                return false;
+            case RenderPassNode::ValidationState::InvalidMesh:
+                mMessage = "Invalid mesh";
+                mMessageType = MessageType::Error;
+                return false;
+            case RenderPassNode::ValidationState::InvalidShader:
+                mMessage = "Invalid shader";
+                mMessageType = MessageType::Error;
+                return false;
+            default:
+            case RenderPassNode::ValidationState::Invalid:
+                mMessage = "Invalid state";
+                mMessageType = MessageType::Error;
+                return false;
+            case RenderPassNode::ValidationState::Valid:
+                break;
+        }
 
         const RenderPassNode* next = current->getNextPass();
-        if (next == current)
+        if (next == current) {
+            mMessage = "Infinite loop detected";
             return false;
+        }
+        current = next;
     }
+    mMessage = "Uploaded";
+    mMessageType = MessageType::Confirmation;
     return true;
 }
 

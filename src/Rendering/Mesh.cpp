@@ -14,8 +14,10 @@ Mesh::~Mesh() {
 }
 
 void Mesh::softClean() {
-    for (VertexAttribute& attrib : mAttributes)
+    for (VertexAttribute& attrib : mAttributes) {
         glDeleteBuffers(1, &attrib.vbo);
+        attrib.vbo = 0;
+    }
     mErrorState = ErrorState::INVALID;
 }
 
@@ -61,6 +63,7 @@ void Mesh::makeScreenQuad(Mesh& mesh) {
 }
 
 void Mesh::bufferData() {
+    bind();
     for (VertexAttribute& attrib : mAttributes)
         uploadAttribute(attrib);
     if (!mIndices.empty())
