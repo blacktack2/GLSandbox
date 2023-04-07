@@ -1,5 +1,6 @@
 #include "Node.h"
 
+#include "Ports.h"
 #include "SerializationUtils.h"
 
 #include <imgui.h>
@@ -34,10 +35,10 @@ void Node::serialize(std::ofstream& streamOut) const {
     data.emplace_back(gSERIAL_DATA_ID, serializedID);
     data.emplace_back(gSERIAL_DATA_POSITION, serializedPosition);
 
-    for (const InPort& port : mInPorts)
+    for (const IPort& port : mInPorts)
         data.emplace_back(gSERIAL_DATA_INPORT, std::string(port.getUniqueName()).append(" ")
                           .append(std::to_string(port.getLinkedPortID())));
-    for (const OutPort& port : mOutPorts)
+    for (const IPort& port : mOutPorts)
         data.emplace_back(gSERIAL_DATA_OUTPORT, std::string(port.getUniqueName()).append(" ")
                           .append(std::to_string(port.getID())));
 
@@ -49,8 +50,8 @@ void Node::serialize(std::ofstream& streamOut) const {
 }
 
 void Node::deserialize(std::ifstream& streamIn, std::streampos end,
-                       std::unordered_map<int, std::reference_wrapper<OutPort>>& outPorts,
-                       std::vector<std::pair<std::reference_wrapper<InPort>, int>>& links) {
+                       std::unordered_map<int, std::reference_wrapper<IPort>>& outPorts,
+                       std::vector<std::pair<std::reference_wrapper<IPort>, int>>& links) {
     std::streampos begin = streamIn.tellg();
 
     std::string dataID;
@@ -67,7 +68,7 @@ void Node::deserialize(std::ifstream& streamIn, std::streampos end,
             int linkID;
             streamIn >> uniqueName;
             streamIn >> linkID;
-            for (InPort& port : mInPorts) {
+            for (IPort& port : mInPorts) {
                 if (port.getUniqueName() == uniqueName) {
                     links.emplace_back(port, linkID);
                     break;
@@ -78,7 +79,7 @@ void Node::deserialize(std::ifstream& streamIn, std::streampos end,
             int id;
             streamIn >> uniqueName;
             streamIn >> id;
-            for (OutPort& port : mOutPorts) {
+            for (IPort& port : mOutPorts) {
                 if (port.getUniqueName() == uniqueName) {
                     outPorts.emplace(id, port);
                     break;
@@ -110,10 +111,12 @@ void Node::deserialize(std::ifstream& streamIn, std::streampos end,
 void Node::draw() {
     ImNodes::BeginNode(mID);
 
+    ImNodes::BeginNodeTitleBar();
     ImGui::Text("%s", mTitle.c_str());
+    ImNodes::EndNodeTitleBar();
 
-    for (auto port : mPorts)
-        port.get().draw();
+    for (auto& port : mPorts)
+        port.get().drawPort();
 
     drawContents();
 
@@ -122,9 +125,11 @@ void Node::draw() {
 
 void Node::drawLinks() {
     for (auto port : mPorts)
-        port.get().drawLinks();
+        port.get().drawLink();
 }
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "readability-make-member-function-const"
 void Node::setAbsolutePosition(const glm::vec2& pos) {
     ImNodes::SetNodeEditorSpacePos(getID(), ImVec2(pos.x, pos.y));
 }
@@ -132,6 +137,7 @@ void Node::setAbsolutePosition(const glm::vec2& pos) {
 void Node::setRelativePosition(const glm::vec2& pos) {
     ImNodes::SetNodeScreenSpacePos(getID(), ImVec2(pos.x, pos.y));
 }
+#pragma clang diagnostic pop
 
 glm::vec2 Node::getAbsolutePositionC() const {
     ImVec2 absCenter = ImNodes::GetNodeEditorSpacePos(getID());
@@ -198,12 +204,10 @@ glm::vec2 Node::getSize() const {
 
 void Node::addPort(IPort& port) {
     mPorts.emplace_back(port);
-    if (InPort* inPort = dynamic_cast<InPort*>(&port))
-        mInPorts.emplace_back(*inPort);
-    else if (OutPort* outPort = dynamic_cast<OutPort*>(&port))
-        mOutPorts.emplace_back(*outPort);
-    else
-        assert(false); // Port must be an input or an output
+    switch (port.getDirection()) {
+        case IPort::Direction::In  : mInPorts.emplace_back(port) ; break;
+        case IPort::Direction::Out : mOutPorts.emplace_back(port); break;
+    }
 }
 
 void Node::removePort(const IPort& port) {
@@ -218,8 +222,26 @@ void Node::removePort(const IPort& port) {
                     mOutPorts.end());
 }
 
+size_t Node::numPorts() const {
+    return mPorts.size();
+}
+
+IPort& Node::getPortByIndex(size_t i) {
+    return mPorts[i].get();
+}
+
+IPort* Node::getPort(int portID) {
+    for (auto& port : mPorts)
+        if (port.get().getID() == portID)
+            return &port.get();
+    return nullptr;
+}
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
 void Node::writeDataPoints(std::ofstream& streamOut, char prefix,
                            const std::vector<std::pair<std::string, std::string>>& dataPoints) const {
     for (const auto& dataPair : dataPoints)
         SerializationUtils::writeDataPoint(streamOut, prefix, dataPair.first, dataPair.second);
 }
+#pragma clang diagnostic pop

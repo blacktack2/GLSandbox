@@ -1,5 +1,6 @@
 #include "Graph.h"
 
+#include "Ports.h"
 #include "SerializationUtils.h"
 
 #include <imnodes.h>
@@ -7,7 +8,7 @@
 static constexpr char gSERIAL_MARK_NODE[] = "Node";
 
 static constexpr char gSERIAL_DATA_PREFIX = '^';
-static constexpr char gSERIAL_DATA_NODE_TYPE[] = "Type";
+static constexpr char gSERIAL_DATA_NODE_TYPE[] = "Direction";
 
 Graph::Graph() {
     mContext = ImNodes::CreateContext();
@@ -31,10 +32,9 @@ void Graph::serialize(std::ofstream& streamOut) const {
 void Graph::deserialize(std::ifstream& streamIn) {
     mNodes.clear();
 
-    std::unordered_map<int, std::reference_wrapper<OutPort>> outPorts;
-    std::vector<std::pair<std::reference_wrapper<InPort>, int>> links;
+    std::unordered_map<int, std::reference_wrapper<IPort>> outPorts;
+    std::vector<std::pair<std::reference_wrapper<IPort>, int>> links;
 
-    std::streampos begin = streamIn.tellg();
     std::streampos end = SerializationUtils::findEnd(streamIn);
 
     std::streampos markBegin, markEnd;
@@ -133,11 +133,15 @@ void Graph::checkLinkCreated() {
     if (!ImNodes::IsLinkCreated(&outputID, &inputID))
         return;
 
-    OutPort* output = nullptr;
-    InPort*  input  = nullptr;
+    IPort* output = nullptr;
+    IPort*  input  = nullptr;
     for (auto& node : mNodes) {
-        output = output ? output : dynamic_cast<OutPort*>(node->getPort(outputID));
-        input  = input  ? input  : dynamic_cast<InPort* >(node->getPort(inputID ));
+        IPort* in = node->getPort(inputID);
+        IPort* out = node->getPort(outputID);
+        if (!output && out && out->getDirection() == IPort::Direction::Out)
+            output = out;
+        if (!input && in && in->getDirection() == IPort::Direction::In)
+            input = in;
     }
 
     if (output && input)

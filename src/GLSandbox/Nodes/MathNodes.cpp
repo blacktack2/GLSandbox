@@ -27,21 +27,16 @@ void ArithmeticNode::drawOperationSelector() {
     }
 }
 
-std::any ArithmeticNode::calculateValue() {
+std::variant<float, int> ArithmeticNode::calculateValue() {
     if (!mValueAIn.isLinked() || !mValueBIn.isLinked())
-        return nullptr;
+        return 0;
 
-    const std::any a = mValueAIn.getLinkValue();
-    const std::any b = mValueBIn.getLinkValue();
-    const std::type_info& typeA = a.type();
-    const std::type_info& typeB = b.type();
-    if (typeA != typeB)
-        return nullptr;
+    std::variant<float, int> valueA = mValueAIn.getConnectedValue();
+    std::variant<float, int> valueB = mValueBIn.getConnectedValue();
 
-    if (typeA == typeid(int))
-        return getOperations<int>().find(mCurrentOperation)->second(a, b);
-    else if (typeA == typeid(float))
-        return getOperations<float>().find(mCurrentOperation)->second(a, b);
-    else
-        assert(false);
+    return std::visit(
+        [this](const auto& a, const auto& b)->std::variant<float, int> {
+            return operate(mCurrentOperation, a, b);
+        }, valueA, valueB
+    );
 }

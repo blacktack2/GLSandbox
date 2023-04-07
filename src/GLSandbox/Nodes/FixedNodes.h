@@ -1,6 +1,8 @@
 #pragma once
 #include "../../NodeEditor/Node.h"
 
+#include "../../NodeEditor/Ports.h"
+
 #include "../../Rendering/IPipelineHandler.h"
 #include "../NodeClassifications.h"
 
@@ -23,7 +25,7 @@ private:
 
     IPipelineHandler& mPipelineHandler;
 
-    OutPort mExecutionOutPort = OutPort(*this, "ExecutionOut", "Out", [&]() { return (void*)nullptr; });
+    Port<void*> mExecutionOut = Port<void*>(*this, IPort::Direction::Out, "Out", "Out", [&]() { return (void*)nullptr; });
 
     std::string mMessage;
     MessageType mMessageType = MessageType::Info;
@@ -43,5 +45,5 @@ protected:
 
     void drawContents() final;
 private:
-    InPort mExecutionInPort = InPort(*this, "ExecutionIn", "In");
+    Port<void*> mExecutionIn = Port<void*>(*this, IPort::Direction::In, "In", "In");
 };

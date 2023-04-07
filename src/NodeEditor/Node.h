@@ -1,6 +1,4 @@
 #pragma once
-#include "Ports.h"
-
 #include <glm/vec2.hpp>
 
 #include <imgui.h>
@@ -14,6 +12,8 @@
 #include <unordered_map>
 #include <vector>
 
+class IPort;
+
 namespace ax::NodeEditor {
     struct EditorContext;
 }
@@ -26,8 +26,8 @@ public:
 
     void serialize(std::ofstream& streamOut) const;
     void deserialize(std::ifstream& streamIn, std::streampos end,
-                     std::unordered_map<int, std::reference_wrapper<OutPort>>& outPorts,
-                     std::vector<std::pair<std::reference_wrapper<InPort>, int>>& links);
+                     std::unordered_map<int, std::reference_wrapper<IPort>>& outPorts,
+                     std::vector<std::pair<std::reference_wrapper<IPort>, int>>& links);
 
     void draw();
     void drawLinks();
@@ -53,20 +53,10 @@ public:
         return mID;
     }
 
-    [[nodiscard]] inline size_t numPorts() const {
-        return mPorts.size();
-    }
+    [[nodiscard]] size_t numPorts() const;
 
-    [[nodiscard]] IPort& getPortByIndex(size_t i) {
-        return mPorts[i].get();
-    }
-
-    [[nodiscard]] IPort* getPort(int portID) {
-        for (auto& port : mPorts)
-            if (port.get().getID() == portID)
-                return &port.get();
-        return nullptr;
-    }
+    [[nodiscard]] IPort& getPortByIndex(size_t i);
+    [[nodiscard]] IPort* getPort(int portID);
 protected:
     enum class MessageType {
         Info,
@@ -105,7 +95,6 @@ private:
     std::string mTitle;
 
     std::vector<std::reference_wrapper<IPort>> mPorts;
-    std::vector<std::reference_wrapper<InPort>> mInPorts;
-    std::vector<std::reference_wrapper<OutPort>> mOutPorts;
+    std::vector<std::reference_wrapper<IPort>> mInPorts;
+    std::vector<std::reference_wrapper<IPort>> mOutPorts;
 };
-

@@ -5,7 +5,7 @@
 #include <imgui.h>
 
 EntryNode::EntryNode(IPipelineHandler& pipelineHandler) : Node("Entry"), mPipelineHandler(pipelineHandler) {
-    addPort(mExecutionOutPort);
+    addPort(mExecutionOut);
 }
 
 std::vector<std::pair<std::string, std::string>> EntryNode::generateSerializedData() const {
@@ -25,11 +25,12 @@ void EntryNode::drawContents() {
 }
 
 bool EntryNode::validatePipeline() {
-    if (!mExecutionOutPort.isLinked()) {
+    if (!mExecutionOut.isLinked()) {
         mMessage = "Not linked to a render pass";
+        mMessageType = MessageType::Error;
         return false;
     }
-    const RenderPassNode* current = &dynamic_cast<const RenderPassNode&>(mExecutionOutPort.getLinkParent());
+    const RenderPassNode* current = &dynamic_cast<const RenderPassNode&>(mExecutionOut.getLinkedParent());
     while (current) {
         RenderPassNode::ValidationState state = current->validate();
         switch (state) {
@@ -73,7 +74,7 @@ bool EntryNode::validatePipeline() {
 void EntryNode::updatePipeline() {
     mPipelineHandler.clearPipeline();
 
-    const RenderPassNode* current = &dynamic_cast<const RenderPassNode&>(mExecutionOutPort.getLinkParent());
+    const RenderPassNode* current = &dynamic_cast<const RenderPassNode&>(mExecutionOut.getLinkedParent());
     while (current) {
         mPipelineHandler.appendPipeline(current->generateCallback());
 
@@ -82,7 +83,7 @@ void EntryNode::updatePipeline() {
 }
 
 ExitNode::ExitNode() : Node("Exit") {
-    addPort(mExecutionInPort);
+    addPort(mExecutionIn);
 }
 
 std::vector<std::pair<std::string, std::string>> ExitNode::generateSerializedData() const {

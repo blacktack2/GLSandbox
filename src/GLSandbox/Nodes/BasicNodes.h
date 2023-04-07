@@ -1,6 +1,8 @@
 #pragma once
 #include "../../NodeEditor/Node.h"
 
+#include "../../NodeEditor/Ports.h"
+
 #include "../NodeClassifications.h"
 
 #include <glm/glm.hpp>
@@ -22,7 +24,7 @@ protected:
     void drawContents() final;
 private:
     int mValue = 0;
-    OutPort mIntOut = OutPort(*this, "IntOut", "Value", [&]() { return mValue; });
+    Port<int> mValueOut = Port<int>(*this, IPort::Direction::Out, "IntOut", "Value", [&]() { return mValue; });
 };
 
 class FloatNode final : public Node {
@@ -40,7 +42,7 @@ protected:
     void drawContents() final;
 private:
     float mValue = 0.0f;
-    OutPort mFloatOut = OutPort(*this, "FloatOut", "Value", [&]() { return mValue; });
+    Port<float> mValueOut = Port<float>(*this, IPort::Direction::Out, "FloatOut", "Value", [&]() { return mValue; });
 };
 
 class Vec2Node final : public Node {
@@ -58,7 +60,7 @@ protected:
     void drawContents() final;
 private:
     glm::vec2 mValue = glm::vec2(0.0f);
-    OutPort mVecOut = OutPort(*this, "VecOut", "Value", [&]() { return mValue; });
+    Port<glm::vec2> mValueOut = Port<glm::vec2>(*this, IPort::Direction::Out, "VecOut", "Value", [&]() { return mValue; });
 };
 
 class Vec3Node final : public Node {
@@ -76,7 +78,7 @@ protected:
     void drawContents() final;
 private:
     glm::vec3 mValue = glm::vec3(0.0f);
-    OutPort mVecOut = OutPort(*this, "VecOut", "Value", [&]() { return mValue; });
+    Port<glm::vec3> mValueOut = Port<glm::vec3>(*this, IPort::Direction::Out, "VecOut", "Value", [&]() { return mValue; });
 };
 
 class Vec4Node final : public Node {
@@ -94,5 +96,5 @@ protected:
     void drawContents() final;
 private:
     glm::vec4 mValue = glm::vec4(0.0f);
-    OutPort mVecOut = OutPort(*this, "VecOut", "Value", [&]() { return mValue; });
+    Port<glm::vec4> mValueOut = Port<glm::vec4>(*this, IPort::Direction::Out, "VecOut", "Value", [&]() { return mValue; });
 };

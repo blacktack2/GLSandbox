@@ -1,6 +1,8 @@
 #pragma once
 #include "../../NodeEditor/Node.h"
 
+#include "../../NodeEditor/Ports.h"
+
 #include "../../Rendering/Shader.h"
 #include "../NodeClassifications.h"
 
@@ -92,7 +94,7 @@ private:
     }
 
     std::unique_ptr<Shader> mShader = std::make_unique<Shader>();
-    OutPort mShaderOutPort = OutPort(*this, "ShaderOut", "Shader", [&]() { return mShader.get(); });
+    Port<Shader*> mShaderOut = Port<Shader*>(*this, IPort::Direction::Out, "ShaderOut", "Shader", [&]() { return mShader.get(); });
 
     std::string mVertFile;
     std::string mFragFile;

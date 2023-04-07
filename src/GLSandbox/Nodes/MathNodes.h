@@ -1,6 +1,8 @@
 #pragma once
 #include "../../NodeEditor/Node.h"
 
+#include "../../NodeEditor/Ports.h"
+
 #include "../NodeClassifications.h"
 #include "BasicNodes.h"
 
@@ -11,7 +13,7 @@
 
 class ArithmeticNode final : public Node {
 public:
-    ArithmeticNode() : Node("Integer") {
+    ArithmeticNode() : Node("Arithmetic") {
         addPort(mValueAIn);
         addPort(mValueBIn);
         addPort(mValueOut);
@@ -27,7 +29,8 @@ protected:
 
     void drawContents() final;
 private:
-    typedef std::function<std::any(const std::any&, const std::any&)> operation_callback;
+    template<typename T1, typename T2>
+    using operation_callback = std::function<T1(T1, T2)>;
 
     enum class Operation {
         Add = 0ull,
@@ -38,7 +41,7 @@ private:
 
     void drawOperationSelector();
 
-    std::any calculateValue();
+    std::variant<float, int> calculateValue();
 
     static inline const std::vector<std::string>& getOperationLabels() {
         // Matches Operation enum
@@ -51,21 +54,21 @@ private:
         return OPERATIONS;
     }
 
-    template<typename T>
-    static inline const std::unordered_map<Operation, operation_callback>& getOperations() {
-        static const std::unordered_map<Operation, operation_callback> OPERATIONS = {
-            {Operation::Add,      [](const std::any& a, const std::any& b) { return std::any(std::any_cast<T>(a) + std::any_cast<T>(b)); }},
-            {Operation::Subtract, [](const std::any& a, const std::any& b) { return std::any(std::any_cast<T>(a) - std::any_cast<T>(b)); }},
-            {Operation::Multiply, [](const std::any& a, const std::any& b) { return std::any(std::any_cast<T>(a) * std::any_cast<T>(b)); }},
-            {Operation::Divide,   [](const std::any& a, const std::any& b) { return std::any(std::any_cast<T>(a) / std::any_cast<T>(b)); }},
-        };
-        return OPERATIONS;
+    template<typename T1, typename T2>
+    static inline T1 operate(Operation operation, T1 a, T2 b) {
+        switch (operation) {
+            default:
+            case Operation::Add      : return a + b;
+            case Operation::Subtract : return a - b;
+            case Operation::Multiply : return a * b;
+            case Operation::Divide   : return a / b;
+        }
     };
 
-    InPort mValueAIn = InPort(*this, "ValueAIn", "A", {typeid(float), typeid(int)});
-    InPort mValueBIn = InPort(*this, "ValueBIn", "B", {typeid(float), typeid(int)});
+    Port<float, int> mValueAIn = Port<float, int>(*this, IPort::Direction::In, "ValueAIn", "A");
+    Port<float, int> mValueBIn = Port<float, int>(*this, IPort::Direction::In, "ValueBIn", "B");
 
-    OutPort mValueOut = OutPort(*this, "ValueOut", "Out", [&]() { return calculateValue(); });
+    Port<float, int> mValueOut = Port<float, int>(*this, IPort::Direction::Out, "ValueOut", "Out", [&]() { return calculateValue(); });
 
     Operation mCurrentOperation = Operation::Add;
 };

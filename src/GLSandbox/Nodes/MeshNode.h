@@ -1,5 +1,8 @@
 #pragma once
 #include "../../NodeEditor/Node.h"
+
+#include "../../NodeEditor/Ports.h"
+
 #include "../../Rendering/Mesh.h"
 
 #include "../NodeClassifications.h"
@@ -192,7 +195,7 @@ private:
     void resizeAttributes();
 
     std::unique_ptr<Mesh> mMesh;
-    OutPort mMeshOutPort = OutPort(*this, "MeshOut", "Mesh", [&]() { return mMesh.get(); });
+    Port<Mesh*> mMeshOut = Port<Mesh*>(*this, IPort::Direction::Out, "MeshOut", "Mesh", [&]() { return mMesh.get(); });
 
     unsigned int mNumVertices = 1;
     unsigned int mNumIndices = 0;

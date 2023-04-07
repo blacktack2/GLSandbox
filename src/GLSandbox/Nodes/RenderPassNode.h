@@ -1,6 +1,8 @@
 #pragma once
 #include "../../NodeEditor/Node.h"
 
+#include "../../NodeEditor/Ports.h"
+
 #include "../../Rendering/Mesh.h"
 #include "../../Rendering/Shader.h"
 
@@ -32,8 +34,8 @@ public:
     [[nodiscard]] pipeline_callback generateCallback() const;
 
     [[nodiscard]] inline const RenderPassNode* getNextPass() const {
-        return mExecutionOutPort.isLinked() ?
-            dynamic_cast<const RenderPassNode*>(&mExecutionOutPort.getLinkParent()) : nullptr;
+        return mExecutionOut.isLinked() ?
+            dynamic_cast<const RenderPassNode*>(&mExecutionOut.getLinkedParent()) : nullptr;
     }
 protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
@@ -45,13 +47,13 @@ private:
 
     void clearUniformPorts();
 
-    InPort mExecutionInPort = InPort(*this, "ExecutionIn", "In", {typeid(void*), typeid(RenderPassNode*)});
-    OutPort mExecutionOutPort = OutPort(*this, "ExecutionOut", "Out", [&]() { return this; });
+    Port<void*> mExecutionIn  = Port<void*>(*this, IPort::Direction::In, "In", "In");
+    Port<void*> mExecutionOut = Port<void*>(*this, IPort::Direction::Out, "Out", "Out", [&]() { return (void*)nullptr; });
 
-    InPort mMeshInPort = InPort(*this, "MeshIn", "Mesh", {typeid(Mesh*)});
-    InPort mShaderInPort = InPort(*this, "ShaderIn", "Shader", {typeid(Shader*)});
+    Port<Mesh*>   mMeshIn   = Port<Mesh*>(*this, IPort::Direction::In, "MeshIn", "Mesh");
+    Port<Shader*> mShaderIn = Port<Shader*>(*this, IPort::Direction::In, "ShaderIn", "Shader");
 
-    std::vector<std::pair<std::string, std::vector<InPort>>> mUniformInPorts{};
+//    std::vector<std::pair<std::string, std::vector<IPort>>> mUniformInPorts{};
 
     std::string errorText;
 };

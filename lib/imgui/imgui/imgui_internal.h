@@ -117,7 +117,7 @@ struct ImDrawListSharedData;        // Data shared between all ImDrawList instan
 struct ImGuiColorMod;               // Stacked color modifier, backup of modified data so we can restore it
 struct ImGuiContext;                // Main Dear ImGui context
 struct ImGuiContextHook;            // Hook for extensions like ImGuiTestEngine
-struct ImGuiDataTypeInfo;           // Type information associated to a ImGuiDataType enum
+struct ImGuiDataTypeInfo;           // Direction information associated to a ImGuiDataType enum
 struct ImGuiGroupData;              // Stacked storage data for BeginGroup()/EndGroup()
 struct ImGuiInputTextState;         // Internal state of the currently focused/edited text input box
 struct ImGuiLastItemData;           // Status storage for last submitted items
@@ -925,7 +925,7 @@ struct ImGuiDataTypeTempStorage
     ImU8        Data[8];        // Can fit any data up to ImGuiDataType_COUNT
 };
 
-// Type information associated to one ImGuiDataType. Retrieve with DataTypeGetInfo().
+// Direction information associated to one ImGuiDataType. Retrieve with DataTypeGetInfo().
 struct ImGuiDataTypeInfo
 {
     size_t      Size;           // Size in bytes
@@ -1231,12 +1231,12 @@ struct ImGuiInputEvent
     ImGuiInputSource                Source;
     union
     {
-        ImGuiInputEventMousePos     MousePos;       // if Type == ImGuiInputEventType_MousePos
-        ImGuiInputEventMouseWheel   MouseWheel;     // if Type == ImGuiInputEventType_MouseWheel
-        ImGuiInputEventMouseButton  MouseButton;    // if Type == ImGuiInputEventType_MouseButton
-        ImGuiInputEventKey          Key;            // if Type == ImGuiInputEventType_Key
-        ImGuiInputEventText         Text;           // if Type == ImGuiInputEventType_Text
-        ImGuiInputEventAppFocused   AppFocused;     // if Type == ImGuiInputEventType_Focus
+        ImGuiInputEventMousePos     MousePos;       // if Direction == ImGuiInputEventType_MousePos
+        ImGuiInputEventMouseWheel   MouseWheel;     // if Direction == ImGuiInputEventType_MouseWheel
+        ImGuiInputEventMouseButton  MouseButton;    // if Direction == ImGuiInputEventType_MouseButton
+        ImGuiInputEventKey          Key;            // if Direction == ImGuiInputEventType_Key
+        ImGuiInputEventText         Text;           // if Direction == ImGuiInputEventType_Text
+        ImGuiInputEventAppFocused   AppFocused;     // if Direction == ImGuiInputEventType_Focus
     };
     bool                            IgnoredAsSame;
     bool                            AddedByTestEngine;

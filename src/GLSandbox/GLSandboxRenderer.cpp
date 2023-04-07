@@ -52,7 +52,7 @@ void GLSandboxRenderer::debugOutput(unsigned int source, unsigned int type, unsi
         case GL_DEBUG_SOURCE_OTHER           : debugMessage.append("Other")          ; break;
         default                              : debugMessage.append("Unknown")        ; break;
     }
-    debugMessage.append(" | Type: ");
+    debugMessage.append(" | Direction: ");
     switch (type) {
         case GL_DEBUG_TYPE_ERROR               : debugMessage.append("Error")               ; break;
         case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR : debugMessage.append("Deprecated Behaviour"); break;

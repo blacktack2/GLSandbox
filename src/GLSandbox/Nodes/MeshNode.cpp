@@ -66,7 +66,7 @@ MeshNode::MeshNode() : Node("Mesh") {
 
     mMesh = std::make_unique<Mesh>();
 
-    addPort(mMeshOutPort);
+    addPort(mMeshOut);
 }
 
 void MeshNode::clearAttributes() {
@@ -311,7 +311,7 @@ void MeshNode::drawGlobalParameters() {
         mNumVertices = std::max(mNumVertices, 1u);
         resizeAttributes();
     }
-    const std::string TYPE_LABEL = std::string("Type##Type_").append(getNodeID());
+    const std::string TYPE_LABEL = std::string("Direction##Type_").append(getNodeID());
     ImGui::SetNextItemWidth(200.0f);
     if (ImGui::BeginCombo(TYPE_LABEL.c_str(), mTypes[(size_t)mType].c_str())) {
         for (size_t i = 0; i < mTypes.size(); i++) {

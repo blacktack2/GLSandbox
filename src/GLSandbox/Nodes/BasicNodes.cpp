@@ -1,9 +1,11 @@
 #include "BasicNodes.h"
 
+#include "../../NodeEditor/Ports.h"
+
 #include <imgui.h>
 
 IntegerNode::IntegerNode() : Node("Integer") {
-    addPort(mIntOut);
+    addPort(mValueOut);
 }
 
 std::vector<std::pair<std::string, std::string>> IntegerNode::generateSerializedData() const {
@@ -23,7 +25,7 @@ void IntegerNode::drawContents() {
 }
 
 FloatNode::FloatNode() : Node("Float") {
-    addPort(mFloatOut);
+    addPort(mValueOut);
 }
 
 std::vector<std::pair<std::string, std::string>> FloatNode::generateSerializedData() const {
@@ -43,7 +45,7 @@ void FloatNode::drawContents() {
 }
 
 Vec2Node::Vec2Node() : Node("Vec2") {
-    addPort(mVecOut);
+    addPort(mValueOut);
 }
 
 std::vector<std::pair<std::string, std::string>> Vec2Node::generateSerializedData() const {
@@ -65,7 +67,7 @@ void Vec2Node::drawContents() {
 }
 
 Vec3Node::Vec3Node() : Node("Vec3") {
-    addPort(mVecOut);
+    addPort(mValueOut);
 }
 
 std::vector<std::pair<std::string, std::string>> Vec3Node::generateSerializedData() const {
@@ -89,7 +91,7 @@ void Vec3Node::drawContents() {
 }
 
 Vec4Node::Vec4Node() : Node("Vec4") {
-    addPort(mVecOut);
+    addPort(mValueOut);
 }
 
 std::vector<std::pair<std::string, std::string>> Vec4Node::generateSerializedData() const {

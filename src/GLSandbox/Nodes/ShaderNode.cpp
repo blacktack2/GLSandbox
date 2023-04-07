@@ -8,7 +8,7 @@
 #include <filesystem>
 
 ShaderNode::ShaderNode() : Node("Shader") {
-    addPort(mShaderOutPort);
+    addPort(mShaderOut);
 }
 
 bool ShaderNode::isValid() const {
@@ -79,7 +79,7 @@ void ShaderNode::drawContents() {
     const std::string loadShaderLabel = std::string("Reload Shader##Button_LoadShader_Node").append(std::to_string(getID()));
     if (ImGui::Button(loadShaderLabel.c_str())) {
         uploadShader();
-        mShaderOutPort.valueUpdated();
+        mShaderOut.valueUpdated();
     }
 
     drawShaderStatus();

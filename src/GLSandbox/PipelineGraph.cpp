@@ -21,8 +21,8 @@ void PipelineGraph::initializeDefault() {
     std::unique_ptr<RenderPassNode> defaultPass = std::make_unique<RenderPassNode>();
     std::unique_ptr<ExitNode> defaultExit = std::make_unique<ExitNode>();
 
-    dynamic_cast<OutPort&>(defaultEntry->getPortByIndex(0)).link(dynamic_cast<InPort&>(defaultPass->getPortByIndex(0)));
-    dynamic_cast<OutPort&>(defaultPass->getPortByIndex(1)).link(dynamic_cast<InPort&>(defaultExit->getPortByIndex(0)));
+    defaultEntry->getPortByIndex(0).link(defaultPass->getPortByIndex(0));
+    defaultPass->getPortByIndex(1).link(defaultExit->getPortByIndex(0));
 
     defaultEntry->setAbsolutePosition({0, 100});
     defaultPass->setAbsolutePosition({100, 100});

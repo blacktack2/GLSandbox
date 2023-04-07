@@ -3,12 +3,13 @@
 #include <imgui.h>
 
 RenderPassNode::RenderPassNode() : Node("Render Pass") {
-    addPort(mExecutionInPort);
-    addPort(mExecutionOutPort);
-    addPort(mMeshInPort);
-    addPort(mShaderInPort);
+    addPort(mExecutionIn);
+    addPort(mExecutionOut);
 
-    mShaderInPort.addOnUpdateCallback([this]() { onShaderUpdate(); });
+    addPort(mMeshIn);
+    addPort(mShaderIn);
+
+    mShaderIn.addOnUpdateEvent([this]() { onShaderUpdate(); });
 }
 
 std::vector<std::pair<std::string, std::string>> RenderPassNode::generateSerializedData() const {
@@ -25,13 +26,13 @@ void RenderPassNode::drawContents() {
 }
 
 RenderPassNode::ValidationState RenderPassNode::validate() const {
-    if (!mMeshInPort.isLinked())
+    if (!mMeshIn.isLinked())
         return ValidationState::NoMesh;
-    if (!mShaderInPort.isLinked())
+    if (!mShaderIn.isLinked())
         return ValidationState::NoShader;
 
-    const Mesh* mesh = std::any_cast<Mesh*>(mMeshInPort.getLinkValue());
-    const Shader* shader = std::any_cast<Shader*>(mShaderInPort.getLinkValue());
+    const Mesh* mesh = mMeshIn.getSingleConnectedValue<Mesh*>();
+    const Shader* shader = mShaderIn.getSingleConnectedValue<Shader*>();
     if (mesh->getState() != Mesh::ErrorState::VALID)
         return ValidationState::InvalidShader;
     if (shader->getState() != Shader::ErrorState::VALID)
@@ -41,8 +42,8 @@ RenderPassNode::ValidationState RenderPassNode::validate() const {
 }
 
 RenderPassNode::pipeline_callback RenderPassNode::generateCallback() const {
-    const Mesh*   mesh   = std::any_cast<Mesh*>(mMeshInPort.getLinkValue());
-    const Shader* shader = std::any_cast<Shader*>(mShaderInPort.getLinkValue());
+    const Mesh* mesh = mMeshIn.getSingleConnectedValue<Mesh*>();
+    const Shader* shader = mShaderIn.getSingleConnectedValue<Shader*>();
 
     return [mesh, shader]() {
         shader->bind();
@@ -52,28 +53,28 @@ RenderPassNode::pipeline_callback RenderPassNode::generateCallback() const {
 
 void RenderPassNode::onShaderUpdate() {
     clearUniformPorts();
-    if (!mShaderInPort.isLinked())
+    if (!mShaderIn.isLinked())
         return;
-    const auto uniforms = std::any_cast<Shader*>(mShaderInPort.getLinkValue())->getUniforms();
-    mUniformInPorts.resize(uniforms.size());
-    for (size_t i = 0; i < uniforms.size(); i++) {
-        std::string& portName = mUniformInPorts[i].first;
-        const std::string& uniformName = uniforms[i].first;
-        portName = uniformName;
-
-        auto& portVec = mUniformInPorts[i].second;
-        auto& uniformVec = uniforms[i].second;
-        portVec.resize(uniformVec.size());
-        for (size_t j = 0; j < uniformVec.size(); j++) {
-            portVec[j] = InPort(*this, std::string("DynamicIn").append(std::to_string(j)), uniformVec[j].first, {uniformVec[j].second});
-            addPort(portVec[j]);
-        }
-    }
+    const auto uniforms = mShaderIn.getSingleConnectedValue<Shader*>()->getUniforms();
+//    mUniformInPorts.resize(uniforms.size());
+//    for (size_t i = 0; i < uniforms.size(); i++) {
+//        std::string& portName = mUniformInPorts[i].first;
+//        const std::string& uniformName = uniforms[i].first;
+//        portName = uniformName;
+//
+//        auto& portVec = mUniformInPorts[i].second;
+//        auto& uniformVec = uniforms[i].second;
+//        portVec.resize(uniformVec.size());
+//        for (size_t j = 0; j < uniformVec.size(); j++) {
+//            portVec[j] = InPort(*this, std::string("DynamicIn").append(std::to_string(j)), uniformVec[j].first, {uniformVec[j].second});
+//            addPort(portVec[j]);
+//        }
+//    }
 }
 
 void RenderPassNode::clearUniformPorts() {
-    for (const auto& shaderPass : mUniformInPorts)
-        for (const auto& port : shaderPass.second)
-            removePort(port);
-    mUniformInPorts.clear();
+//    for (const auto& shaderPass : mUniformInPorts)
+//        for (const auto& port : shaderPass.second)
+//            removePort(port);
+//    mUniformInPorts.clear();
 }
