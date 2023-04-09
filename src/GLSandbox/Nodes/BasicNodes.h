@@ -9,7 +9,27 @@
 
 #include <functional>
 
-class IntegerNode final : public Node {
+template<typename T>
+class NumericNode : public Node {
+public:
+    explicit NumericNode(const std::string& title) : Node(title) {
+        addPort(mValueOut);
+    }
+    ~NumericNode() override = default;
+protected:
+    void drawContents() final {
+        const std::string LABEL = std::string("##Input_Node_").append(std::to_string(getID()));
+        if (drawInputArea(LABEL))
+            mValueOut.valueUpdated();
+    }
+    virtual bool drawInputArea(const std::string& label) = 0;
+protected:
+    T mValue;
+private:
+    Port<T> mValueOut = Port<T>(*this, IPort::Direction::Out, "ValueOut", "Value", [&]() { return mValue; });
+};
+
+class IntegerNode final : public NumericNode<int> {
 public:
     IntegerNode();
     ~IntegerNode() final = default;
@@ -21,13 +41,10 @@ protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
-    void drawContents() final;
-private:
-    int mValue = 0;
-    Port<int> mValueOut = Port<int>(*this, IPort::Direction::Out, "IntOut", "Value", [&]() { return mValue; });
+    bool drawInputArea(const std::string& label) final;
 };
 
-class FloatNode final : public Node {
+class FloatNode final : public NumericNode<float> {
 public:
     FloatNode();
     ~FloatNode() final = default;
@@ -39,13 +56,10 @@ protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
-    void drawContents() final;
-private:
-    float mValue = 0.0f;
-    Port<float> mValueOut = Port<float>(*this, IPort::Direction::Out, "FloatOut", "Value", [&]() { return mValue; });
+    bool drawInputArea(const std::string& label) final;
 };
 
-class Vec2Node final : public Node {
+class Vec2Node final : public NumericNode<glm::vec2> {
 public:
     Vec2Node();
     ~Vec2Node() final = default;
@@ -57,13 +71,10 @@ protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
-    void drawContents() final;
-private:
-    glm::vec2 mValue = glm::vec2(0.0f);
-    Port<glm::vec2> mValueOut = Port<glm::vec2>(*this, IPort::Direction::Out, "VecOut", "Value", [&]() { return mValue; });
+    bool drawInputArea(const std::string& label) final;
 };
 
-class Vec3Node final : public Node {
+class Vec3Node final : public NumericNode<glm::vec3> {
 public:
     Vec3Node();
     ~Vec3Node() final = default;
@@ -75,13 +86,10 @@ protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
-    void drawContents() final;
-private:
-    glm::vec3 mValue = glm::vec3(0.0f);
-    Port<glm::vec3> mValueOut = Port<glm::vec3>(*this, IPort::Direction::Out, "VecOut", "Value", [&]() { return mValue; });
+    bool drawInputArea(const std::string& label) final;
 };
 
-class Vec4Node final : public Node {
+class Vec4Node final : public NumericNode<glm::vec4> {
 public:
     Vec4Node();
     ~Vec4Node() final = default;
@@ -93,8 +101,5 @@ protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
-    void drawContents() final;
-private:
-    glm::vec4 mValue = glm::vec4(0.0f);
-    Port<glm::vec4> mValueOut = Port<glm::vec4>(*this, IPort::Direction::Out, "VecOut", "Value", [&]() { return mValue; });
+    bool drawInputArea(const std::string& label) final;
 };

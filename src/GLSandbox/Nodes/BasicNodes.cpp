@@ -1,11 +1,9 @@
 #include "BasicNodes.h"
 
-#include "../../NodeEditor/Ports.h"
-
 #include <imgui.h>
 
-IntegerNode::IntegerNode() : Node("Integer") {
-    addPort(mValueOut);
+IntegerNode::IntegerNode() : NumericNode<int>("Integer") {
+
 }
 
 std::vector<std::pair<std::string, std::string>> IntegerNode::generateSerializedData() const {
@@ -19,13 +17,12 @@ void IntegerNode::deserializeData(const std::string& dataID, std::ifstream& stre
         stream >> mValue;
 }
 
-void IntegerNode::drawContents() {
-    const std::string LABEL = std::string("##Input_Node_").append(std::to_string(getID()));
-    ImGui::InputInt(LABEL.c_str(), &mValue);
+bool IntegerNode::drawInputArea(const std::string& label) {
+    return ImGui::InputInt(label.c_str(), &mValue);
 }
 
-FloatNode::FloatNode() : Node("Float") {
-    addPort(mValueOut);
+FloatNode::FloatNode() : NumericNode<float>("Float") {
+
 }
 
 std::vector<std::pair<std::string, std::string>> FloatNode::generateSerializedData() const {
@@ -39,13 +36,12 @@ void FloatNode::deserializeData(const std::string& dataID, std::ifstream& stream
         stream >> mValue;
 }
 
-void FloatNode::drawContents() {
-    const std::string LABEL = std::string("##Input_Node_").append(std::to_string(getID()));
-    ImGui::InputFloat(LABEL.c_str(), &mValue);
+bool FloatNode::drawInputArea(const std::string& label) {
+    return ImGui::InputFloat(label.c_str(), &mValue);
 }
 
-Vec2Node::Vec2Node() : Node("Vec2") {
-    addPort(mValueOut);
+Vec2Node::Vec2Node() : NumericNode<glm::vec2>("Vec2") {
+
 }
 
 std::vector<std::pair<std::string, std::string>> Vec2Node::generateSerializedData() const {
@@ -61,13 +57,12 @@ void Vec2Node::deserializeData(const std::string& dataID, std::ifstream& stream)
     }
 }
 
-void Vec2Node::drawContents() {
-    const std::string LABEL = std::string("##Input_Node_").append(std::to_string(getID()));
-    ImGui::InputFloat2(LABEL.c_str(), &mValue[0]);
+bool Vec2Node::drawInputArea(const std::string& label) {
+    return ImGui::InputFloat2(label.c_str(), &mValue[0]);
 }
 
-Vec3Node::Vec3Node() : Node("Vec3") {
-    addPort(mValueOut);
+Vec3Node::Vec3Node() : NumericNode<glm::vec3>("Vec3") {
+
 }
 
 std::vector<std::pair<std::string, std::string>> Vec3Node::generateSerializedData() const {
@@ -85,13 +80,12 @@ void Vec3Node::deserializeData(const std::string& dataID, std::ifstream& stream)
     }
 }
 
-void Vec3Node::drawContents() {
-    const std::string LABEL = std::string("##Input_Node_").append(std::to_string(getID()));
-    ImGui::InputFloat3(LABEL.c_str(), &mValue[0]);
+bool Vec3Node::drawInputArea(const std::string& label) {
+    return ImGui::InputFloat3(label.c_str(), &mValue[0]);
 }
 
-Vec4Node::Vec4Node() : Node("Vec4") {
-    addPort(mValueOut);
+Vec4Node::Vec4Node() : NumericNode<glm::vec4>("Vec4") {
+
 }
 
 std::vector<std::pair<std::string, std::string>> Vec4Node::generateSerializedData() const {
@@ -110,7 +104,6 @@ void Vec4Node::deserializeData(const std::string& dataID, std::ifstream& stream)
     }
 }
 
-void Vec4Node::drawContents() {
-    const std::string LABEL = std::string("##Input_Node_").append(std::to_string(getID()));
-    ImGui::InputFloat4(LABEL.c_str(), &mValue[0]);
+bool Vec4Node::drawInputArea(const std::string& label) {
+    return ImGui::InputFloat4(label.c_str(), &mValue[0]);
 }

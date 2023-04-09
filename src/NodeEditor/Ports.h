@@ -78,6 +78,10 @@ public:
      * @see <a href="IPort::addOnUpdateEvent(const on_value_update_callback& callback)">addOnUpdateEvent</a>
      */
     virtual void valueUpdated() = 0;
+    /**
+     * @brief Call any update events in this port, without affecting any linked ports.
+     */
+    virtual void halfValueUpdated() = 0;
 
     [[nodiscard]] virtual bool isLinked() const = 0;
 
@@ -202,6 +206,11 @@ public:
     }
 
     void valueUpdated() final {
+        halfValueUpdated();
+        if (mLink)
+            mLink->halfValueUpdated();
+    }
+    void halfValueUpdated() final {
         for (const auto& callback : mOnUpdates)
             callback();
     }
