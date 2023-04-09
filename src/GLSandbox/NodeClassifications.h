@@ -25,6 +25,15 @@ enum class NodeType {
     Mesh   = 400,
     Shader = 401,
 
+    UV = 1000,
+
+    Colour = 1010,
+    Direction = 1011,
+
+    ModelMatrix = 1100,
+    ViewMatrix = 1101,
+    ProjMatrix = 1102,
+
     Max,
 
     Undefined = -1
@@ -34,6 +43,7 @@ enum class NodeGroup {
     Execution = 0,
     Maths,
     Numerics,
+    Data,
     Graphics,
 
     Max,
@@ -45,14 +55,23 @@ static NodeGroup getNodeGroup(NodeType type) {
     switch (type) {
         case NodeType::Entry: case NodeType::RenderPass:
             return NodeGroup::Execution;
+
         case NodeType::Integer:
         case NodeType::Float: case NodeType::Vec2: case NodeType::Vec3: case NodeType::Vec4:
         case NodeType::Mat2: case NodeType::Mat3: case NodeType::Mat4:
             return NodeGroup::Numerics;
+
         case NodeType::Arithmetic:
             return NodeGroup::Maths;
+
+        case NodeType::UV:
+        case NodeType::Colour: case NodeType::Direction:
+        case NodeType::ModelMatrix: case NodeType::ViewMatrix: case NodeType::ProjMatrix:
+            return NodeGroup::Data;
+
         case NodeType::Mesh: case NodeType::Shader:
             return NodeGroup::Graphics;
+
         default:
             return NodeGroup::Undefined;
     }
