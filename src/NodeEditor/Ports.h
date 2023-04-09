@@ -116,6 +116,7 @@ public:
 };
 
 extern int gPortIDCounter;
+extern int gLinkIDCounter;
 
 template<typename... Types>
 class Port final : public IPort {
@@ -168,7 +169,6 @@ public:
     }
 
     bool link(IPort& linkTo) final {
-        static int cIdCounter = 1;
 
         if (linkTo.getDirection() == getDirection() || !isTypeMatch(linkTo) ||
             !(validateLink(linkTo) && linkTo.validateLink(*this)))
@@ -176,7 +176,7 @@ public:
 
         if (mLink)
             unlink();
-        int linkID = cIdCounter++;
+        int linkID = gLinkIDCounter++;
         halfLink(linkTo, linkID);
         linkTo.halfLink(*this, linkID);
         return true;
