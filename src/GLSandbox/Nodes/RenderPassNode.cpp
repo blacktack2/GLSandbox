@@ -55,18 +55,34 @@ void RenderPassNode::onShaderUpdate() {
     clearUniformPorts();
     if (!mShaderIn.isLinked())
         return;
-    const std::vector<Shader::UniformSet> uniforms = mShaderIn.getSingleConnectedValue<Shader*>()->getUniforms();
+
+    Shader* shader = mShaderIn.getSingleConnectedValue<Shader*>();
+    const std::vector<Shader::UniformSet> uniforms = shader->getUniforms();
+
     for (size_t i = 0; i < uniforms.size(); i++) {
         const Shader::UniformSet& uniformSet = uniforms[i];
         for (size_t j = 0; j < uniformSet.uniforms.size(); j++) {
             const Shader::Uniform& uniform = uniformSet.uniforms[j];
             const std::string name = std::string(uniformSet.name).append("-(").append(uniform.name).append(")");
             const std::string uniqueName = std::string("DynamicIn-").append(std::to_string(i + j * 100));
-            std::unique_ptr<IPort> port = std::make_unique<Port<int>>(
-                *this, IPort::Direction::In, std::string("DynamicIn").append(std::to_string(i)), name
-            );
-            addPort(*port);
-            mUniformInPorts.push_back(std::move(port));
+            std::visit([this, shader, &uniform, &name, &uniqueName](auto arg) {
+                using port_type = std::decay_t<decltype(arg)>;
+                std::unique_ptr<Port<port_type>> port = std::make_unique<Port<port_type>>(
+                    *this, IPort::Direction::In, uniqueName, name
+                );
+                Port<port_type>* rawPort = port.get();
+                std::string uniformName = uniform.name;
+                port->addOnUpdateEvent([rawPort, shader, uniformName]() {
+                    if (!rawPort->isLinked())
+                        return;
+                    std::visit([shader, uniformName](auto arg2) {
+                        shader->bind();
+                        shader->setUniform(uniformName, arg2);
+                    }, rawPort->getConnectedValue());
+                });
+                addPort(*port);
+                mUniformInPorts.push_back(std::move(port));
+            }, uniform.value);
         }
     }
 }
