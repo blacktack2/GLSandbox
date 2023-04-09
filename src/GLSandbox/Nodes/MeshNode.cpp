@@ -2,7 +2,7 @@
 
 #include "../Assets.h"
 
-#include "../../NodeEditor/SerializationUtils.h"
+#include "../../Utils/SerializationUtils.h"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
