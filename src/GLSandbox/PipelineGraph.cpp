@@ -1,6 +1,5 @@
 #include "PipelineGraph.h"
 
-#include "../NodeEditor/Node.h"
 #include "Nodes/BasicNodes.h"
 #include "Nodes/FixedNodes.h"
 #include "Nodes/MathNodes.h"
@@ -71,6 +70,10 @@ std::unique_ptr<Node> PipelineGraph::generateNode(NodeType type) const {
         case NodeType::Vec3       : return std::make_unique<Vec3Node>();
         case NodeType::Vec4       : return std::make_unique<Vec4Node>();
 
+        case NodeType::Mat2       : return std::make_unique<Mat2Node>();
+        case NodeType::Mat3       : return std::make_unique<Mat3Node>();
+        case NodeType::Mat4       : return std::make_unique<Mat4Node>();
+
         case NodeType::Mesh       : return std::make_unique<MeshNode>();
         case NodeType::Shader     : return std::make_unique<ShaderNode>();
 
@@ -92,6 +95,10 @@ std::string PipelineGraph::getNodeName(NodeType type) {
         case NodeType::Vec2   : return "Vec2";
         case NodeType::Vec3   : return "Vec3";
         case NodeType::Vec4   : return "Vec4";
+
+        case NodeType::Mat2   : return "Mat2";
+        case NodeType::Mat3   : return "Mat3";
+        case NodeType::Mat4   : return "Mat4";
 
         case NodeType::Mesh  : return "Mesh";
         case NodeType::Shader: return "Shader";

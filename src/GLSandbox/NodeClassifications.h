@@ -18,6 +18,10 @@ enum class NodeType {
     Vec3  = 322,
     Vec4  = 323,
 
+    Mat2 = 330,
+    Mat3 = 331,
+    Mat4 = 332,
+
     Mesh   = 400,
     Shader = 401,
 
@@ -41,7 +45,9 @@ static NodeGroup getNodeGroup(NodeType type) {
     switch (type) {
         case NodeType::Entry: case NodeType::RenderPass:
             return NodeGroup::Execution;
-        case NodeType::Integer: case NodeType::Float: case NodeType::Vec2: case NodeType::Vec3: case NodeType::Vec4:
+        case NodeType::Integer:
+        case NodeType::Float: case NodeType::Vec2: case NodeType::Vec3: case NodeType::Vec4:
+        case NodeType::Mat2: case NodeType::Mat3: case NodeType::Mat4:
             return NodeGroup::Numerics;
         case NodeType::Arithmetic:
             return NodeGroup::Maths;

@@ -25,7 +25,6 @@ protected:
 private:
     [[nodiscard]] std::unique_ptr<Node> generateNode(NodeType type) const;
 
-    [[nodiscard]] static NodeGroup getNodeGroup(NodeType type);
     [[nodiscard]] static std::string getNodeName(NodeType type);
     [[nodiscard]] static std::string getGroupName(NodeGroup group);
 

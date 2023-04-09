@@ -103,3 +103,48 @@ protected:
 
     bool drawInputArea(const std::string& label) final;
 };
+
+class Mat2Node final : public NumericNode<glm::mat2> {
+public:
+    Mat2Node();
+    ~Mat2Node() final = default;
+
+    [[nodiscard]] unsigned int getTypeID() final {
+        return (unsigned int)NodeType::Mat2;
+    }
+protected:
+    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
+    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
+
+    bool drawInputArea(const std::string& label) final;
+};
+
+class Mat3Node final : public NumericNode<glm::mat3> {
+public:
+    Mat3Node();
+    ~Mat3Node() final = default;
+
+    [[nodiscard]] unsigned int getTypeID() final {
+        return (unsigned int)NodeType::Mat3;
+    }
+protected:
+    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
+    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
+
+    bool drawInputArea(const std::string& label) final;
+};
+
+class Mat4Node final : public NumericNode<glm::mat4> {
+public:
+    Mat4Node();
+    ~Mat4Node() final = default;
+
+    [[nodiscard]] unsigned int getTypeID() final {
+        return (unsigned int)NodeType::Mat4;
+    }
+protected:
+    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
+    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
+
+    bool drawInputArea(const std::string& label) final;
+};
