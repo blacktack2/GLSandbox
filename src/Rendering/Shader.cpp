@@ -98,10 +98,8 @@ void Shader::setUniform(const std::string& name, glm::mat4 value) {
 }
 #pragma clang diagnostic pop
 
-std::vector<std::pair<std::string, std::vector<std::pair<std::string, std::type_index>>>> Shader::getUniforms() {
-    static const std::regex cUNIFORM_REGEX("uniform +([a-zA-Z0-9_]+) +([a-zA-Z0-9_]+)( *= *(.*) *)?;");
-
-    std::vector<std::pair<std::string, std::vector<std::pair<std::string, std::type_index>>>> uniforms;
+std::vector<Shader::UniformSet> Shader::getUniforms() {
+    std::vector<UniformSet> uniforms;
 
     for (const ShaderPass& pass : mShaderPasses) {
         std::string passName;
@@ -113,22 +111,14 @@ std::vector<std::pair<std::string, std::vector<std::pair<std::string, std::type_
             case GL_GEOMETRY_SHADER        : passName = "Geometry" ; break;
             default                        : passName = "<error>"  ; break;
         }
-        std::vector<std::pair<std::string, std::type_index>> passUniforms;
+        std::vector<Uniform> passUniforms;
 
         std::string code = pass.code;
         code.erase(std::remove(code.begin(), code.end(), '\n'), code.end());
 
-        for (std::sregex_iterator i = std::sregex_iterator(code.begin(), code.end(), cUNIFORM_REGEX);
-                                  i != std::sregex_iterator(); ++i) {
-            std::smatch match = *i;
-            std::string type = match[1];
-            std::string name = match[2];
-            std::string defaultValue = match[4];
+        parseUniforms(code, passUniforms);
 
-            std::type_index actualType = getUniformTypeMap().find(type)->second;
-            passUniforms.emplace_back(name, actualType);
-        }
-        uniforms.emplace_back(passName, std::move(passUniforms));
+        uniforms.push_back({passName, passUniforms});
     }
 
     return uniforms;
@@ -196,4 +186,48 @@ bool Shader::linkProgram() {
         return false;
     }
     return true;
+}
+
+void Shader::parseUniforms(const std::string& code, std::vector<Uniform>& uniforms) {
+    static const std::regex cUNIFORM_REGEX("uniform +([a-zA-Z0-9_]+) +([a-zA-Z0-9_]+)( *= *(.*) *)?;");
+    for (std::sregex_iterator i = std::sregex_iterator(code.begin(), code.end(), cUNIFORM_REGEX);
+         i != std::sregex_iterator(); ++i) {
+        std::smatch match = *i;
+        std::string type = match[1];
+        std::string name = match[2];
+        std::string defaultValue = match[4];
+
+        uniform_t uniform = generateUniform(type, defaultValue);
+        uniforms.push_back({name, uniform});
+    }
+}
+
+Shader::uniform_t Shader::generateUniform(const std::string& type, const std::string& defaultValue) {
+    static const std::unordered_map<std::string, uniform_t> cUNIFORM_TYPE_MAP = {
+        {"float", (float)0.0f},
+        {"vec2", glm::vec2(0.0f)},
+        {"vec3", glm::vec3(0.0f)},
+        {"vec4", glm::vec4(0.0f)},
+        {"int", (int)0},
+        {"ivec2", glm::ivec2(0)},
+        {"ivec3", glm::ivec3(0)},
+        {"ivec4", glm::ivec4(0)},
+        {"mat2", glm::mat2(1.0f)},
+        {"mat3", glm::mat3(1.0f)},
+        {"mat4", glm::mat4(1.0f)},
+    };
+    uniform_t value = cUNIFORM_TYPE_MAP.find(type)->second;
+    if (!defaultValue.empty())
+        value = std::visit(VisitOverload{
+            [](auto arg)->uniform_t { return arg; },
+            [defaultValue](float      arg)->uniform_t { return stof(defaultValue);          },
+            [defaultValue](glm::vec2  arg)->uniform_t { return stringToVec2(defaultValue);  },
+            [defaultValue](glm::vec3  arg)->uniform_t { return stringToVec3(defaultValue);  },
+            [defaultValue](glm::vec4  arg)->uniform_t { return stringToVec4(defaultValue);  },
+            [defaultValue](int        arg)->uniform_t { return std::stoi(defaultValue);     },
+            [defaultValue](glm::ivec2 arg)->uniform_t { return stringToIVec2(defaultValue); },
+            [defaultValue](glm::ivec3 arg)->uniform_t { return stringToIVec3(defaultValue); },
+            [defaultValue](glm::ivec4 arg)->uniform_t { return stringToIVec4(defaultValue); },
+        }, value);
+    return value;
 }

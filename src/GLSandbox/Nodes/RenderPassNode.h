@@ -53,7 +53,7 @@ private:
     Port<Mesh*>   mMeshIn   = Port<Mesh*>(*this, IPort::Direction::In, "MeshIn", "Mesh");
     Port<Shader*> mShaderIn = Port<Shader*>(*this, IPort::Direction::In, "ShaderIn", "Shader");
 
-//    std::vector<std::pair<std::string, std::vector<IPort>>> mUniformInPorts{};
+    std::vector<std::unique_ptr<IPort>> mUniformInPorts{};
 
     std::string errorText;
 };

@@ -55,26 +55,24 @@ void RenderPassNode::onShaderUpdate() {
     clearUniformPorts();
     if (!mShaderIn.isLinked())
         return;
-    const auto uniforms = mShaderIn.getSingleConnectedValue<Shader*>()->getUniforms();
-//    mUniformInPorts.resize(uniforms.size());
-//    for (size_t i = 0; i < uniforms.size(); i++) {
-//        std::string& portName = mUniformInPorts[i].first;
-//        const std::string& uniformName = uniforms[i].first;
-//        portName = uniformName;
-//
-//        auto& portVec = mUniformInPorts[i].second;
-//        auto& uniformVec = uniforms[i].second;
-//        portVec.resize(uniformVec.size());
-//        for (size_t j = 0; j < uniformVec.size(); j++) {
-//            portVec[j] = InPort(*this, std::string("DynamicIn").append(std::to_string(j)), uniformVec[j].first, {uniformVec[j].second});
-//            addPort(portVec[j]);
-//        }
-//    }
+    const std::vector<Shader::UniformSet> uniforms = mShaderIn.getSingleConnectedValue<Shader*>()->getUniforms();
+    for (size_t i = 0; i < uniforms.size(); i++) {
+        const Shader::UniformSet& uniformSet = uniforms[i];
+        for (size_t j = 0; j < uniformSet.uniforms.size(); j++) {
+            const Shader::Uniform& uniform = uniformSet.uniforms[j];
+            const std::string name = std::string(uniformSet.name).append("-(").append(uniform.name).append(")");
+            const std::string uniqueName = std::string("DynamicIn-").append(std::to_string(i + j * 100));
+            std::unique_ptr<IPort> port = std::make_unique<Port<int>>(
+                *this, IPort::Direction::In, std::string("DynamicIn").append(std::to_string(i)), name
+            );
+            addPort(*port);
+            mUniformInPorts.push_back(std::move(port));
+        }
+    }
 }
 
 void RenderPassNode::clearUniformPorts() {
-//    for (const auto& shaderPass : mUniformInPorts)
-//        for (const auto& port : shaderPass.second)
-//            removePort(port);
-//    mUniformInPorts.clear();
+    for (const auto& port : mUniformInPorts)
+        removePort(*port);
+    mUniformInPorts.clear();
 }

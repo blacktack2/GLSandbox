@@ -1,4 +1,7 @@
 #pragma once
+#include "../Utils/VariantUtils.h"
+#include "../Utils/GLMUtils.h"
+
 #include <glad/glad.h>
 
 #include <glm/glm.hpp>
@@ -8,16 +11,32 @@
 #include <typeindex>
 #include <unordered_map>
 #include <utility>
+#include <variant>
 #include <vector>
 
 class Shader {
 public:
+    typedef std::variant<
+        float, glm::vec2,  glm::vec3,  glm::vec4,
+        int,   glm::ivec2, glm::ivec3, glm::ivec4,
+               glm::mat2,  glm::mat3,  glm::mat4
+    > uniform_t;
+
     enum class ErrorState {
         INVALID,
         VALID,
         FILE_READ,
         OGL_COMPILE,
         OGL_LINK,
+    };
+
+    struct Uniform {
+        std::string name;
+        uniform_t value;
+    };
+    struct UniformSet {
+        std::string name;
+        std::vector<Uniform> uniforms;
     };
 
     Shader() = default;
@@ -39,7 +58,7 @@ public:
     void setUniform(const std::string& name, glm::mat3 value);
     void setUniform(const std::string& name, glm::mat4 value);
 
-    inline int getUniformLocation(const std::string& name) const {
+    [[nodiscard]] inline int getUniformLocation(const std::string& name) const {
         return glGetUniformLocation(mProgramID, name.c_str());
     }
 
@@ -59,24 +78,11 @@ public:
         return mMessage;
     }
 
-    std::vector<std::pair<std::string, std::vector<std::pair<std::string, std::type_index>>>> getUniforms();
-
-    static inline const std::unordered_map<std::string, std::type_index>& getUniformTypeMap() {
-        static const std::unordered_map<std::string, std::type_index> UNIFORM_TYPE_MAP = {
-            {"float", typeid(float)},
-            {"vec2", typeid(glm::vec2)},
-            {"vec3", typeid(glm::vec3)},
-            {"vec4", typeid(glm::vec4)},
-            {"int", typeid(int)},
-            {"ivec2", typeid(glm::ivec2)},
-            {"ivec3", typeid(glm::ivec3)},
-            {"ivec4", typeid(glm::ivec4)},
-            {"mat2", typeid(glm::mat2)},
-            {"mat3", typeid(glm::mat3)},
-            {"mat4", typeid(glm::mat4)},
-        };
-        return UNIFORM_TYPE_MAP;
-    }
+    /**
+     * @brief Parse all uniforms from shader code into a list of valid uniforms.
+     * @brief All passes are assumed to be valid.
+     */
+    std::vector<UniformSet> getUniforms();
 private:
     struct ShaderPass {
         ShaderPass(std::string filename, GLenum type) : filename(std::move(filename)), type(type) {}
@@ -88,6 +94,19 @@ private:
     bool readShader(const std::string& filename, std::string& code);
     bool compileShader(const std::string& code, GLenum type);
     bool linkProgram();
+
+    /**
+     * @brief Find all uniform variables in code and use them to populate uniforms.
+     * @param code glsl format shader code to parse.
+     * @param uniforms Vector of uniforms to populate with uniform data.
+     */
+    static void parseUniforms(const std::string& code, std::vector<Uniform>& uniforms);
+    /**
+     * @param type glsl format data type.
+     * @param defaultValue glsl format variable instantiation (if present).
+     * @return Variant matching the primitive or glm equivalent type specified in type.
+     */
+    static uniform_t generateUniform(const std::string& type, const std::string& defaultValue = "");
 
     std::vector<ShaderPass> mShaderPasses;
 

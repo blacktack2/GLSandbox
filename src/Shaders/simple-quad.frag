@@ -1,7 +1,9 @@
 #version 460 core
 
+uniform vec3 quadColour = vec3(1.0);
+
 out vec4 fragColour;
 
 void main() {
-    fragColour = vec4(1.0, 0.0, 0.0, 1.0);
+    fragColour = vec4(quadColour, 1.0);
 }

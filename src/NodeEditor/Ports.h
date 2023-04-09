@@ -35,7 +35,7 @@ public:
      */
     virtual void addOnLinkEvent(const on_link_callback& callback) = 0;
     /**
-     * @brief Callback used whenever a value related to this port is updated.
+     * @brief Callback used whenever a value related to this port is updated, or when linked/unlinked.
      * @brief Specifically, this is called whenever IPort::valueUpdated() is called.
      */
     virtual void addOnUpdateEvent(const on_value_update_callback& callback) = 0;
@@ -183,9 +183,10 @@ public:
     }
     void halfLink(IPort& linkTo, int linkID) final {
         mLink = &linkTo;
+        mLinkID = linkID;
         for (const auto& callback : mOnLinks)
             callback();
-        mLinkID = linkID;
+        valueUpdated();
     }
     void unlink() final {
         if (!mLink)
@@ -197,6 +198,7 @@ public:
         mLink = nullptr;
         for (const auto& callback : mOnUnlinks)
             callback();
+        valueUpdated();
     }
 
     void valueUpdated() final {
