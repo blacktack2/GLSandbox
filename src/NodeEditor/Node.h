@@ -12,6 +12,8 @@
 #include <unordered_map>
 #include <vector>
 
+extern int gNodeIDCounter;
+
 class IPort;
 
 namespace ax::NodeEditor {

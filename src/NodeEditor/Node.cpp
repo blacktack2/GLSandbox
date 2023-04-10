@@ -8,7 +8,7 @@
 
 #include <utility>
 
-static int gNodeIDCounter = 1;
+int gNodeIDCounter = 1;
 
 static constexpr char gSERIAL_MARK_PREFIX = '%';
 static constexpr char gSERIAL_MARK_DATA[] = "Data";
