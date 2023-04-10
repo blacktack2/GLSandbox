@@ -139,15 +139,15 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
 
     mIndices = indices;
 
-    Attribute posAttr;
+    Attribute& posAttr = mAttributes.emplace_back();
     posAttr.data = positions;
     posAttr.name = "position";
 
-    Attribute uvAttr;
+    Attribute& uvAttr = mAttributes.emplace_back();
     uvAttr.data = uvs;
     uvAttr.name = "uv";
 
-    Attribute normAttr;
+    Attribute& normAttr = mAttributes.emplace_back();
     normAttr.data = normals;
     normAttr.name = "normal";
 }
