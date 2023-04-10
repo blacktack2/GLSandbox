@@ -77,13 +77,15 @@ private:
 
     void drawMeshStatus();
 
-    std::string getNodeID();
-    std::string getAttributeID(Attribute& attr);
-
     void resizeAttributes();
 
     void clearMesh();
     void clearAttributes();
+
+    template<typename... Args>
+    inline std::string generateAttributeLabel(const std::string& displayText, const Attribute& attribute, Args... args) const {
+        return generateNodeLabel(displayText, "Attribute", attribute.id, args...);
+    }
 
     static inline std::string getDataTypeName(Mesh::AttributeType type) {
         switch (type) {

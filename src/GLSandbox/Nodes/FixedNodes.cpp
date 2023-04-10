@@ -17,8 +17,8 @@ void EntryNode::deserializeData(const std::string& dataID, std::ifstream& stream
 }
 
 void EntryNode::drawContents() {
-    const std::string UPDATE_LABEL = std::string("Update##Node_").append(std::to_string(getID()));
-    if (ImGui::Button(UPDATE_LABEL.c_str()) && validatePipeline())
+    const std::string updateButtonLabel = generateNodeLabel("Update");
+    if (ImGui::Button(updateButtonLabel.c_str()) && validatePipeline())
         updatePipeline();
     if (!mMessage.empty())
         ImGui::TextColored(getMessageColour(mMessageType), "%s", mMessage.c_str());

@@ -44,7 +44,7 @@ private:
 
     void drawShaderChooseButton(const std::string& shaderType, std::string& value,
                                 const update_files_callback& updateFiles, const get_files_callback& getFiles);
-    void drawShaderChoosePopup(const std::string& popupLabel, const std::vector<std::string>& files, std::string& value);
+    void drawShaderChoosePopup(const std::string& popupID, const std::vector<std::string>& files, std::string& value);
     void drawShaderStatus();
 
     void uploadShader();

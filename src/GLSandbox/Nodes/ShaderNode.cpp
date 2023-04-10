@@ -76,8 +76,8 @@ void ShaderNode::drawContents() {
     drawShaderChooseButton("Tess-Eval", mTeseFile, findTessEvalFiles, getTessEvalFiles);
     drawShaderChooseButton("Geometry",  mGeomFile, findGeometryFiles, getGeometryFiles);
 
-    const std::string loadShaderLabel = std::string("Reload Shader##Button_LoadShader_Node").append(std::to_string(getID()));
-    if (ImGui::Button(loadShaderLabel.c_str())) {
+    const std::string loadShaderButtonLabel = generateNodeLabel("Reload Shader");
+    if (ImGui::Button(loadShaderButtonLabel.c_str())) {
         uploadShader();
         mShaderOut.valueUpdated();
     }
@@ -89,24 +89,23 @@ void ShaderNode::drawShaderChooseButton(const std::string& shaderType, std::stri
                                         const update_files_callback& updateFiles, const get_files_callback& getFiles) {
     ImGui::Text("%s: %s", shaderType.c_str(), value.empty() ? "<not-selected>" : value.c_str());
 
-    const std::string POPUP_ID = std::string("Choose").append(shaderType).append("Popup_Node")
-            .append(std::to_string(getID()));
-    if (ImGui::Button(std::string("Choose ").append(shaderType).c_str())) {
-        ImGui::OpenPopup(POPUP_ID.c_str());
+    const std::string choseShaderPopupID = generateNodePopupID("ChooseShader", shaderType);
+    const std::string chooseShaderButtonLabel = generateNodeLabel(std::string("Choose ").append(shaderType));
+    if (ImGui::Button(chooseShaderButtonLabel.c_str())) {
+        ImGui::OpenPopup(choseShaderPopupID.c_str());
         updateFiles();
     }
-    drawShaderChoosePopup(POPUP_ID, getFiles(), value);
+    drawShaderChoosePopup(choseShaderPopupID, getFiles(), value);
 }
 
-void ShaderNode::drawShaderChoosePopup(const std::string& popupLabel, const std::vector<std::string>& files, std::string& value) {
-    if (ImGui::BeginPopup(popupLabel.c_str())) {
+void ShaderNode::drawShaderChoosePopup(const std::string& popupID, const std::vector<std::string>& files, std::string& value) {
+    if (ImGui::BeginPopup(popupID.c_str())) {
         if (files.empty()) {
             ImGui::Text("No files found");
         } else {
             for (const std::string& file : files) {
-                const std::string FILE_SELECT_LABEL = std::string(file).append("##FileSelect_Node").append(
-                        std::to_string(getID()));
-                if (!ImGui::Selectable(FILE_SELECT_LABEL.c_str()))
+                const std::string fileSelectButtonLabel = generateNodeLabel(file, "FileSelect");
+                if (!ImGui::Selectable(fileSelectButtonLabel.c_str()))
                     continue;
                 value = file;
                 break;

@@ -1,4 +1,6 @@
 #pragma once
+#include "../Utils/GraphUtils.h"
+
 #include <glm/vec2.hpp>
 
 #include <imgui.h>
@@ -87,6 +89,15 @@ protected:
             case MessageType::Error        : return ImVec4(1, 0, 0, 1);
             case MessageType::Confirmation : return ImVec4(0, 1, 0, 1);
         }
+    }
+
+    template<typename... Args>
+    inline std::string generateNodeLabel(const std::string& displayText, Args... args) const {
+        return generateLabel(displayText, "Node", getID(), args...);
+    }
+    template<typename... Args>
+    inline std::string generateNodePopupID(const std::string& popupName, Args... args) const {
+        return generatePopupID(popupName, "Node", getID(), args...);
     }
 private:
     void writeDataPoints(std::ofstream& streamOut, char prefix,
