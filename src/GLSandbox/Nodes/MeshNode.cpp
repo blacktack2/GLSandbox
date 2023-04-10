@@ -104,25 +104,9 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
             stream >> normal.z;
             normals.emplace_back(normal);
         } else if (type == "f") {
-            glm::vec3 v1, v2, v3;
-            stream >> v1.x;
-            stream >> v1.y;
-            stream >> v1.z;
-            indices.push_back(v1.x);
-            indices.push_back(v1.y);
-            indices.push_back(v1.z);
-            stream >> v2.x;
-            stream >> v2.y;
-            stream >> v2.z;
-            indices.push_back(v2.x);
-            indices.push_back(v2.y);
-            indices.push_back(v2.z);
-            stream >> v3.x;
-            stream >> v3.y;
-            stream >> v3.z;
-            indices.push_back(v3.x);
-            indices.push_back(v3.y);
-            indices.push_back(v3.z);
+            indices.resize(indices.size() + 3);
+            for (size_t i = 0; i < 3; i++)
+                stream >> indices[indices.size() - 3 + i];
         } else {
             SerializationUtils::skipToNextLine(stream);
             continue;
@@ -276,6 +260,7 @@ void MeshNode::uploadMesh() {
     mMesh->hardClean();
     mMesh->setType(mType);
     mMesh->setNumVertices(mNumVertices);
+    mMesh->setIndices(mIndices);
     for (const auto& attr : mAttributes) {
         std::visit(VisitOverload{
             [&attr, this](const std::vector<int>& data) {

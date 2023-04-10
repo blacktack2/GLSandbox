@@ -58,22 +58,18 @@ public:
         mIndices = indices;
     }
 
-    inline void useIndexBuffer(bool use) {
-        mUseIndexBuffer = use;
-    }
-
     inline void draw() const {
-        if (mUseIndexBuffer)
-            glDrawElements(mType, mIndices.size(), GL_UNSIGNED_INT, nullptr);
-        else
+        if (mIndices.empty())
             glDrawArrays(mType, 0, mNumVertices);
+        else
+            glDrawElements(mType, mIndices.size(), GL_UNSIGNED_INT, nullptr);
     }
 
     inline void draw(GLsizei instanceCount) const {
-        if (mUseIndexBuffer)
-            glDrawElementsInstanced(mType, mIndices.size(), GL_UNSIGNED_INT, nullptr, instanceCount);
-        else
+        if (mIndices.empty())
             glDrawArraysInstanced(mType, 0, mNumVertices, instanceCount);
+        else
+        glDrawElementsInstanced(mType, mIndices.size(), GL_UNSIGNED_INT, nullptr, instanceCount);
     }
 
     inline void bind() const {
@@ -124,8 +120,6 @@ private:
     GLuint mNumVertices = 0;
 
     GLuint mIndexVBO = 0;
-
-    bool mUseIndexBuffer = false;
 
     std::vector<GLuint> mIndices;
     std::vector<VertexAttribute> mAttributes{};

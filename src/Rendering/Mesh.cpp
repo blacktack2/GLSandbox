@@ -26,8 +26,6 @@ void Mesh::hardClean() {
 
     mIndexVBO = 0;
 
-    mUseIndexBuffer = false;
-
     mIndices.clear();
     mAttributes.clear();
 }
