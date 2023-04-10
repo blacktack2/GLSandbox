@@ -1,67 +1,13 @@
 #include "MeshNode.h"
 
-#include "../../Utils/SerializationUtils.h"
-
 #include <imgui.h>
 #include <imgui_stdlib.h>
-
-#include <imnodes.h>
 
 #include <filesystem>
 #include <regex>
 #include <unordered_set>
 
-static const std::unordered_map<std::type_index, std::string> gTYPE_NAMES = {
-    {typeid(int),        "Int"},
-    {typeid(glm::ivec2), "IVec2"},
-    {typeid(glm::ivec3), "IVec3"},
-    {typeid(glm::ivec4), "IVec4"},
-    {typeid(float),      "Float"},
-    {typeid(glm::vec2),  "Vec2"},
-    {typeid(glm::vec3),  "Vec3"},
-    {typeid(glm::vec4),  "Vec4"},
-};
-static const std::unordered_map<std::type_index, std::function<void(const char* label, void* data)>> gTYPE_DISPLAY_CALLBACKS = {
-    {typeid(int),        [](const char* label, void* data) { ImGui::InputInt(label, (int*)data); }},
-    {typeid(glm::ivec2), [](const char* label, void* data) { ImGui::InputInt2(label, (int*)data); }},
-    {typeid(glm::ivec3), [](const char* label, void* data) { ImGui::InputInt3(label, (int*)data); }},
-    {typeid(glm::ivec4), [](const char* label, void* data) { ImGui::InputInt4(label, (int*)data); }},
-    {typeid(float),      [](const char* label, void* data) { ImGui::InputFloat(label, (float*)data); }},
-    {typeid(glm::vec2),  [](const char* label, void* data) { ImGui::InputFloat2(label, (float*)data); }},
-    {typeid(glm::vec3),  [](const char* label, void* data) { ImGui::InputFloat3(label, (float*)data); }},
-    {typeid(glm::vec4),  [](const char* label, void* data) { ImGui::InputFloat4(label, (float*)data); }},
-};
-static const std::unordered_map<std::type_index, size_t> gTYPE_SIZES = {
-    {typeid(int),        sizeof(int)},
-    {typeid(glm::ivec2), sizeof(glm::ivec2)},
-    {typeid(glm::ivec3), sizeof(glm::ivec3)},
-    {typeid(glm::ivec4), sizeof(glm::ivec4)},
-    {typeid(float),      sizeof(float)},
-    {typeid(glm::vec2),  sizeof(glm::vec2)},
-    {typeid(glm::vec3),  sizeof(glm::vec3)},
-    {typeid(glm::vec4),  sizeof(glm::vec4)},
-};
-static const std::unordered_map<std::type_index, unsigned int> gTYPE_ATTR_COUNTS = {
-    {typeid(int),        1},
-    {typeid(glm::ivec2), 2},
-    {typeid(glm::ivec3), 3},
-    {typeid(glm::ivec4), 4},
-    {typeid(float),      1},
-    {typeid(glm::vec2),  2},
-    {typeid(glm::vec3),  3},
-    {typeid(glm::vec4),  4},
-};
-
 MeshNode::MeshNode() : Node("Mesh") {
-    mAttributes.emplace(typeid(int),        std::vector<std::unique_ptr<IAttribute>>());
-    mAttributes.emplace(typeid(glm::ivec2), std::vector<std::unique_ptr<IAttribute>>());
-    mAttributes.emplace(typeid(glm::ivec3), std::vector<std::unique_ptr<IAttribute>>());
-    mAttributes.emplace(typeid(glm::ivec4), std::vector<std::unique_ptr<IAttribute>>());
-    mAttributes.emplace(typeid(float),      std::vector<std::unique_ptr<IAttribute>>());
-    mAttributes.emplace(typeid(glm::vec2),  std::vector<std::unique_ptr<IAttribute>>());
-    mAttributes.emplace(typeid(glm::vec3),  std::vector<std::unique_ptr<IAttribute>>());
-    mAttributes.emplace(typeid(glm::vec4),  std::vector<std::unique_ptr<IAttribute>>());
-
     mMesh = std::make_unique<Mesh>();
 
     addPort(mMeshOut);
@@ -113,8 +59,7 @@ void MeshNode::drawContents() {
     if (ImGui::Button(SHOW_ATTR_BUTTON_LABEL.c_str()))
         mShowAttributes = !mShowAttributes;
     if (mShowAttributes) {
-        for (auto& attrPair : mAttributes)
-            drawAttributes(attrPair.second, attrPair.first);
+        drawAttributes();
         drawAddAttributePopup();
     }
     drawUploadButton();
@@ -154,18 +99,18 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
             stream >> vertex.x;
             stream >> vertex.y;
             stream >> vertex.z;
-            positions.push_back(vertex);
+            positions.emplace_back(vertex);
         } else if (type == "vt") {
             glm::vec2 uv;
             stream >> uv.x;
             stream >> uv.y;
-            uvs.push_back(uv);
+            uvs.emplace_back(uv);
         } else if (type == "vn") {
             glm::vec3 normal;
             stream >> normal.x;
             stream >> normal.y;
             stream >> normal.z;
-            normals.push_back(normal);
+            normals.emplace_back(normal);
         } else if (type == "f") {
             glm::vec3 v1, v2, v3;
             stream >> v1.x;
@@ -195,23 +140,24 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
     mNumVertices = positions.size();
     mNumIndices = indices.size();
 
+    uvs.resize(mNumVertices);
+    normals.resize(mNumVertices);
+
     mType = Mesh::Type::Triangles;
 
     mIndices = indices;
 
-    std::unique_ptr<IAttribute> posAttr = mAttributeFactories.find(typeid(glm::vec3))->second();;
-    dynamic_cast<Attribute<glm::vec3>*>(posAttr.get())->setData(positions);
-    posAttr->setName("position");
+    Attribute posAttr;
+    posAttr.data = positions;
+    posAttr.name = "position";
 
-    std::unique_ptr<IAttribute> uvAttr = mAttributeFactories.find(typeid(glm::vec2))->second();
-    dynamic_cast<Attribute<glm::vec2>*>(uvAttr.get())->setData(uvs);
-    uvAttr->resizeData(mNumVertices);
-    uvAttr->setName("uv");
+    Attribute uvAttr;
+    uvAttr.data = uvs;
+    uvAttr.name = "uv";
 
-    std::unique_ptr<IAttribute> normAttr = mAttributeFactories.find(typeid(glm::vec3))->second();
-    dynamic_cast<Attribute<glm::vec3>*>(normAttr.get())->setData(normals);
-    normAttr->resizeData(mNumVertices);
-    normAttr->setName("normal");
+    Attribute normAttr;
+    normAttr.data = normals;
+    normAttr.name = "normal";
 }
 
 void MeshNode::loadFromStreamMSH(std::ifstream& stream) {
@@ -236,39 +182,26 @@ void MeshNode::loadFromStreamMSH(std::ifstream& stream) {
         stream >> length;
         stream >> dataType;
 
-        std::type_index attrType = typeid(void);
-        switch (dataType) {
-            case 'i':
-                switch (length) {
-                    case 1: attrType = typeid(int); break;
-                    case 2: attrType = typeid(glm::ivec2); break;
-                    case 3: attrType = typeid(glm::ivec3); break;
-                    case 4: attrType = typeid(glm::ivec4); break;
-                    default:
-                        SerializationUtils::skipToNextLine(stream);
-                        continue;
-                }
-                break;
-            default:
-            case 'f':
-                switch (length) {
-                    case 1: attrType = typeid(float); break;
-                    case 2: attrType = typeid(glm::vec2); break;
-                    case 3: attrType = typeid(glm::vec3); break;
-                    case 4: attrType = typeid(glm::vec4); break;
-                    default:
-                        SerializationUtils::skipToNextLine(stream);
-                        continue;
-                }
-                break;
-        }
-        std::unique_ptr<IAttribute> attribute = mAttributeFactories.find(attrType)->second();
+        Attribute& attribute = mAttributes.emplace_back();
+        attribute.data = createAttributeDataset(length, dataType);
+        attribute.name = name;
+        std::visit([this](auto& arg) { arg.resize(mNumVertices); }, attribute.data);
 
-        attribute->setName(name);
-        attribute->resizeData(mNumVertices);
-        attribute->deserialize(stream);
-
-        mAttributes.find(attrType)->second.push_back(std::move(attribute));
+        std::visit(VisitOverload{
+            [&stream, this](std::vector<int>& data) {
+                for (unsigned int i = 0; i < mNumVertices; i++)
+                    stream >> data[i];
+            },
+            [&stream, this](std::vector<float>& data) {
+                for (unsigned int i = 0; i < mNumVertices; i++)
+                    stream >> data[i];
+            },
+            [&stream, this](auto& data) {
+                for (unsigned int i = 0; i < mNumVertices; i++)
+                    for (unsigned int j = 0; j < data[i].length(); j++)
+                        stream >> data[i][j];
+            },
+        }, attribute.data);
     }
 }
 
@@ -286,9 +219,43 @@ void MeshNode::writeToStreamMSH(std::ofstream& stream) const {
 
     stream << mNumVertices << " " << mNumIndices << " " << (unsigned int)mType << "\n";
 
-    for (const auto& attrPair : mAttributes)
-        for (const auto& attr : attrPair.second)
-            attr->serialize(stream);
+    for (const auto& attribute : mAttributes) {
+        stream << attribute.name << " ";
+
+        std::visit(VisitOverload{
+            [&stream](const std::vector<int>&        arg) { stream << 1 << " " << 'i'; },
+            [&stream](const std::vector<glm::ivec2>& arg) { stream << 2 << " " << 'i'; },
+            [&stream](const std::vector<glm::ivec3>& arg) { stream << 3 << " " << 'i'; },
+            [&stream](const std::vector<glm::ivec4>& arg) { stream << 4 << " " << 'i'; },
+
+            [&stream](const std::vector<float>&      arg) { stream << 1 << " " << 'f'; },
+            [&stream](const std::vector<glm::vec2>&  arg) { stream << 2 << " " << 'f'; },
+            [&stream](const std::vector<glm::vec3>&  arg) { stream << 3 << " " << 'f'; },
+            [&stream](const std::vector<glm::vec4>&  arg) { stream << 4 << " " << 'f'; },
+
+            [&stream](const auto&                  arg) { stream << 1 << " " << "i"; },
+        }, attribute.data);
+        stream << "\n";
+
+        std::visit(VisitOverload{
+            [&stream, this](const std::vector<int>& data) {
+                for (unsigned int i = 0; i < mNumVertices; i++)
+                    stream << data[i] << "\n";
+            },
+            [&stream, this](const std::vector<float>& data) {
+                for (unsigned int i = 0; i < mNumVertices; i++)
+                    stream << data[i] << "\n";
+            },
+            [&stream, this](const auto& data) {
+                for (unsigned int i = 0; i < mNumVertices; i++) {
+                    stream << data[i][0];
+                    for (unsigned int j = 1; j < data[i].length(); j++)
+                        stream << " " << data[i][j];
+                    stream << "\n";
+                }
+            },
+        }, attribute.data);
+    }
     for (unsigned int index : mIndices) {
         stream << "i " << index << "\n";
     }
@@ -317,10 +284,22 @@ void MeshNode::uploadMesh() {
     mMesh->hardClean();
     mMesh->setType(mType);
     mMesh->setNumVertices(mNumVertices);
-    for (const auto& attrPair : mAttributes)
-        for (const auto& attr : attrPair.second)
-            mMesh->addAttribute(attr->getData(), gTYPE_ATTR_COUNTS.find(attrPair.first)->second,
-                                gTYPE_SIZES.find(attrPair.first)->second, attr->getName());
+    for (const auto& attr : mAttributes) {
+        std::visit(VisitOverload{
+            [&attr, this](const std::vector<int>& data) {
+                using type = std::decay_t<decltype(data)>;
+                mMesh->addAttribute(data.data(), 1, sizeof(int), attr.name);
+            },
+            [&attr, this](const std::vector<float>& data) {
+                using type = std::decay_t<decltype(data)>;
+                mMesh->addAttribute(data.data(), 1, sizeof(float), attr.name);
+            },
+            [&attr, this](const auto& data) {
+                using type = std::decay_t<decltype(data)>;
+                mMesh->addAttribute(data.data(), type::value_type::length(), sizeof(typename type::value_type), attr.name);
+            },
+        }, attr.data);
+    }
 
     mMesh->bufferData();
 }
@@ -346,42 +325,53 @@ void MeshNode::drawGlobalParameters() {
     }
 }
 
-void MeshNode::drawAttributes(std::vector<std::unique_ptr<IAttribute>>& attributes, std::type_index type) {
-    for (auto& attribute : attributes) {
-        drawAttribute(*attribute, type);
-    }
-    attributes.erase(std::remove_if(attributes.begin(), attributes.end(),
-                                    [](auto& attr) { return attr->isMarkedDelete(); }), attributes.end());
+void MeshNode::drawAttributes() {
+    for (auto& attribute : mAttributes)
+        drawAttribute(attribute);
+
+    mAttributes.erase(
+        std::remove_if(mAttributes.begin(), mAttributes.end(),
+            [](const auto& attr) { return attr.isMarkedDelete; }
+        ), mAttributes.end()
+    );
 }
 
-void MeshNode::drawAttribute(IAttribute& attribute, std::type_index type) {
-    const std::string ATTRIBUTE_SHOW_LABEL = std::string(attribute.getName()).append(" (")
-            .append(gTYPE_NAMES.find(type)->second).append(")")
-            .append("##AttributeHeader_").append(std::to_string(attribute.getID())).append(getAttributeID(type));
+void MeshNode::drawAttribute(Attribute& attribute) {
+    const std::string ATTRIBUTE_SHOW_LABEL = std::string(attribute.name).append(" (")
+            .append(getDataTypeName(attribute.data)).append(")")
+            .append("##AttributeHeader_").append(std::to_string(attribute.id)).append(getAttributeID(attribute));
     const float BUTTON_SIZE = 200.0f;
     if (ImGui::Button(ATTRIBUTE_SHOW_LABEL.c_str(), ImVec2(BUTTON_SIZE, 0)))
-        attribute.setShown(!attribute.isShown());
+        attribute.isShown = !attribute.isShown;
     ImGui::SameLine();
     const std::string ATTRIBUTE_REMOVE_LABEL = std::string("Remove")
-            .append("##AttributeHeader_").append(std::to_string(attribute.getID())).append(getAttributeID(type));
+            .append("##AttributeHeader_").append(std::to_string(attribute.id)).append(getAttributeID(attribute));
     if (ImGui::Button(ATTRIBUTE_REMOVE_LABEL.c_str(), ImVec2(BUTTON_SIZE, 0))) {
-        attribute.markForDeletion();
+        attribute.isMarkedDelete = true;
         return;
     }
-    if (!attribute.isShown())
+    if (!attribute.isShown)
         return;
 
     ImGui::Indent(16.0f);
     const std::string ATTRIBUTE_NAME_LABEL = std::string("name##AttributeName_")
-            .append(std::to_string(attribute.getID())).append(getAttributeID(type));
-    std::string name = attribute.getName();
-    if (ImGui::InputText(ATTRIBUTE_NAME_LABEL.c_str(), &name))
-        attribute.setName(name);
+            .append(std::to_string(attribute.id)).append(getAttributeID(attribute));
+    ImGui::InputText(ATTRIBUTE_NAME_LABEL.c_str(), &attribute.name);
 
     for (unsigned int i = 0; i < mNumVertices; i++) {
         const std::string VALUE_LABEL = std::to_string(i).append("##AttributeValue_")
-                .append(std::to_string(attribute.getID())).append(getAttributeID(type));
-        gTYPE_DISPLAY_CALLBACKS.find(type)->second(VALUE_LABEL.c_str(), attribute.getDataAt(i));
+                .append(std::to_string(attribute.id)).append(getAttributeID(attribute));
+        std::visit(VisitOverload{
+            [VALUE_LABEL, i](std::vector<int>& data       ) { ImGui::InputInt   (VALUE_LABEL.c_str(), &data[i]   ); },
+            [VALUE_LABEL, i](std::vector<glm::ivec2>& data) { ImGui::InputInt2  (VALUE_LABEL.c_str(), &data[i][0]); },
+            [VALUE_LABEL, i](std::vector<glm::ivec3>& data) { ImGui::InputInt3  (VALUE_LABEL.c_str(), &data[i][0]); },
+            [VALUE_LABEL, i](std::vector<glm::ivec4>& data) { ImGui::InputInt4  (VALUE_LABEL.c_str(), &data[i][0]); },
+            [VALUE_LABEL, i](std::vector<float>& data     ) { ImGui::InputFloat (VALUE_LABEL.c_str(), &data[i]   ); },
+            [VALUE_LABEL, i](std::vector<glm::vec2>& data ) { ImGui::InputFloat2(VALUE_LABEL.c_str(), &data[i][0]); },
+            [VALUE_LABEL, i](std::vector<glm::vec3>& data ) { ImGui::InputFloat3(VALUE_LABEL.c_str(), &data[i][0]); },
+            [VALUE_LABEL, i](std::vector<glm::vec4>& data ) { ImGui::InputFloat4(VALUE_LABEL.c_str(), &data[i][0]); },
+            [](auto arg) { ImGui::Text("Undefined"); },
+        }, attribute.data);
     }
     ImGui::Unindent(0.0f);
 }
@@ -393,20 +383,20 @@ void MeshNode::drawAddAttributePopup() {
         ImGui::OpenPopup(ADD_ATTRIBUTE_POPUP_ID.c_str());
 
     if (ImGui::BeginPopup(ADD_ATTRIBUTE_POPUP_ID.c_str())) {
-        for (auto& attrPair : mAttributes)
-            drawAttributeSelection(attrPair.second, attrPair.first);
+        drawAttributeSelection();
 
         ImGui::EndPopup();
     }
 }
 
-void MeshNode::drawAttributeSelection(std::vector<std::unique_ptr<IAttribute>>& attrVec, std::type_index type) {
-    const std::string INT_ATTRIBUTE_ID = std::string(gTYPE_NAMES.find(type)->second).append("##Selectable_")
-            .append(getAttributeID(type));
-    if (ImGui::Selectable(INT_ATTRIBUTE_ID.c_str())) {
-        std::unique_ptr<IAttribute> attr = mAttributeFactories.find(type)->second();
-        attr->resizeData(mNumVertices);
-        attrVec.push_back(std::move(attr));
+void MeshNode::drawAttributeSelection() {
+    for (unsigned int i = 0; i < (unsigned int)Mesh::AttributeType::Max; i++) {
+        Mesh::AttributeType type = (Mesh::AttributeType)i;
+        const std::string ATTRIBUTE_ID = std::string(getDataTypeName(type)).append("##Selectable_").append(getNodeID());
+        if (ImGui::Selectable(ATTRIBUTE_ID.c_str())) {
+            Attribute& attribute = mAttributes.emplace_back();
+            std::visit([this](auto& data) { data.resize(mNumVertices); }, attribute.data);
+        }
     }
 }
 
@@ -438,14 +428,13 @@ std::string MeshNode::getNodeID() {
     return std::string("Node_").append(std::to_string(getID()));
 }
 
-std::string MeshNode::getAttributeID(std::type_index type) {
-    return std::string(type.name()).append("Attribute_").append(getNodeID());
+std::string MeshNode::getAttributeID(Attribute& attr) {
+    return getDataTypeName(attr.data).append("Attribute_").append(getNodeID());
 }
 
 void MeshNode::resizeAttributes() {
-    for (auto& attrSet : mAttributes)
-        for (auto& attr : attrSet.second)
-            attr->resizeData(mNumVertices);
+    for (auto& attribute : mAttributes)
+        std::visit([this](auto& data) { data.resize(mNumVertices); }, attribute.data);
 }
 
 void MeshNode::clearMesh() {
@@ -458,7 +447,6 @@ void MeshNode::clearMesh() {
 }
 
 void MeshNode::clearAttributes() {
-    for (auto& attrPair : mAttributes)
-        attrPair.second.clear();
+    mAttributes.clear();
     mIndices.clear();
 }

@@ -1,20 +1,42 @@
 #pragma once
 #include <glad/glad.h>
 
+#include <glm/glm.hpp>
+
 #include <fstream>
 #include <memory>
 #include <string>
+#include <variant>
 #include <vector>
 
 class Mesh {
 public:
+    typedef std::variant<
+        int, glm::ivec2, glm::ivec3, glm::ivec4,
+        float, glm::vec2, glm::vec3, glm::vec4
+    > attribute_t;
+    enum class AttributeType {
+        Integer = 0,
+        IVec2,
+        IVec3,
+        IVec4,
+
+        Float,
+        Vec2,
+        Vec3,
+        Vec4,
+
+        Max,
+        Undefined,
+    };
+
     enum class ErrorState {
         INVALID,
         VALID,
     };
 
     enum class Type {
-        Triangles = 0u,
+        Triangles = 0,
         TriangleStrip,
         TriangleFan,
         Lines,
@@ -64,7 +86,7 @@ public:
 
     /**
      *
-     * @param data Actual vertex data to be uploaded.
+     * @param data Actual vertex data to be uploaded. Caller is responsible for maintaining the lifecycle of the data.
      * @param attribSize Number of elements in the data type (e.g. vec3 is 3).
      * @param dataSize Size of the data type (e.g. vec3 is sizeof(vec3)).
      * @param debugName Label for printing debug information about this attribute.

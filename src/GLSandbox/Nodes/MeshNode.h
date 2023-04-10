@@ -5,6 +5,9 @@
 
 #include "../../Rendering/Mesh.h"
 
+#include "../../Utils/SerializationUtils.h"
+#include "../../Utils/VariantUtils.h"
+
 #include "../Assets.h"
 #include "../NodeClassifications.h"
 
@@ -16,136 +19,8 @@
 #include <functional>
 #include <map>
 #include <string>
-#include <typeindex>
-#include <typeinfo>
 #include <unordered_map>
 #include <vector>
-
-class IAttribute {
-public:
-    IAttribute() = default;
-    virtual ~IAttribute() = default;
-
-    virtual void serialize(std::ofstream& stream) const = 0;
-    virtual void deserialize(std::ifstream& stream) = 0;
-
-    [[nodiscard]] virtual unsigned int getID() const = 0;
-
-    [[nodiscard]] virtual void* getData() const = 0;
-    [[nodiscard]] virtual void* getDataAt(size_t index) const = 0;
-    virtual void resizeData(size_t size) = 0;
-
-    [[nodiscard]] virtual const std::string& getName() const = 0;
-    virtual void setName(const std::string& name) = 0;
-
-    [[nodiscard]] virtual bool isShown() const = 0;
-    virtual void setShown(bool show) = 0;
-
-    [[nodiscard]] virtual bool isMarkedDelete() const = 0;
-    virtual void markForDeletion() = 0;
-
-    [[nodiscard]] virtual unsigned int getNumComponents() const = 0;
-};
-
-template<typename T>
-class Attribute final : public IAttribute {
-public:
-    Attribute() {
-        static unsigned int sIdCounter = 0;
-        mID = sIdCounter++;
-    }
-    ~Attribute() final = default;
-
-    void serialize(std::ofstream& stream) const final {
-        stream << (mName.empty() ? "attribute" : mName);
-
-        if constexpr (std::disjunction_v<std::is_same<T, int>, std::is_same<T, float>>)
-            stream << ' ' << 1u;
-        else
-            stream << ' ' << (unsigned int)T::length();
-
-        if constexpr (std::disjunction_v<std::is_same<T, int>, std::is_same<T, glm::ivec2>,
-            std::is_same<T, glm::ivec3>, std::is_same<T, glm::ivec4>>)
-            stream << ' ' << 'i';
-        else
-            stream << ' ' << 'f';
-
-        stream << '\n';
-
-        for (const auto& val : mData) {
-            if constexpr (std::disjunction_v<std::is_same<T, int>, std::is_same<T, float>>) {
-                stream << val;
-            } else {
-                stream << val[0];
-                for (size_t i = 1; i < T::length(); i++)
-                    stream << ' ' << val[i];
-            }
-
-            stream << '\n';
-        }
-    }
-    void deserialize(std::ifstream& stream) final {
-        for (auto& val : mData) {
-            if constexpr (std::disjunction_v<std::is_same<T, int>, std::is_same<T, float>>)
-                stream >> val;
-            else
-                for (size_t i = 0; i < T::length(); i++)
-                    stream >> val[i];
-        }
-    }
-
-    [[nodiscard]] unsigned int getID() const final {
-        return mID;
-    }
-
-    [[nodiscard]] void* getData() const final {
-        return (void*)mData.data();
-    }
-    [[nodiscard]] void* getDataAt(size_t index) const final {
-        return (void*)&mData[index];
-    }
-    void resizeData(size_t size) final {
-        mData.resize(size);
-    }
-    void setData(const std::vector<T> data) {
-        mData = data;
-    }
-
-    [[nodiscard]] const std::string& getName() const final {
-        return mName;
-    }
-    void setName(const std::string& name) final {
-        mName = name;
-    }
-
-    [[nodiscard]] bool isShown() const final {
-        return mShow;
-    }
-    void setShown(bool show) final {
-        mShow = show;
-    }
-
-    [[nodiscard]] bool isMarkedDelete() const final {
-        return mRemove;
-    }
-    void markForDeletion() final {
-        mRemove = true;
-    }
-
-    [[nodiscard]] unsigned int getNumComponents() const final {
-        if constexpr (std::disjunction_v<std::is_same<T, int>, std::is_same<T, float>>) {
-            return 1;
-        } else {
-            return T::length();
-        }
-    }
-private:
-    unsigned int mID;
-    std::string mName;
-    std::vector<T> mData{};
-    bool mShow = false;
-    bool mRemove = false;
-};
 
 class MeshNode final : public Node {
 public:
@@ -163,9 +38,21 @@ protected:
 
     void drawContents() override;
 private:
-    template<typename T>
-    using draw_attribute_input_callback = std::function<void(const std::string&, T&)>;
-    typedef std::function<std::unique_ptr<IAttribute>()> create_attribute_callback;
+    struct Attribute {
+        Attribute() {
+            static unsigned int cIDCounter = 0;
+            id = cIDCounter++;
+        }
+
+        unsigned int id;
+
+        std::string name;
+
+        VectorVariant<Mesh::attribute_t> data;
+
+        bool isShown = false;
+        bool isMarkedDelete = false;
+    };
 
     void loadFromFile();
     void loadFromStream(std::ifstream& stream, const std::string& extension);
@@ -180,23 +67,87 @@ private:
 
     void drawGlobalParameters();
 
-    void drawAttributes(std::vector<std::unique_ptr<IAttribute>>& attributes, std::type_index type);
-    void drawAttribute(IAttribute& attribute, std::type_index type);
+    void drawAttributes();
+    void drawAttribute(Attribute& attribute);
 
     void drawAddAttributePopup();
-    void drawAttributeSelection(std::vector<std::unique_ptr<IAttribute>>& attrVec, std::type_index type);
+    void drawAttributeSelection();
 
     void drawUploadButton();
 
     void drawMeshStatus();
 
     std::string getNodeID();
-    std::string getAttributeID(std::type_index type);
+    std::string getAttributeID(Attribute& attr);
 
     void resizeAttributes();
 
     void clearMesh();
     void clearAttributes();
+
+    static inline std::string getDataTypeName(Mesh::AttributeType type) {
+        switch (type) {
+            case Mesh::AttributeType::Integer : return "Int";
+            case Mesh::AttributeType::IVec2   : return "IVec2";
+            case Mesh::AttributeType::IVec3   : return "IVec3";
+            case Mesh::AttributeType::IVec4   : return "IVec4";
+
+            case Mesh::AttributeType::Float   : return "Float";
+            case Mesh::AttributeType::Vec2    : return "Vec2";
+            case Mesh::AttributeType::Vec3    : return "Vec3";
+            case Mesh::AttributeType::Vec4    : return "Vec4";
+
+            default: return "UNDEFINED";
+        }
+    }
+    static inline std::string getDataTypeName(VectorVariant<Mesh::attribute_t> attr) {
+        return std::visit(VisitOverload{
+            [](const auto& arg                   ) { return "UNDEFINED"; },
+
+            [](const std::vector<int>& arg       ) { return "Int";   },
+            [](const std::vector<glm::ivec2>& arg) { return "IVec2"; },
+            [](const std::vector<glm::ivec3>& arg) { return "IVec3"; },
+            [](const std::vector<glm::ivec4>& arg) { return "IVec4"; },
+
+            [](const std::vector<float>& arg     ) { return "Float"; },
+            [](const std::vector<glm::vec2>& arg ) { return "Vec2";  },
+            [](const std::vector<glm::vec3>& arg ) { return "Vec3";  },
+            [](const std::vector<glm::vec4>& arg ) { return "Vec4";  },
+        }, attr);
+    }
+    static inline std::size_t getAttrSize(Mesh::attribute_t attr) {
+        return std::visit(VisitOverload{
+            [](int arg       ) { return 1; },
+            [](float arg     ) { return 1; },
+            [](auto arg     ) { return arg.length(); },
+        }, attr);
+    }
+    static inline std::size_t getAttrDataSize(Mesh::attribute_t attr) {
+        return std::visit(VisitOverload{
+            [](const auto& arg) { return sizeof(std::decay_t<decltype(arg)>); },
+        }, attr);
+    }
+    static inline VectorVariant<Mesh::attribute_t> createAttributeDataset(unsigned int length, char dataType) {
+        switch (dataType) {
+            case 'i':
+                switch (length) {
+                    default:
+                    case 1: return std::vector<int>();
+                    case 2: return std::vector<glm::ivec2>();
+                    case 3: return std::vector<glm::ivec3>();
+                    case 4: return std::vector<glm::ivec4>();
+                }
+            default:
+            case 'f':
+                switch (length) {
+                    default:
+                    case 1: return std::vector<float>();
+                    case 2: return std::vector<glm::vec2>();
+                    case 3: return std::vector<glm::vec3>();
+                    case 4: return std::vector<glm::vec4>();
+                }
+        }
+    }
 
     std::unique_ptr<Mesh> mMesh;
     Port<Mesh*> mMeshOut = Port<Mesh*>(*this, IPort::Direction::Out, "MeshOut", "Mesh", [&]() { return mMesh.get(); });
@@ -206,17 +157,7 @@ private:
 
     Mesh::Type mType = Mesh::Type::Triangles;
 
-    std::unordered_map<std::type_index, std::vector<std::unique_ptr<IAttribute>>> mAttributes;
-    std::map<std::type_index, create_attribute_callback> mAttributeFactories = {
-        {typeid(int),        []() { return std::make_unique<Attribute<int>>();        }},
-        {typeid(glm::ivec2), []() { return std::make_unique<Attribute<glm::ivec2>>(); }},
-        {typeid(glm::ivec3), []() { return std::make_unique<Attribute<glm::ivec3>>(); }},
-        {typeid(glm::ivec4), []() { return std::make_unique<Attribute<glm::ivec4>>(); }},
-        {typeid(float),      []() { return std::make_unique<Attribute<float>>();      }},
-        {typeid(glm::vec2),  []() { return std::make_unique<Attribute<glm::vec2>>();  }},
-        {typeid(glm::vec3),  []() { return std::make_unique<Attribute<glm::vec3>>();  }},
-        {typeid(glm::vec4),  []() { return std::make_unique<Attribute<glm::vec4>>();  }},
-    };
+    std::vector<Attribute> mAttributes;
     std::vector<GLuint> mIndices{};
 
     // Matches Mesh::Type

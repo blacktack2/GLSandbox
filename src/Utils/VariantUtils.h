@@ -1,5 +1,6 @@
 #pragma once
 #include <variant>
+#include <vector>
 
 /**
  * @brief Utility struct for handling an std::visit with multiple different type-dependant overloads.
@@ -15,6 +16,14 @@
  */
 template<typename... Ts>
 struct VisitOverload : Ts... { using Ts::operator()...; };
-
 template<typename... Ts>
 VisitOverload(Ts...) -> VisitOverload<Ts...>;
+
+template <typename... Ts>
+struct VariantVectorWrapper;
+template <typename... Ts>
+struct VariantVectorWrapper<std::variant<Ts...>> {
+    using type = std::variant<std::vector<Ts>...>;
+};
+template <typename T>
+using VectorVariant = typename VariantVectorWrapper<T>::type;
