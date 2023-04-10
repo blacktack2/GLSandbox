@@ -47,6 +47,7 @@ RenderPassNode::pipeline_callback RenderPassNode::generateCallback() const {
 
     return [mesh, shader]() {
         shader->bind();
+        mesh->bind();
         mesh->draw();
     };
 }
