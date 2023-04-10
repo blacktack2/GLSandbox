@@ -108,6 +108,7 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
             std::getline(stream, indexData);
 
             std::stringstream indexSetStream(indexData);
+            indexSetStream >> std::ws;
             std::string indexSet;
             while (std::getline(indexSetStream, indexSet, ' ')) {
                 std::stringstream indexStream(indexSet);
