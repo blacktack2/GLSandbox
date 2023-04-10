@@ -47,13 +47,6 @@ void MeshNode::onDeserialize() {
 void MeshNode::drawContents() {
     drawGlobalParameters();
 
-    const std::string filenameInputLabel = generateNodeLabel("File:");
-    ImGui::InputText(filenameInputLabel.c_str(), &mFilename);
-    ImGui::SameLine();
-    const std::string loadFileButtonLabel = generateNodeLabel("Load");
-    if (ImGui::Button(loadFileButtonLabel.c_str()))
-        loadFromFile();
-
     const std::string showAttributeButtonLabel = generateNodeLabel("Show Attributes");
     if (ImGui::Button(showAttributeButtonLabel.c_str()))
         mShowAttributes = !mShowAttributes;
@@ -304,6 +297,31 @@ void MeshNode::uploadMesh() {
 }
 
 void MeshNode::drawGlobalParameters() {
+    const std::string filenameInputLabel = generateNodeLabel("File:");
+    ImGui::InputText(filenameInputLabel.c_str(), &mFilename);
+
+    ImGui::SameLine();
+    const std::string loadFileButtonLabel = generateNodeLabel("Load");
+    if (ImGui::Button(loadFileButtonLabel.c_str()))
+        loadFromFile();
+
+    ImGui::SameLine();
+    const std::string fileTypeComboLabel = generateNodeLabel("");
+    if (ImGui::BeginCombo(fileTypeComboLabel.c_str(), getFileExtension(mFileExtension))) {
+        for (unsigned int i = 0; i < (unsigned int)MeshFileExtension::Max; i++) {
+            MeshFileExtension ext = (MeshFileExtension)i;
+            bool isSelected = ext == mFileExtension;
+
+            const std::string fileTypeButtonLabel = generateNodeLabel(getFileExtension(ext), "FileExtension");
+            if (ImGui::Selectable(fileTypeButtonLabel.c_str(), isSelected))
+                mFileExtension = ext;
+
+            if (isSelected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+
     const std::string numVerticesLabel = generateNodeLabel("Num Vertices");
     ImGui::SetNextItemWidth(200.0f);
     if (ImGui::InputInt(numVerticesLabel.c_str(), reinterpret_cast<int*>(&mNumVertices))) {
