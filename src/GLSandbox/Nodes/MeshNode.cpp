@@ -104,9 +104,17 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
             stream >> normal.z;
             normals.emplace_back(normal);
         } else if (type == "f") {
-            indices.resize(indices.size() + 3);
-            for (size_t i = 0; i < 3; i++)
-                stream >> indices[indices.size() - 3 + i];
+            std::string indexData;
+            std::getline(stream, indexData);
+
+            std::stringstream indexSetStream(indexData);
+            std::string indexSet;
+            while (std::getline(indexSetStream, indexSet, ' ')) {
+                std::stringstream indexStream(indexSet);
+                unsigned int index;
+                indexStream >> index;
+                indices.push_back(index);
+            }
         } else {
             SerializationUtils::skipToNextLine(stream);
             continue;
