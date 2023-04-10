@@ -1,7 +1,5 @@
 #include "MeshNode.h"
 
-#include "../Assets.h"
-
 #include "../../Utils/SerializationUtils.h"
 
 #include <imgui.h>
@@ -67,12 +65,8 @@ MeshNode::MeshNode() : Node("Mesh") {
     mMesh = std::make_unique<Mesh>();
 
     addPort(mMeshOut);
-}
 
-void MeshNode::clearAttributes() {
-    for (auto& attrPair : mAttributes)
-        attrPair.second.clear();
-    mIndices.clear();
+    mFilename = generateFilename();
 }
 
 std::vector<std::pair<std::string, std::string>> MeshNode::generateSerializedData() const {
@@ -80,24 +74,23 @@ std::vector<std::pair<std::string, std::string>> MeshNode::generateSerializedDat
     if (filename.empty())
         filename = generateFilename();
 
-    std::ofstream meshStream(std::string(gMESH_ASSET_DIR).append(filename).append(gMESH_ASSET_EXTENSION));
-    if (meshStream)
-        writeToStreamMSH(meshStream);
+    writeToFile();
+
+    filename.append(getFileExtension(mFileExtension));
 
     return {
         {"File", filename},
-        {"Type", std::to_string((unsigned int)mType)},
-        {"VertexCount", std::to_string(mNumVertices)},
-        {"IndexCount", std::to_string(mNumIndices)},
     };
 }
 
 void MeshNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
     if (dataID == "File") {
-        stream >> mFilename;
-        std::ifstream meshStream(std::string(gMESH_ASSET_DIR).append(mFilename).append(gMESH_ASSET_EXTENSION));
-        if (meshStream)
-            loadFromStream(meshStream, gMESH_ASSET_EXTENSION);
+        std::string filename;
+        stream >> filename;
+        std::size_t index = filename.find_last_of('.');
+        mFilename = filename.substr(0, index);
+        mFileExtension = parseFileExtension(filename.substr(index).c_str());
+        loadFromFile();
     }
 }
 
@@ -108,14 +101,36 @@ void MeshNode::onDeserialize() {
 void MeshNode::drawContents() {
     drawGlobalParameters();
 
-    for (auto& attrPair : mAttributes)
-        drawAttributes(attrPair.second, attrPair.first);
 
-    drawAddAttributePopup();
+    const std::string FILENAME_LABEL = std::string("File:##").append(getNodeID());
+    ImGui::InputText(FILENAME_LABEL.c_str(), &mFilename);
+    ImGui::SameLine();
+    const std::string LOAD_FILE_BUTTON = std::string("Load##").append(getNodeID());
+    if (ImGui::Button(LOAD_FILE_BUTTON.c_str()))
+        loadFromFile();
 
+    const std::string SHOW_ATTR_BUTTON_LABEL = std::string("Show Attributes##").append(getNodeID());
+    if (ImGui::Button(SHOW_ATTR_BUTTON_LABEL.c_str()))
+        mShowAttributes = !mShowAttributes;
+    if (mShowAttributes) {
+        for (auto& attrPair : mAttributes)
+            drawAttributes(attrPair.second, attrPair.first);
+        drawAddAttributePopup();
+    }
     drawUploadButton();
 
     drawMeshStatus();
+}
+
+void MeshNode::loadFromFile() {
+    const std::string fileExtension = getFileExtension(mFileExtension);
+    const std::string fullPath = std::string(gMESH_ASSET_DIR).append(mFilename).append(fileExtension);
+
+    clearMesh();
+
+    std::ifstream stream(fullPath);
+    if (stream)
+        loadFromStream(stream, fileExtension);
 }
 
 void MeshNode::loadFromStream(std::ifstream& stream, const std::string& extension) {
@@ -177,8 +192,6 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
         }
     }
 
-    clearAttributes();
-
     mNumVertices = positions.size();
     mNumIndices = indices.size();
 
@@ -202,8 +215,6 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
 }
 
 void MeshNode::loadFromStreamMSH(std::ifstream& stream) {
-    clearAttributes();
-
     SerializationUtils::skipToNextLine(stream);
     stream >> mNumVertices;
     stream >> mNumIndices;
@@ -221,12 +232,12 @@ void MeshNode::loadFromStreamMSH(std::ifstream& stream) {
         }
 
         unsigned int length;
-        char type;
+        char dataType;
         stream >> length;
-        stream >> type;
+        stream >> dataType;
 
         std::type_index attrType = typeid(void);
-        switch (type) {
+        switch (dataType) {
             case 'i':
                 switch (length) {
                     case 1: attrType = typeid(int); break;
@@ -261,6 +272,15 @@ void MeshNode::loadFromStreamMSH(std::ifstream& stream) {
     }
 }
 
+void MeshNode::writeToFile() const {
+    if (mFileExtension == gMESH_DEFAULT_EXTENSION) {
+        const std::string fileExtension = getFileExtension(gMESH_DEFAULT_EXTENSION);
+        const std::string fullPath = std::string(gMESH_ASSET_DIR).append(mFilename).append(fileExtension);
+        std::ofstream stream(fullPath);
+        writeToStreamMSH(stream);
+    }
+}
+
 void MeshNode::writeToStreamMSH(std::ofstream& stream) const {
     stream << "# GLSandbox MSH File: " << mFilename << "\n";
 
@@ -274,12 +294,13 @@ void MeshNode::writeToStreamMSH(std::ofstream& stream) const {
     }
 }
 
-std::string MeshNode::generateFilename() const {
+std::string MeshNode::generateFilename() {
     static const std::regex cDEFAULT_FILE_REGEX("^Mesh(0-9)+$");
 
     std::unordered_set<unsigned int> paths;
     for (auto const& entry : std::filesystem::recursive_directory_iterator(std::filesystem::path(gMESH_ASSET_DIR))) {
-        if (!(std::filesystem::is_regular_file(entry) && entry.path().extension() == gMESH_ASSET_EXTENSION))
+        if (!std::filesystem::is_regular_file(entry) ||
+            parseFileExtension(entry.path().extension().c_str()) == MeshFileExtension::Undefined)
             continue;
         std::smatch matches;
         std::string filename = entry.path().filename().string();
@@ -425,4 +446,19 @@ void MeshNode::resizeAttributes() {
     for (auto& attrSet : mAttributes)
         for (auto& attr : attrSet.second)
             attr->resizeData(mNumVertices);
+}
+
+void MeshNode::clearMesh() {
+    mNumVertices = 1;
+    mNumIndices = 0;
+
+    mType = Mesh::Type::Triangles;
+
+    clearAttributes();
+}
+
+void MeshNode::clearAttributes() {
+    for (auto& attrPair : mAttributes)
+        attrPair.second.clear();
+    mIndices.clear();
 }
