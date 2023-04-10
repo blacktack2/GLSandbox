@@ -395,6 +395,7 @@ void MeshNode::drawAttributeSelection() {
         const std::string createAttributeButtonLabel = generateNodeLabel(getDataTypeName(type), "CreateAttribute");
         if (ImGui::Selectable(createAttributeButtonLabel.c_str())) {
             Attribute& attribute = mAttributes.emplace_back();
+            attribute.data = generateAttributeDataset(type);
             std::visit([this](auto& data) { data.resize(mNumVertices); }, attribute.data);
         }
     }

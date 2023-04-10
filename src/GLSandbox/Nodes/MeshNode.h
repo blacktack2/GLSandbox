@@ -46,7 +46,7 @@ private:
 
         unsigned int id;
 
-        std::string name;
+        std::string name = "unnamed";
 
         VectorVariant<Mesh::attribute_t> data;
 
@@ -148,6 +148,20 @@ private:
                     case 3: return std::vector<glm::vec3>();
                     case 4: return std::vector<glm::vec4>();
                 }
+        }
+    }
+    static inline VectorVariant<Mesh::attribute_t> generateAttributeDataset(Mesh::AttributeType type) {
+        switch (type) {
+            default:
+            case Mesh::AttributeType::Integer: return std::vector<int>();
+            case Mesh::AttributeType::IVec2: return std::vector<glm::ivec2>();
+            case Mesh::AttributeType::IVec3: return std::vector<glm::ivec3>();
+            case Mesh::AttributeType::IVec4: return std::vector<glm::ivec4>();
+
+            case Mesh::AttributeType::Float: return std::vector<float>();
+            case Mesh::AttributeType::Vec2: return std::vector<glm::vec2>();
+            case Mesh::AttributeType::Vec3: return std::vector<glm::vec3>();
+            case Mesh::AttributeType::Vec4: return std::vector<glm::vec4>();
         }
     }
 
