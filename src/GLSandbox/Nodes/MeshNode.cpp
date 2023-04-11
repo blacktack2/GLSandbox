@@ -252,7 +252,7 @@ std::string MeshNode::generateFilename() {
     std::unordered_set<unsigned int> paths;
     for (auto const& entry : std::filesystem::recursive_directory_iterator(std::filesystem::path(gMESH_ASSET_DIR))) {
         if (!std::filesystem::is_regular_file(entry) ||
-            parseFileExtension(entry.path().extension().c_str()) == MeshFileExtension::Undefined)
+            parseFileExtension(entry.path().extension().string().c_str()) == MeshFileExtension::Undefined)
             continue;
         std::smatch matches;
         std::string filename = entry.path().filename().string();
