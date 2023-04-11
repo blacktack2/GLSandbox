@@ -93,12 +93,16 @@ protected:
     bool drawInputArea(const std::string& label) final;
 private:
     inline glm::mat4 generateViewMatrix() {
-        return glm::translate(-mPosition) * glm::rotate(-mRotation.w, -glm::vec3(mRotation)) * glm::scale(-mScale);
+        return glm::translate(-mPosition) *
+            glm::rotate(-mRoll,  glm::vec3(0.0f, 0.0f, 1.0f)) *
+            glm::rotate(-mPitch, glm::vec3(1.0f, 0.0f, 0.0f)) *
+            glm::rotate(-mYaw,   glm::vec3(0.0f, 1.0f, 0.0f));
     }
 
     glm::vec3 mPosition = glm::vec3(0.0f);
-    glm::vec4 mRotation = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
-    glm::vec3 mScale = glm::vec3(1.0f);
+    float mRoll  = 0.0f;
+    float mPitch = 0.0f;
+    float mYaw   = 0.0f;
 };
 
 class ProjMatrixNode final : public NumericNode<glm::mat4> {

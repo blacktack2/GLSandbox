@@ -167,24 +167,23 @@ ViewMatrixNode::ViewMatrixNode() : NumericNode<glm::mat4>("View") {
 std::vector<std::pair<std::string, std::string>> ViewMatrixNode::generateSerializedData() const {
     std::stringstream positionStream;
     positionStream << mPosition.x << " " << mPosition.y << " " << mPosition.z;
-    std::stringstream rotationStream;
-    rotationStream << mRotation.x << " " << mRotation.y << " " << mRotation.z << " " << mRotation.w;
-    std::stringstream scaleStream;
-    scaleStream    << mScale.x    << " " << mScale.y    << " " << mScale.z;
     return {
         {"Position", positionStream.str()},
-        {"Rotation", rotationStream.str()},
-        {"Scale",    scaleStream.str()   },
+        {"Roll",     std::to_string(mRoll)},
+        {"Pitch",    std::to_string(mPitch)},
+        {"Yaw",      std::to_string(mYaw)},
     };
 }
 
 void ViewMatrixNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
     if (dataID == "Position") {
         stream >> mPosition.x >> mPosition.y >> mPosition.z;
-    } else if (dataID == "Rotation") {
-        stream >> mRotation.x >> mRotation.y >> mRotation.z >> mRotation.w;
-    } else if (dataID == "Scale") {
-        stream >> mScale.x    >> mScale.y    >> mScale.z;
+    } else if (dataID == "Roll") {
+        stream >> mRoll;
+    } else if (dataID == "Pitch") {
+        stream >> mPitch;
+    } else if (dataID == "Yaw") {
+        stream >> mYaw;
     }
 }
 
@@ -195,17 +194,22 @@ bool ViewMatrixNode::drawInputArea(const std::string& label) {
     valueUpdated = ImGui::InputFloat3(std::string(label).append("Position").c_str(), &mPosition[0]);
 
     ImGui::Text("Rotation");
-    valueUpdated = ImGui::DragFloat(std::string(label).append("Rotation").c_str(), &mRotation[0], 0.01f, -1.0f, 1.0f) || valueUpdated;
+    ImGui::Text("Roll:");
     ImGui::SameLine();
-    ImGui::Text("Angle");
+    valueUpdated = ImGui::InputFloat(std::string(label).append("Roll").c_str(), &mRoll) || valueUpdated;
     ImGui::SameLine();
-    valueUpdated = ImGui::InputFloat(std::string(label).append("Angle").c_str(), &mRotation.w) || valueUpdated;
-
-    ImGui::Text("Scale");
-    valueUpdated = ImGui::InputFloat3(std::string(label).append("Scale").c_str(), &mScale[0]) || valueUpdated;
+    ImGui::Text("Pitch:");
+    ImGui::SameLine();
+    valueUpdated = ImGui::InputFloat(std::string(label).append("Pitch").c_str(), &mPitch) || valueUpdated;
+    ImGui::SameLine();
+    ImGui::Text("Yaw:");
+    ImGui::SameLine();
+    valueUpdated = ImGui::InputFloat(std::string(label).append("Yaw").c_str(), &mYaw) || valueUpdated;
 
     if (valueUpdated) {
-        mRotation = glm::vec4(glm::normalize(glm::vec3(mRotation)), mRotation.w);
+        mRoll  = (std::fmod(mRoll,  360) + (mRoll  < 0.0f ? 360.0f : 0.0f));
+        mPitch = (std::fmod(mPitch, 360) + (mPitch < 0.0f ? 360.0f : 0.0f));
+        mYaw   = (std::fmod(mYaw,   360) + (mYaw   < 0.0f ? 360.0f : 0.0f));
         mValue = generateViewMatrix();
         return true;
     }
