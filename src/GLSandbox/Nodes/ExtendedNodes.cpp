@@ -196,20 +196,17 @@ bool ViewMatrixNode::drawInputArea(const std::string& label) {
     ImGui::Text("Rotation");
     ImGui::Text("Roll:");
     ImGui::SameLine();
-    valueUpdated = ImGui::InputFloat(std::string(label).append("Roll").c_str(), &mRoll) || valueUpdated;
+    valueUpdated = ImGui::DragFloat(std::string(label).append("Roll").c_str(), &mRoll, 1.0f, 0.0f, 360.0f) || valueUpdated;
     ImGui::SameLine();
     ImGui::Text("Pitch:");
     ImGui::SameLine();
-    valueUpdated = ImGui::InputFloat(std::string(label).append("Pitch").c_str(), &mPitch) || valueUpdated;
+    valueUpdated = ImGui::DragFloat(std::string(label).append("Pitch").c_str(), &mPitch, 1.0f, 0.0f, 360.0f) || valueUpdated;
     ImGui::SameLine();
     ImGui::Text("Yaw:");
     ImGui::SameLine();
-    valueUpdated = ImGui::InputFloat(std::string(label).append("Yaw").c_str(), &mYaw) || valueUpdated;
+    valueUpdated = ImGui::DragFloat(std::string(label).append("Yaw").c_str(), &mYaw, 1.0f, 0.0f, 360.0f) || valueUpdated;
 
     if (valueUpdated) {
-        mRoll  = (std::fmod(mRoll,  360) + (mRoll  < 0.0f ? 360.0f : 0.0f));
-        mPitch = (std::fmod(mPitch, 360) + (mPitch < 0.0f ? 360.0f : 0.0f));
-        mYaw   = (std::fmod(mYaw,   360) + (mYaw   < 0.0f ? 360.0f : 0.0f));
         mValue = generateViewMatrix();
         return true;
     }

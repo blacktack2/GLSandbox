@@ -94,9 +94,9 @@ protected:
 private:
     inline glm::mat4 generateViewMatrix() {
         return glm::translate(-mPosition) *
-            glm::rotate(-mRoll,  glm::vec3(0.0f, 0.0f, 1.0f)) *
-            glm::rotate(-mPitch, glm::vec3(1.0f, 0.0f, 0.0f)) *
-            glm::rotate(-mYaw,   glm::vec3(0.0f, 1.0f, 0.0f));
+            glm::rotate(-glm::radians(mRoll),  glm::vec3(0.0f, 0.0f, 1.0f)) *
+            glm::rotate(-glm::radians(mPitch), glm::vec3(1.0f, 0.0f, 0.0f)) *
+            glm::rotate(-glm::radians(mYaw),   glm::vec3(0.0f, 1.0f, 0.0f));
     }
 
     glm::vec3 mPosition = glm::vec3(0.0f);
