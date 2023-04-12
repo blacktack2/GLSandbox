@@ -22,7 +22,7 @@ void RenderPassNode::deserializeData(const std::string& dataID, std::ifstream& s
 
 void RenderPassNode::drawContents() {
     if (!errorText.empty())
-        ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", errorText.c_str());
+        drawMessage(errorText, ImVec4(1, 0, 0, 1));
 }
 
 RenderPassNode::ValidationState RenderPassNode::validate() const {
