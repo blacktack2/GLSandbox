@@ -113,11 +113,22 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
             std::stringstream indexSetStream(indexData);
             indexSetStream >> std::ws;
             std::string indexSet;
+            std::vector<unsigned int> tempIndices;
             while (std::getline(indexSetStream, indexSet, ' ')) {
                 std::stringstream indexStream(indexSet);
                 unsigned int index;
                 indexStream >> index;
-                indices.push_back(index - 1);
+                tempIndices.push_back(index - 1);
+            }
+            if (tempIndices.size() <= 3) {
+                for (unsigned int index : tempIndices)
+                    indices.push_back(index);
+            } else {
+                for (size_t i = 2; i < tempIndices.size(); i++) {
+                    indices.push_back(tempIndices[0]);
+                    indices.push_back(tempIndices[i - 1]);
+                    indices.push_back(tempIndices[i    ]);
+                }
             }
             SerializationUtils::skipToNextLine(stream);
         } else {
