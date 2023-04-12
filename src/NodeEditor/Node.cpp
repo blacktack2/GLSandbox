@@ -14,8 +14,8 @@ static constexpr char gSERIAL_MARK_PREFIX = '%';
 static constexpr char gSERIAL_MARK_DATA[] = "Data";
 
 static constexpr char gSERIAL_DATA_PREFIX = '-';
-static constexpr char gSERIAL_DATA_ID[] = "ID";
-static constexpr char gSERIAL_DATA_POSITION[] = "Position";
+static constexpr char gSERIAL_DATA_ID[] = "NodeID";
+static constexpr char gSERIAL_DATA_POSITION[] = "NodePosition";
 static constexpr char gSERIAL_DATA_INPORT[] = "InPort";
 static constexpr char gSERIAL_DATA_OUTPORT[] = "OutPort";
 
