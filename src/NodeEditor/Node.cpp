@@ -114,7 +114,6 @@ void Node::draw() {
     ImNodes::BeginNodeTitleBar();
     ImGui::Text("%s", mTitle.c_str());
     ImNodes::EndNodeTitleBar();
-    ImGui::Button("##DummyButton", ImVec2(getNodeWidth(), 0.0f));
 
     for (auto& port : mPorts)
         port.get().drawPort();
