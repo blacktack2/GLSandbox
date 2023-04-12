@@ -160,7 +160,7 @@ bool ModelMatrixNode::drawInputArea(const std::string& label) {
     valueUpdated = ImGui::DragFloat(std::string(label).append("Yaw").c_str(), &mYaw, 1.0f, 0.0f, 360.0f) || valueUpdated;
 
     ImGui::Text("Scale");
-    valueUpdated = valueUpdated || ImGui::InputFloat3(std::string(label).append("Scale").c_str(), &mScale[0]);
+    valueUpdated = ImGui::InputFloat3(std::string(label).append("Scale").c_str(), &mScale[0]) || valueUpdated;
 
     if (valueUpdated) {
         mValue = generateModelMatrix();
@@ -262,12 +262,16 @@ void ProjMatrixNode::deserializeData(const std::string& dataID, std::ifstream& s
 }
 
 bool ProjMatrixNode::drawInputArea(const std::string& label) {
+    bool valueUpdated = false;
+
     if (ImGui::BeginCombo(std::string(label).append("Combo").c_str(), getTypeName(mType).c_str())) {
         for (unsigned int i = 0; i < (unsigned int)Type::Max; i++) {
             Type type = (Type)i;
             bool isSelected = mType == type;
-            if (ImGui::Selectable(getTypeName(type).c_str(), isSelected))
+            if (ImGui::Selectable(getTypeName(type).c_str(), isSelected)) {
                 mType = type;
+                valueUpdated = true;
+            }
             if (isSelected)
                 ImGui::SetItemDefaultFocus();
         }
@@ -275,10 +279,16 @@ bool ProjMatrixNode::drawInputArea(const std::string& label) {
     }
 
     switch (mType) {
-        case Type::Perspective : return drawPerspective(label);
-        case Type::Orthogonal  : return drawOrthogonal(label);
-        default                : return false;
+        case Type::Perspective : valueUpdated = drawPerspective(label) || valueUpdated; break;
+        case Type::Orthogonal  : valueUpdated = drawOrthogonal(label)  || valueUpdated; break;
     }
+
+    if (valueUpdated) {
+        mFoV = std::min(std::max(mFoV, 0.0f), 179.0f);
+        mValue = generateProjMatrix();
+        return true;
+    }
+    return false;
 }
 
 bool ProjMatrixNode::drawPerspective(const std::string& label) {
@@ -298,12 +308,7 @@ bool ProjMatrixNode::drawPerspective(const std::string& label) {
     ImGui::SameLine();
     valueUpdated = ImGui::InputFloat(std::string(label).append("Far").c_str(), &mClipZ.y) || valueUpdated;
 
-    if (valueUpdated) {
-        mFoV = std::min(std::max(mFoV, 0.0f), 179.0f);
-        mValue = generateProjMatrix();
-        return true;
-    }
-    return false;
+    return valueUpdated;
 }
 
 bool ProjMatrixNode::drawOrthogonal(const std::string& label) {
@@ -333,9 +338,5 @@ bool ProjMatrixNode::drawOrthogonal(const std::string& label) {
     ImGui::SameLine();
     valueUpdated = ImGui::InputFloat(std::string(label).append("Far").c_str(), &mClipZ.y) || valueUpdated;
 
-    if (valueUpdated) {
-        mValue = generateProjMatrix();
-        return true;
-    }
-    return false;
+    return valueUpdated;
 }

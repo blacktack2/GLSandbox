@@ -67,6 +67,10 @@ protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
+    void onDeserialize() final {
+        generateModelMatrix();
+    }
+
     bool drawInputArea(const std::string& label) final;
 private:
     inline glm::mat4 generateModelMatrix() {
@@ -96,6 +100,10 @@ protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
+    void onDeserialize() final {
+        generateViewMatrix();
+    }
+
     bool drawInputArea(const std::string& label) final;
 private:
     inline glm::mat4 generateViewMatrix() {
@@ -122,6 +130,10 @@ public:
 protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;
+
+    void onDeserialize() final {
+        generateProjMatrix();
+    }
 
     bool drawInputArea(const std::string& label) final;
 private:
