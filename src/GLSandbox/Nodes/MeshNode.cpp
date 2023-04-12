@@ -92,17 +92,20 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
             stream >> vertex.y;
             stream >> vertex.z;
             positions.emplace_back(vertex);
+            SerializationUtils::skipToNextLine(stream);
         } else if (type == "vt") {
             glm::vec2 uv;
             stream >> uv.x;
             stream >> uv.y;
             uvs.emplace_back(uv);
+            SerializationUtils::skipToNextLine(stream);
         } else if (type == "vn") {
             glm::vec3 normal;
             stream >> normal.x;
             stream >> normal.y;
             stream >> normal.z;
             normals.emplace_back(normal);
+            SerializationUtils::skipToNextLine(stream);
         } else if (type == "f") {
             std::string indexData;
             std::getline(stream, indexData);
@@ -114,8 +117,9 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
                 std::stringstream indexStream(indexSet);
                 unsigned int index;
                 indexStream >> index;
-                indices.push_back(index);
+                indices.push_back(index - 1);
             }
+            SerializationUtils::skipToNextLine(stream);
         } else {
             SerializationUtils::skipToNextLine(stream);
             continue;

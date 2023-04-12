@@ -70,11 +70,17 @@ protected:
     bool drawInputArea(const std::string& label) final;
 private:
     inline glm::mat4 generateModelMatrix() {
-        return glm::translate(mPosition) * glm::rotate(mRotation.w, glm::vec3(mRotation)) * glm::scale(mScale);
+        return glm::translate(mPosition) *
+            glm::rotate(glm::radians(mRoll), glm::vec3(0.0f, 0.0f, 1.0f)) *
+            glm::rotate(glm::radians(mPitch), glm::vec3(1.0f, 0.0f, 0.0f)) *
+            glm::rotate(glm::radians(mYaw), glm::vec3(0.0f, 1.0f, 0.0f)) *
+            glm::scale(mScale);
     }
 
     glm::vec3 mPosition = glm::vec3(0.0f);
-    glm::vec4 mRotation = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+    float mRoll = 0.0f;
+    float mPitch = 0.0f;
+    float mYaw = 0.0f;
     glm::vec3 mScale = glm::vec3(1.0f);
 };
 
@@ -127,7 +133,7 @@ private:
 
     inline glm::mat4 generateProjMatrix() {
         switch (mType) {
-            case Type::Perspective : return glm::perspective(mFoV, mAspect, mClipZ.x, mClipZ.y);
+            case Type::Perspective : return glm::perspective(glm::radians(mFoV), mAspect, mClipZ.x, mClipZ.y);
             case Type::Orthogonal  : return glm::ortho(mClipX.x, mClipX.y, mClipY.x, mClipY.y, mClipZ.x, mClipZ.y);
             default                : return glm::mat4(1.0f);
         }
