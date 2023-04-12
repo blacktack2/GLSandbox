@@ -148,7 +148,7 @@ bool ModelMatrixNode::drawInputArea(const std::string& label) {
 
     ImGui::Text("Position");
     ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
-    valueUpdated = ImGui::DragFloat3(std::string(label).append("Position").c_str(), &mPosition[0], 1.0f, 0.0f, 0.0f, getFloatFormat());
+    valueUpdated = ImGui::DragFloat3(std::string(label).append("Position").c_str(), &mPosition[0], 0.1f, 0.0f, 0.0f, getFloatFormat());
 
     ImGui::Text("Rotation");
     ImGui::Text("Roll:");
@@ -158,11 +158,11 @@ bool ModelMatrixNode::drawInputArea(const std::string& label) {
     ImGui::Text("Yaw:");
 
     ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
-    valueUpdated = ImGui::DragFloat3(std::string(label).append("Rotation").c_str(), &mRotations[0], 1.0f, 0.0f, 360.0f, getFloatFormat()) || valueUpdated;
+    valueUpdated = ImGui::DragFloat3(std::string(label).append("Rotation").c_str(), &mRotations[0], 0.1f, 0.0f, 360.0f, getFloatFormat()) || valueUpdated;
 
     ImGui::Text("Scale");
     ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
-    valueUpdated = ImGui::DragFloat3(std::string(label).append("Scale").c_str(), &mScale[0], 1.0f, 0.0f, FLT_MAX, getFloatFormat()) || valueUpdated;
+    valueUpdated = ImGui::DragFloat3(std::string(label).append("Scale").c_str(), &mScale[0], 0.1f, 0.0f, FLT_MAX, getFloatFormat()) || valueUpdated;
 
     if (valueUpdated) {
         mValue = generateModelMatrix();
@@ -203,7 +203,7 @@ bool ViewMatrixNode::drawInputArea(const std::string& label) {
 
     ImGui::Text("Position");
     ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
-    valueUpdated = ImGui::DragFloat3(std::string(label).append("Position").c_str(), &mPosition[0], 1.0f, 0.0f, 0.0f, getFloatFormat());
+    valueUpdated = ImGui::DragFloat3(std::string(label).append("Position").c_str(), &mPosition[0], 0.1f, 0.0f, 0.0f, getFloatFormat());
 
     ImGui::Text("Rotation");
     ImGui::Text("Roll:");
@@ -213,7 +213,7 @@ bool ViewMatrixNode::drawInputArea(const std::string& label) {
     ImGui::Text("Yaw:");
 
     ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
-    valueUpdated = ImGui::DragFloat3(std::string(label).append("Rotation").c_str(), &mRotations[0], 1.0f, 0.0f, 360.0f, getFloatFormat()) || valueUpdated;
+    valueUpdated = ImGui::DragFloat3(std::string(label).append("Rotation").c_str(), &mRotations[0], 0.1f, 0.0f, 360.0f, getFloatFormat()) || valueUpdated;
 
     if (valueUpdated) {
         mValue = generateViewMatrix();
@@ -298,10 +298,10 @@ bool ProjMatrixNode::drawPerspective(const std::string& label) {
     ImGui::PushItemWidth(getNumericInputWidth());
 
     ImGui::Text("FoV");
-    valueUpdated = ImGui::DragFloat(std::string(label).append("FoV").c_str(), &mFoV, 1.0f, 0.0f, 180.0f, getFloatFormat());
+    valueUpdated = ImGui::DragFloat(std::string(label).append("FoV").c_str(), &mFoV, 0.1f, 0.0f, 180.0f, getFloatFormat());
 
     ImGui::Text("Aspect Ratio");
-    valueUpdated = ImGui::DragFloat(std::string(label).append("Aspect").c_str(), &mAspect, 0.01f, 0.0f, FLT_MAX, getFloatFormat()) || valueUpdated;
+    valueUpdated = ImGui::DragFloat(std::string(label).append("Aspect").c_str(), &mAspect, 0.1f, 0.0f, FLT_MAX, getFloatFormat()) || valueUpdated;
 
     ImGui::PopItemWidth();
 
