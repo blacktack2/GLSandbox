@@ -20,7 +20,8 @@ void IntegerNode::deserializeData(const std::string& dataID, std::ifstream& stre
 }
 
 bool IntegerNode::drawInputArea(const std::string& label) {
-    return ImGui::InputInt(label.c_str(), &mValue);
+    ImGui::SetNextItemWidth(getNumericInputWidth());
+    return ImGui::DragInt(label.c_str(), &mValue, 1, 0, 0, getIntFormat());
 }
 
 FloatNode::FloatNode() : NumericNode<float>("Float") {
@@ -39,7 +40,8 @@ void FloatNode::deserializeData(const std::string& dataID, std::ifstream& stream
 }
 
 bool FloatNode::drawInputArea(const std::string& label) {
-    return ImGui::InputFloat(label.c_str(), &mValue);
+    ImGui::SetNextItemWidth(getNumericInputWidth());
+    return ImGui::DragFloat(label.c_str(), &mValue, 0.1f, 0.0f, 0.0f, getFloatFormat());
 }
 
 Vec2Node::Vec2Node() : NumericNode<glm::vec2>("Vec2") {
@@ -60,7 +62,8 @@ void Vec2Node::deserializeData(const std::string& dataID, std::ifstream& stream)
 }
 
 bool Vec2Node::drawInputArea(const std::string& label) {
-    return ImGui::InputFloat2(label.c_str(), &mValue[0]);
+    ImGui::SetNextItemWidth(getMultiNumericInputWidth(2));
+    return ImGui::DragFloat2(label.c_str(), &mValue[0], 0.1f, 0.0f, 0.0f, getFloatFormat());
 }
 
 Vec3Node::Vec3Node() : NumericNode<glm::vec3>("Vec3") {
@@ -81,7 +84,8 @@ void Vec3Node::deserializeData(const std::string& dataID, std::ifstream& stream)
 }
 
 bool Vec3Node::drawInputArea(const std::string& label) {
-    return ImGui::InputFloat3(label.c_str(), &mValue[0]);
+    ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
+    return ImGui::DragFloat3(label.c_str(), &mValue[0], 0.1f, 0.0f, 0.0f, getFloatFormat());
 }
 
 Vec4Node::Vec4Node() : NumericNode<glm::vec4>("Vec4") {
@@ -102,7 +106,8 @@ void Vec4Node::deserializeData(const std::string& dataID, std::ifstream& stream)
 }
 
 bool Vec4Node::drawInputArea(const std::string& label) {
-    return ImGui::InputFloat4(label.c_str(), &mValue[0]);
+    ImGui::SetNextItemWidth(getMultiNumericInputWidth(4));
+    return ImGui::DragFloat4(label.c_str(), &mValue[0], 0.1f, 0.0f, 0.0f, getFloatFormat());
 }
 
 Mat2Node::Mat2Node() : NumericNode<glm::mat2>("Matrix2") {
@@ -125,8 +130,12 @@ void Mat2Node::deserializeData(const std::string& dataID, std::ifstream& stream)
 }
 
 bool Mat2Node::drawInputArea(const std::string& label) {
-    return ImGui::InputFloat2(std::string(label).append("0").c_str(), &mValue[0][0]) ||
-           ImGui::InputFloat2(std::string(label).append("1").c_str(), &mValue[1][0]);
+    bool valueChanged = false;
+    ImGui::PushItemWidth(getMultiNumericInputWidth(2));
+    valueChanged |= ImGui::DragFloat2(std::string(label).append("0").c_str(), &mValue[0][0], 0.1f, 0.0f, 0.0f, getFloatFormat());
+    valueChanged |= ImGui::DragFloat2(std::string(label).append("1").c_str(), &mValue[1][0], 0.1f, 0.0f, 0.0f, getFloatFormat());
+    ImGui::PopItemWidth();
+    return valueChanged;
 }
 
 Mat3Node::Mat3Node() : NumericNode<glm::mat3>("Matrix3") {
@@ -151,9 +160,13 @@ void Mat3Node::deserializeData(const std::string& dataID, std::ifstream& stream)
 }
 
 bool Mat3Node::drawInputArea(const std::string& label) {
-    return ImGui::InputFloat3(std::string(label).append("0").c_str(), &mValue[0][0]) ||
-           ImGui::InputFloat3(std::string(label).append("1").c_str(), &mValue[1][0]) ||
-           ImGui::InputFloat3(std::string(label).append("2").c_str(), &mValue[2][0]);
+    bool valueChanged = false;
+    ImGui::PushItemWidth(getMultiNumericInputWidth(3));
+    valueChanged |= ImGui::DragFloat3(std::string(label).append("0").c_str(), &mValue[0][0], 0.1f, 0.0f, 0.0f, getFloatFormat());
+    valueChanged |= ImGui::DragFloat3(std::string(label).append("1").c_str(), &mValue[1][0], 0.1f, 0.0f, 0.0f, getFloatFormat());
+    valueChanged |= ImGui::DragFloat3(std::string(label).append("2").c_str(), &mValue[2][0], 0.1f, 0.0f, 0.0f, getFloatFormat());
+    ImGui::PopItemWidth();
+    return valueChanged;
 }
 
 Mat4Node::Mat4Node() : NumericNode<glm::mat4>("Matrix4") {
@@ -180,8 +193,12 @@ void Mat4Node::deserializeData(const std::string& dataID, std::ifstream& stream)
 }
 
 bool Mat4Node::drawInputArea(const std::string& label) {
-    return ImGui::InputFloat4(std::string(label).append("0").c_str(), &mValue[0][0]) ||
-           ImGui::InputFloat4(std::string(label).append("1").c_str(), &mValue[1][0]) ||
-           ImGui::InputFloat4(std::string(label).append("2").c_str(), &mValue[2][0]) ||
-           ImGui::InputFloat4(std::string(label).append("3").c_str(), &mValue[3][0]);
+    bool valueChanged = false;
+    ImGui::PushItemWidth(getMultiNumericInputWidth(4));
+    valueChanged |= ImGui::DragFloat4(std::string(label).append("0").c_str(), &mValue[0][0], 0.1f, 0.0f, 0.0f, getFloatFormat());
+    valueChanged |= ImGui::DragFloat4(std::string(label).append("1").c_str(), &mValue[1][0], 0.1f, 0.0f, 0.0f, getFloatFormat());
+    valueChanged |= ImGui::DragFloat4(std::string(label).append("2").c_str(), &mValue[2][0], 0.1f, 0.0f, 0.0f, getFloatFormat());
+    valueChanged |= ImGui::DragFloat4(std::string(label).append("3").c_str(), &mValue[3][0], 0.1f, 0.0f, 0.0f, getFloatFormat());
+    ImGui::PopItemWidth();
+    return valueChanged;
 }

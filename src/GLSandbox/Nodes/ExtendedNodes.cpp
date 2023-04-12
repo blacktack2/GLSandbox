@@ -22,7 +22,8 @@ void UVNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
 }
 
 bool UVNode::drawInputArea(const std::string& label) {
-    return ImGui::DragFloat2(label.c_str(), &mValue[0], 0.01f, -1.0f, 1.0f, "%.2f");
+    ImGui::SetNextItemWidth(getMultiNumericInputWidth(2));
+    return ImGui::DragFloat2(label.c_str(), &mValue[0], 0.01f, -1.0f, 1.0f, getFloatFormat());
 }
 
 ColourNode::ColourNode() : NumericNode<glm::vec3>("Colour") {
@@ -43,7 +44,8 @@ void ColourNode::deserializeData(const std::string& dataID, std::ifstream& strea
 }
 
 bool ColourNode::drawInputArea(const std::string& label) {
-    return ImGui::DragFloat3(label.c_str(), &mValue[0], 0.01f, 0.0f, 1.0f, "%.2f");
+    ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
+    return ImGui::DragFloat3(label.c_str(), &mValue[0], 0.01f, 0.0f, 1.0f, getFloatFormat());
 }
 
 DirectionNode::DirectionNode() : NumericNode<glm::vec3>("Direction") {
@@ -65,7 +67,8 @@ void DirectionNode::deserializeData(const std::string& dataID, std::ifstream& st
 
 bool DirectionNode::drawInputArea(const std::string& label) {
     glm::vec3 tempValue = mValue;
-    if (ImGui::DragFloat3(label.c_str(), &tempValue[0], 0.01f, -1.0f, 1.0f, "%.2f")) {
+    ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
+    if (ImGui::DragFloat3(label.c_str(), &tempValue[0], 0.01f, -1.0f, 1.0f, getFloatFormat())) {
         if (tempValue.x != mValue.x) {
             float x = tempValue.x;
             tempValue = glm::normalize(tempValue);
@@ -144,23 +147,22 @@ bool ModelMatrixNode::drawInputArea(const std::string& label) {
     bool valueUpdated = false;
 
     ImGui::Text("Position");
-    valueUpdated = ImGui::InputFloat3(std::string(label).append("Position").c_str(), &mPosition[0]);
+    ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
+    valueUpdated = ImGui::DragFloat3(std::string(label).append("Position").c_str(), &mPosition[0], 1.0f, 0.0f, 0.0f, getFloatFormat());
 
     ImGui::Text("Rotation");
     ImGui::Text("Roll:");
-    ImGui::SameLine();
-    valueUpdated = ImGui::DragFloat(std::string(label).append("Roll").c_str(), &mRoll, 1.0f, 0.0f, 360.0f) || valueUpdated;
-    ImGui::SameLine();
+    ImGui::SameLine(getMultiNumericInputWidth());
     ImGui::Text("Pitch:");
-    ImGui::SameLine();
-    valueUpdated = ImGui::DragFloat(std::string(label).append("Pitch").c_str(), &mPitch, 1.0f, 0.0f, 360.0f) || valueUpdated;
-    ImGui::SameLine();
+    ImGui::SameLine(getMultiNumericInputWidth(2));
     ImGui::Text("Yaw:");
-    ImGui::SameLine();
-    valueUpdated = ImGui::DragFloat(std::string(label).append("Yaw").c_str(), &mYaw, 1.0f, 0.0f, 360.0f) || valueUpdated;
+
+    ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
+    valueUpdated = ImGui::DragFloat3(std::string(label).append("Rotation").c_str(), &mRotations[0], 1.0f, 0.0f, 360.0f, getFloatFormat()) || valueUpdated;
 
     ImGui::Text("Scale");
-    valueUpdated = ImGui::InputFloat3(std::string(label).append("Scale").c_str(), &mScale[0]) || valueUpdated;
+    ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
+    valueUpdated = ImGui::DragFloat3(std::string(label).append("Scale").c_str(), &mScale[0], 1.0f, 0.0f, FLT_MAX, getFloatFormat()) || valueUpdated;
 
     if (valueUpdated) {
         mValue = generateModelMatrix();
@@ -200,20 +202,18 @@ bool ViewMatrixNode::drawInputArea(const std::string& label) {
     bool valueUpdated;
 
     ImGui::Text("Position");
-    valueUpdated = ImGui::InputFloat3(std::string(label).append("Position").c_str(), &mPosition[0]);
+    ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
+    valueUpdated = ImGui::DragFloat3(std::string(label).append("Position").c_str(), &mPosition[0], 1.0f, 0.0f, 0.0f, getFloatFormat());
 
     ImGui::Text("Rotation");
     ImGui::Text("Roll:");
-    ImGui::SameLine();
-    valueUpdated = ImGui::DragFloat(std::string(label).append("Roll").c_str(), &mRoll, 1.0f, 0.0f, 360.0f) || valueUpdated;
-    ImGui::SameLine();
+    ImGui::SameLine(getMultiNumericInputWidth());
     ImGui::Text("Pitch:");
-    ImGui::SameLine();
-    valueUpdated = ImGui::DragFloat(std::string(label).append("Pitch").c_str(), &mPitch, 1.0f, 0.0f, 360.0f) || valueUpdated;
-    ImGui::SameLine();
+    ImGui::SameLine(getMultiNumericInputWidth(2));
     ImGui::Text("Yaw:");
-    ImGui::SameLine();
-    valueUpdated = ImGui::DragFloat(std::string(label).append("Yaw").c_str(), &mYaw, 1.0f, 0.0f, 360.0f) || valueUpdated;
+
+    ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
+    valueUpdated = ImGui::DragFloat3(std::string(label).append("Rotation").c_str(), &mRotations[0], 1.0f, 0.0f, 360.0f, getFloatFormat()) || valueUpdated;
 
     if (valueUpdated) {
         mValue = generateViewMatrix();
@@ -264,10 +264,12 @@ void ProjMatrixNode::deserializeData(const std::string& dataID, std::ifstream& s
 bool ProjMatrixNode::drawInputArea(const std::string& label) {
     bool valueUpdated = false;
 
+    ImGui::SetNextItemWidth(getComboWidth());
     if (ImGui::BeginCombo(std::string(label).append("Combo").c_str(), getTypeName(mType).c_str())) {
         for (unsigned int i = 0; i < (unsigned int)Type::Max; i++) {
             Type type = (Type)i;
             bool isSelected = mType == type;
+            ImGui::SetNextItemWidth(getComboItemWidth());
             if (ImGui::Selectable(getTypeName(type).c_str(), isSelected)) {
                 mType = type;
                 valueUpdated = true;
@@ -284,7 +286,6 @@ bool ProjMatrixNode::drawInputArea(const std::string& label) {
     }
 
     if (valueUpdated) {
-        mFoV = std::min(std::max(mFoV, 0.0f), 179.0f);
         mValue = generateProjMatrix();
         return true;
     }
@@ -294,19 +295,21 @@ bool ProjMatrixNode::drawInputArea(const std::string& label) {
 bool ProjMatrixNode::drawPerspective(const std::string& label) {
     bool valueUpdated;
 
+    ImGui::PushItemWidth(getNumericInputWidth());
+
     ImGui::Text("FoV");
-    valueUpdated = ImGui::InputFloat(std::string(label).append("FoV").c_str(), &mFoV);
+    valueUpdated = ImGui::DragFloat(std::string(label).append("FoV").c_str(), &mFoV, 1.0f, 0.0f, 180.0f, getFloatFormat());
 
     ImGui::Text("Aspect Ratio");
-    valueUpdated = ImGui::InputFloat(std::string(label).append("Aspect").c_str(), &mAspect) || valueUpdated;
+    valueUpdated = ImGui::DragFloat(std::string(label).append("Aspect").c_str(), &mAspect, 0.01f, 0.0f, FLT_MAX, getFloatFormat()) || valueUpdated;
 
-    ImGui::Text("Near:");
-    ImGui::SameLine();
-    valueUpdated = ImGui::InputFloat(std::string(label).append("Near").c_str(), &mClipZ.x) || valueUpdated;
-    ImGui::SameLine();
-    ImGui::Text("Far:");
-    ImGui::SameLine();
-    valueUpdated = ImGui::InputFloat(std::string(label).append("Far").c_str(), &mClipZ.y) || valueUpdated;
+    ImGui::PopItemWidth();
+
+    ImGui::Text("Near");
+    ImGui::SameLine(getMultiNumericInputWidth());
+    ImGui::Text("Far");
+    ImGui::SetNextItemWidth(getMultiNumericInputWidth(2));
+    valueUpdated = ImGui::DragFloat2(std::string(label).append("Near").c_str(), &mClipZ.x, 0.1f, 0.0f, FLT_MAX, getFloatFormat()) || valueUpdated;
 
     return valueUpdated;
 }
@@ -314,29 +317,24 @@ bool ProjMatrixNode::drawPerspective(const std::string& label) {
 bool ProjMatrixNode::drawOrthogonal(const std::string& label) {
     bool valueUpdated;
 
+    ImGui::PushItemWidth(getMultiNumericInputWidth(2));
+
     ImGui::Text("Left:");
-    ImGui::SameLine();
-    valueUpdated = ImGui::InputFloat(std::string(label).append("Left").c_str(), &mClipX.x);
-    ImGui::SameLine();
+    ImGui::SameLine(getMultiNumericInputWidth());
     ImGui::Text("Right:");
-    ImGui::SameLine();
-    valueUpdated = ImGui::InputFloat(std::string(label).append("Right").c_str(), &mClipX.y) || valueUpdated;
+    valueUpdated = ImGui::DragFloat2(std::string(label).append("Left").c_str(), &mClipX.x, 0.1f, 0.0f, 0.0f, getFloatFormat());
 
     ImGui::Text("Top:");
-    ImGui::SameLine();
-    valueUpdated = ImGui::InputFloat(std::string(label).append("Top").c_str(), &mClipY.x) || valueUpdated;
-    ImGui::SameLine();
+    ImGui::SameLine(getMultiNumericInputWidth());
     ImGui::Text("Bottom:");
-    ImGui::SameLine();
-    valueUpdated = ImGui::InputFloat(std::string(label).append("Bottom").c_str(), &mClipY.y) || valueUpdated;
+    valueUpdated = ImGui::DragFloat2(std::string(label).append("Top").c_str(), &mClipY.x, 0.1f, 0.0f, 0.0f, getFloatFormat()) || valueUpdated;
 
-    ImGui::Text("Near:");
-    ImGui::SameLine();
-    valueUpdated = ImGui::InputFloat(std::string(label).append("Near").c_str(), &mClipZ.x) || valueUpdated;
-    ImGui::SameLine();
-    ImGui::Text("Far:");
-    ImGui::SameLine();
-    valueUpdated = ImGui::InputFloat(std::string(label).append("Far").c_str(), &mClipZ.y) || valueUpdated;
+    ImGui::Text("Near");
+    ImGui::SameLine(getMultiNumericInputWidth());
+    ImGui::Text("Far");
+    valueUpdated = ImGui::DragFloat2(std::string(label).append("NearFar").c_str(), &mClipZ.x, 0.1f, 0.0f, 0.0f, getFloatFormat()) || valueUpdated;
+
+    ImGui::PopItemWidth();
 
     return valueUpdated;
 }

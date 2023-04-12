@@ -50,7 +50,6 @@ private:
 
         VectorVariant<Mesh::attribute_t> data;
 
-        bool isShown = false;
         bool isMarkedDelete = false;
     };
 
@@ -187,7 +186,5 @@ private:
 
     std::string mFilename;
     MeshFileExtension mFileExtension = gMESH_DEFAULT_EXTENSION;
-
-    bool mShowAttributes = false;
 };
 

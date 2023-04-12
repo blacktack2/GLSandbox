@@ -16,11 +16,14 @@ void ArithmeticNode::drawContents() {
 
 void ArithmeticNode::drawOperationSelector() {
     const std::string operationComboLabel = generateNodeLabel("", "Combo");
+    ImGui::SetNextItemWidth(getComboWidth());
     if (ImGui::BeginCombo(operationComboLabel.c_str(), getOperationLabels()[(size_t)mCurrentOperation].c_str())) {
         for (size_t i = 0; i < getOperationLabels().size(); i++) {
             const bool isSelected = (Operation)i == mCurrentOperation;
+            ImGui::SetNextItemWidth(getComboItemWidth());
             if (ImGui::Selectable(getOperationLabels()[i].c_str(), isSelected))
                 mCurrentOperation = (Operation)i;
+
             if (isSelected)
                 ImGui::SetItemDefaultFocus();
         }

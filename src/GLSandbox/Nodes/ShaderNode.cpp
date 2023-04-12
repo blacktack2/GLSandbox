@@ -77,7 +77,7 @@ void ShaderNode::drawContents() {
     drawShaderChooseButton("Geometry",  mGeomFile, findGeometryFiles, getGeometryFiles);
 
     const std::string loadShaderButtonLabel = generateNodeLabel("Reload Shader");
-    if (ImGui::Button(loadShaderButtonLabel.c_str())) {
+    if (ImGui::Button(loadShaderButtonLabel.c_str(), getButtonBounds())) {
         uploadShader();
         mShaderOut.valueUpdated();
     }
@@ -91,7 +91,7 @@ void ShaderNode::drawShaderChooseButton(const std::string& shaderType, std::stri
 
     const std::string choseShaderPopupID = generateNodePopupID("ChooseShader", shaderType);
     const std::string chooseShaderButtonLabel = generateNodeLabel(std::string("Choose ").append(shaderType));
-    if (ImGui::Button(chooseShaderButtonLabel.c_str())) {
+    if (ImGui::Button(chooseShaderButtonLabel.c_str(), getButtonBounds())) {
         ImGui::OpenPopup(choseShaderPopupID.c_str());
         updateFiles();
     }
@@ -99,21 +99,23 @@ void ShaderNode::drawShaderChooseButton(const std::string& shaderType, std::stri
 }
 
 void ShaderNode::drawShaderChoosePopup(const std::string& popupID, const std::vector<std::string>& files, std::string& value) {
-    if (ImGui::BeginPopup(popupID.c_str())) {
-        if (files.empty()) {
-            ImGui::Text("No files found");
-        } else {
-            for (const std::string& file : files) {
-                const std::string fileSelectButtonLabel = generateNodeLabel(file, "FileSelect");
-                if (!ImGui::Selectable(fileSelectButtonLabel.c_str()))
-                    continue;
-                value = file;
-                break;
-            }
-        }
+    if (!ImGui::BeginPopup(popupID.c_str()))
+        return;
 
-        ImGui::EndPopup();
+    if (files.empty()) {
+        ImGui::Text("No files found");
+    } else {
+        for (const std::string& file : files) {
+            const std::string fileSelectButtonLabel = generateNodeLabel(file, "FileSelect");
+            ImGui::SetNextItemWidth(getPopupSelectableWidth());
+            if (!ImGui::Selectable(fileSelectButtonLabel.c_str()))
+                continue;
+            value = file;
+            break;
+        }
     }
+
+    ImGui::EndPopup();
 }
 
 void ShaderNode::drawShaderStatus() {
@@ -144,7 +146,7 @@ void ShaderNode::drawShaderStatus() {
             break;
     }
 
-    ImGui::TextColored(colour, "%s", text.c_str());
+    drawMessage(text, colour);
 }
 
 void ShaderNode::uploadShader() {

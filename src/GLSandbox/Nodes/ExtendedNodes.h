@@ -82,9 +82,14 @@ private:
     }
 
     glm::vec3 mPosition = glm::vec3(0.0f);
-    float mRoll = 0.0f;
-    float mPitch = 0.0f;
-    float mYaw = 0.0f;
+    union {
+        struct {
+            float mRoll;
+            float mPitch;
+            float mYaw;
+        };
+        float mRotations[3] = { 0.0f, 0.0f, 0.0f };
+    };
     glm::vec3 mScale = glm::vec3(1.0f);
 };
 
@@ -114,9 +119,14 @@ private:
     }
 
     glm::vec3 mPosition = glm::vec3(0.0f);
-    float mRoll  = 0.0f;
-    float mPitch = 0.0f;
-    float mYaw   = 0.0f;
+    union {
+        struct {
+            float mRoll;
+            float mPitch;
+            float mYaw;
+        };
+        float mRotations[3] = { 0.0f, 0.0f, 0.0f };
+    };
 };
 
 class ProjMatrixNode final : public NumericNode<glm::mat4> {

@@ -99,6 +99,62 @@ protected:
     inline std::string generateNodePopupID(const std::string& popupName, Args... args) const {
         return generatePopupID(popupName, "Node", getID(), args...);
     }
+
+    inline void drawMessage(const std::string& text, const ImVec4& colour) {
+        ImGui::PushStyleColor(ImGuiCol_Text, colour);
+        ImGui::TextWrapped("%s", text.c_str());
+        ImGui::PopStyleColor();
+    }
+
+    static inline constexpr float getNodeWidth() {
+        return 200.0f;
+    }
+    static inline constexpr float getNodeMaxHeight() {
+        return 200.0f;
+    }
+    static inline constexpr float getButtonWidth() {
+        return 100.0f;
+    }
+    static inline constexpr ImVec2 getButtonBounds() {
+        return ImVec2(getButtonWidth(), 0.0f);
+    }
+    static inline constexpr ImVec2 getChildPanelBounds() {
+        return ImVec2(getNodeWidth() * 0.75, 100.0f);
+    }
+    static inline constexpr float getTextInputWidth() {
+        return getNodeWidth() * 0.5f;
+    }
+    static inline constexpr float getNumericInputWidth() {
+        return getNodeWidth() * 0.5f;
+    }
+    static inline constexpr float getMultiNumericInputWidth(unsigned int numComponents = 1) {
+        return getNodeWidth() * 0.25f * numComponents;
+    }
+    static inline constexpr float getComboWidth() {
+        return getButtonWidth();
+    }
+    static inline constexpr float getComboItemWidth() {
+        return getComboWidth();
+    }
+    static inline constexpr float getMiniComboWidth() {
+        return 60.0f;
+    }
+    static inline constexpr float getMiniComboItemWidth() {
+        return getMiniComboWidth();
+    }
+    static inline constexpr float getTreeNodeWidth() {
+        return getNodeWidth();
+    }
+    static inline constexpr float getPopupSelectableWidth() {
+        return getComboItemWidth();
+    }
+
+    static inline constexpr const char* getFloatFormat() {
+        return "%.2f";
+    }
+    static inline constexpr const char* getIntFormat() {
+        return "%d";
+    }
 private:
     void writeDataPoints(std::ofstream& streamOut, char prefix,
                          const std::vector<std::pair<std::string, std::string>>& dataPoints) const;

@@ -48,11 +48,11 @@ void MeshNode::drawContents() {
     drawGlobalParameters();
 
     const std::string showAttributeButtonLabel = generateNodeLabel("Show Attributes");
-    if (ImGui::Button(showAttributeButtonLabel.c_str()))
-        mShowAttributes = !mShowAttributes;
-    if (mShowAttributes) {
+    ImGui::SetNextItemWidth(getTreeNodeWidth());
+    if (ImGui::TreeNode(showAttributeButtonLabel.c_str())) {
         drawAttributes();
         drawAddAttributePopup();
+        ImGui::TreePop();
     }
     drawUploadButton();
 
@@ -306,22 +306,22 @@ void MeshNode::uploadMesh() {
 }
 
 void MeshNode::drawGlobalParameters() {
-    const std::string filenameInputLabel = generateNodeLabel("File:");
+    ImGui::Text("File");
+    const std::string filenameInputLabel = generateNodeLabel("", "File");
+    ImGui::SetNextItemWidth(getTextInputWidth());
     ImGui::InputText(filenameInputLabel.c_str(), &mFilename);
 
     ImGui::SameLine();
-    const std::string loadFileButtonLabel = generateNodeLabel("Load");
-    if (ImGui::Button(loadFileButtonLabel.c_str()))
-        loadFromFile();
 
-    ImGui::SameLine();
-    const std::string fileTypeComboLabel = generateNodeLabel("");
+    ImGui::SetNextItemWidth(getMiniComboWidth());
+    const std::string fileTypeComboLabel = generateNodeLabel("", "FileExtension");
     if (ImGui::BeginCombo(fileTypeComboLabel.c_str(), getFileExtension(mFileExtension))) {
         for (unsigned int i = 0; i < (unsigned int)MeshFileExtension::Max; i++) {
             MeshFileExtension ext = (MeshFileExtension)i;
             bool isSelected = ext == mFileExtension;
 
             const std::string fileTypeButtonLabel = generateNodeLabel(getFileExtension(ext), "FileExtension");
+            ImGui::SetNextItemWidth(getMiniComboItemWidth());
             if (ImGui::Selectable(fileTypeButtonLabel.c_str(), isSelected))
                 mFileExtension = ext;
 
@@ -330,19 +330,23 @@ void MeshNode::drawGlobalParameters() {
         }
         ImGui::EndCombo();
     }
+    const std::string loadFileButtonLabel = generateNodeLabel("Load");
+    if (ImGui::Button(loadFileButtonLabel.c_str(), getButtonBounds()))
+        loadFromFile();
 
     const std::string numVerticesLabel = generateNodeLabel("Num Vertices");
-    ImGui::SetNextItemWidth(200.0f);
-    if (ImGui::InputInt(numVerticesLabel.c_str(), reinterpret_cast<int*>(&mNumVertices))) {
+    ImGui::SetNextItemWidth(getNumericInputWidth());
+    if (ImGui::DragInt(numVerticesLabel.c_str(), (int*)&mNumVertices), 1, 0, INT_MAX, getIntFormat()) {
         mNumVertices = std::max(mNumVertices, 1u);
         resizeAttributes();
     }
 
     const std::string primitiveTypeLabel = generateNodeLabel("Type");
-    ImGui::SetNextItemWidth(200.0f);
+    ImGui::SetNextItemWidth(getComboWidth());
     if (ImGui::BeginCombo(primitiveTypeLabel.c_str(), mTypes[(size_t)mType].c_str())) {
         for (size_t i = 0; i < mTypes.size(); i++) {
             const bool isSelected = (size_t)mType == i;
+            ImGui::SetNextItemWidth(getComboItemWidth());
             if (ImGui::Selectable(mTypes[i].c_str(), isSelected))
                 mType = (Mesh::Type)i;
 
@@ -365,48 +369,77 @@ void MeshNode::drawAttributes() {
 }
 
 void MeshNode::drawAttribute(Attribute& attribute) {
-    static const float cBUTTON_SIZE = 200.0f;
+    const std::string showAttributeNodeLabel = generateAttributeLabel(
+        std::string(attribute.name).append(" (").append(getDataTypeName(attribute.data)).append(")"),
+        attribute
+    );
+    ImGui::SetNextItemWidth(getTreeNodeWidth());
+    if (!ImGui::TreeNode(showAttributeNodeLabel.c_str()))
+        return;
 
-    const std::string showAttributeButtonLabel = generateAttributeLabel(std::string(attribute.name).append(" (")
-            .append(getDataTypeName(attribute.data)).append(")"), attribute);
-    if (ImGui::Button(showAttributeButtonLabel.c_str(), ImVec2(cBUTTON_SIZE, 0)))
-        attribute.isShown = !attribute.isShown;
-    ImGui::SameLine();
     const std::string removeAttributeButtonLabel = generateAttributeLabel("Remove", attribute);
-    if (ImGui::Button(removeAttributeButtonLabel.c_str(), ImVec2(cBUTTON_SIZE, 0))) {
+    if (ImGui::Button(removeAttributeButtonLabel.c_str(), getButtonBounds())) {
         attribute.isMarkedDelete = true;
         return;
     }
-    if (!attribute.isShown)
-        return;
 
-    ImGui::Indent(16.0f);
-    const std::string attributeNameInputLabel = generateAttributeLabel("name", attribute);
+    ImGui::Text("Name");
+    const std::string attributeNameInputLabel = generateAttributeLabel("", attribute);
+    ImGui::SetNextItemWidth(getTextInputWidth());
     ImGui::InputText(attributeNameInputLabel.c_str(), &attribute.name);
+
+    const std::string attributeAreaLabel = generateAttributeLabel("", attribute, "ChildWindow");
+    ImGui::BeginChild(attributeAreaLabel.c_str(), getChildPanelBounds(), true);
 
     for (unsigned int i = 0; i < mNumVertices; i++) {
         const std::string valueInputLabel = generateAttributeLabel(std::to_string(i), attribute);
         std::visit(VisitOverload{
-            [valueInputLabel, i](std::vector<int>& data       ) { ImGui::InputInt   (valueInputLabel.c_str(), &data[i]   ); },
-            [valueInputLabel, i](std::vector<glm::ivec2>& data) { ImGui::InputInt2  (valueInputLabel.c_str(), &data[i][0]); },
-            [valueInputLabel, i](std::vector<glm::ivec3>& data) { ImGui::InputInt3  (valueInputLabel.c_str(), &data[i][0]); },
-            [valueInputLabel, i](std::vector<glm::ivec4>& data) { ImGui::InputInt4  (valueInputLabel.c_str(), &data[i][0]); },
+            [valueInputLabel, i](std::vector<int>& data) {
+                ImGui::SetNextItemWidth(getMultiNumericInputWidth(1));
+                ImGui::InputInt(valueInputLabel.c_str(), &data[i]);
+            },
+            [valueInputLabel, i](std::vector<glm::ivec2>& data) {
+                ImGui::SetNextItemWidth(getMultiNumericInputWidth(2));
+                ImGui::InputInt2(valueInputLabel.c_str(), &data[i][0]);
+            },
+            [valueInputLabel, i](std::vector<glm::ivec3>& data) {
+                ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
+                ImGui::InputInt3(valueInputLabel.c_str(), &data[i][0]);
+            },
+            [valueInputLabel, i](std::vector<glm::ivec4>& data) {
+                ImGui::SetNextItemWidth(getMultiNumericInputWidth(4));
+                ImGui::InputInt4(valueInputLabel.c_str(), &data[i][0]);
+            },
 
-            [valueInputLabel, i](std::vector<float>& data     ) { ImGui::InputFloat (valueInputLabel.c_str(), &data[i]   ); },
-            [valueInputLabel, i](std::vector<glm::vec2>& data ) { ImGui::InputFloat2(valueInputLabel.c_str(), &data[i][0]); },
-            [valueInputLabel, i](std::vector<glm::vec3>& data ) { ImGui::InputFloat3(valueInputLabel.c_str(), &data[i][0]); },
-            [valueInputLabel, i](std::vector<glm::vec4>& data ) { ImGui::InputFloat4(valueInputLabel.c_str(), &data[i][0]); },
+            [valueInputLabel, i](std::vector<float>& data) {
+                ImGui::SetNextItemWidth(getMultiNumericInputWidth(1));
+                ImGui::InputFloat(valueInputLabel.c_str(), &data[i]);
+            },
+            [valueInputLabel, i](std::vector<glm::vec2>& data) {
+                ImGui::SetNextItemWidth(getMultiNumericInputWidth(2));
+                ImGui::InputFloat2(valueInputLabel.c_str(), &data[i][0]);
+            },
+            [valueInputLabel, i](std::vector<glm::vec3>& data) {
+                ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
+                ImGui::InputFloat3(valueInputLabel.c_str(), &data[i][0]);
+            },
+            [valueInputLabel, i](std::vector<glm::vec4>& data) {
+                ImGui::SetNextItemWidth(getMultiNumericInputWidth(4));
+                ImGui::InputFloat4(valueInputLabel.c_str(), &data[i][0]);
+            },
 
             [](auto arg) { ImGui::Text("Undefined"); },
         }, attribute.data);
     }
-    ImGui::Unindent(0.0f);
+
+    ImGui::EndChild();
+    ImGui::TreePop();
 }
 
 void MeshNode::drawAddAttributePopup() {
     const std::string addAttributeButtonLabel = generateNodeLabel("Add Attribute");
     const std::string addAttributePopupID = generateNodePopupID("AddAttribute");
-    if (ImGui::Button(addAttributeButtonLabel.c_str()))
+    if (ImGui::Button(addAttributeButtonLabel.c_str(), getButtonBounds()))
         ImGui::OpenPopup(addAttributePopupID.c_str());
 
     if (ImGui::BeginPopup(addAttributePopupID.c_str())) {
@@ -420,17 +453,18 @@ void MeshNode::drawAttributeSelection() {
     for (unsigned int i = 0; i < (unsigned int)Mesh::AttributeType::Max; i++) {
         Mesh::AttributeType type = (Mesh::AttributeType)i;
         const std::string createAttributeButtonLabel = generateNodeLabel(getDataTypeName(type), "CreateAttribute");
-        if (ImGui::Selectable(createAttributeButtonLabel.c_str())) {
-            Attribute& attribute = mAttributes.emplace_back();
-            attribute.data = generateAttributeDataset(type);
-            std::visit([this](auto& data) { data.resize(mNumVertices); }, attribute.data);
-        }
+        ImGui::SetNextItemWidth(getPopupSelectableWidth());
+        if (!ImGui::Selectable(createAttributeButtonLabel.c_str()))
+            continue;
+        Attribute& attribute = mAttributes.emplace_back();
+        attribute.data = generateAttributeDataset(type);
+        std::visit([this](auto& data) { data.resize(mNumVertices); }, attribute.data);
     }
 }
 
 void MeshNode::drawUploadButton() {
     const std::string uploadButtonLabel = generateNodeLabel("Upload");
-    if (ImGui::Button(uploadButtonLabel.c_str()))
+    if (ImGui::Button(uploadButtonLabel.c_str(), getButtonBounds()))
         uploadMesh();
 }
 
@@ -449,7 +483,7 @@ void MeshNode::drawMeshStatus() {
             break;
     }
 
-    ImGui::TextColored(colour, "%s", text.c_str());
+    drawMessage(text, colour);
 }
 
 void MeshNode::resizeAttributes() {
