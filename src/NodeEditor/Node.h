@@ -31,7 +31,9 @@ public:
     void serialize(std::ofstream& streamOut) const;
     void deserialize(std::ifstream& streamIn, std::streampos end,
                      std::unordered_map<int, std::reference_wrapper<IPort>>& outPorts,
-                     std::vector<std::pair<std::reference_wrapper<IPort>, int>>& links);
+                     std::vector<std::pair<std::reference_wrapper<IPort>, int>>& links,
+                     std::unordered_map<int, std::pair<Node*, std::string>>& dynamicOutPorts,
+                     std::unordered_map<Node*, std::vector<std::pair<std::string, int>>>& dynamicLinks);
 
     void draw();
     void drawLinks();
@@ -59,6 +61,7 @@ public:
 
     [[nodiscard]] size_t numPorts() const;
 
+    [[nodiscard]] IPort* getPortByName(const std::string& uniqueName);
     [[nodiscard]] IPort& getPortByIndex(size_t i);
     [[nodiscard]] IPort* getPort(int portID);
 protected:

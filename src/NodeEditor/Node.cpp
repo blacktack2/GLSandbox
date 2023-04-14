@@ -18,6 +18,8 @@ static constexpr char gSERIAL_DATA_ID[] = "NodeID";
 static constexpr char gSERIAL_DATA_POSITION[] = "NodePosition";
 static constexpr char gSERIAL_DATA_INPORT[] = "InPort";
 static constexpr char gSERIAL_DATA_OUTPORT[] = "OutPort";
+static constexpr char gSERIAL_DATA_DYNAMIC_INPORT[] = "Dynamic-InPort";
+static constexpr char gSERIAL_DATA_DYNAMIC_OUTPORT[] = "Dynamic-OutPort";
 
 static constexpr char gSERIAL_SUBDATA_PREFIX = '-';
 
@@ -36,11 +38,11 @@ void Node::serialize(std::ofstream& streamOut) const {
     data.emplace_back(gSERIAL_DATA_POSITION, serializedPosition);
 
     for (const IPort& port : mInPorts)
-        data.emplace_back(gSERIAL_DATA_INPORT, std::string(port.getUniqueName()).append(" ")
-                          .append(std::to_string(port.getLinkedPortID())));
+        data.emplace_back(port.isDynamic() ? gSERIAL_DATA_DYNAMIC_INPORT : gSERIAL_DATA_INPORT,
+                          std::string(port.getUniqueName()).append(" ").append(std::to_string(port.getLinkedPortID())));
     for (const IPort& port : mOutPorts)
-        data.emplace_back(gSERIAL_DATA_OUTPORT, std::string(port.getUniqueName()).append(" ")
-                          .append(std::to_string(port.getID())));
+        data.emplace_back(port.isDynamic() ? gSERIAL_DATA_DYNAMIC_OUTPORT : gSERIAL_DATA_OUTPORT,
+                          std::string(port.getUniqueName()).append(" ").append(std::to_string(port.getID())));
 
     writeDataPoints(streamOut, gSERIAL_DATA_PREFIX, data);
 
@@ -51,7 +53,9 @@ void Node::serialize(std::ofstream& streamOut) const {
 
 void Node::deserialize(std::ifstream& streamIn, std::streampos end,
                        std::unordered_map<int, std::reference_wrapper<IPort>>& outPorts,
-                       std::vector<std::pair<std::reference_wrapper<IPort>, int>>& links) {
+                       std::vector<std::pair<std::reference_wrapper<IPort>, int>>& links,
+                       std::unordered_map<int, std::pair<Node*, std::string>>& dynamicOutPorts,
+                       std::unordered_map<Node*, std::vector<std::pair<std::string, int>>>& dynamicLinks) {
     std::streampos begin = streamIn.tellg();
 
     std::string dataID;
@@ -85,6 +89,18 @@ void Node::deserialize(std::ifstream& streamIn, std::streampos end,
                     break;
                 }
             }
+        } else if (dataID == gSERIAL_DATA_DYNAMIC_INPORT) {
+            std::string uniqueName;
+            int linkID;
+            streamIn >> uniqueName;
+            streamIn >> linkID;
+            dynamicLinks[this].emplace_back(uniqueName, linkID);
+        } else if (dataID == gSERIAL_DATA_DYNAMIC_OUTPORT) {
+            std::string uniqueName;
+            int id;
+            streamIn >> uniqueName;
+            streamIn >> id;
+            dynamicOutPorts.emplace(id, std::make_pair(this, uniqueName));
         } else {
             SerializationUtils::skipToNextLine(streamIn);
         }
@@ -224,6 +240,13 @@ void Node::removePort(const IPort& port) {
 
 size_t Node::numPorts() const {
     return mPorts.size();
+}
+
+IPort* Node::getPortByName(const std::string& uniqueName) {
+    for (auto& port : mPorts)
+        if (port.get().getUniqueName() == uniqueName)
+            return &port.get();
+    return nullptr;
 }
 
 IPort& Node::getPortByIndex(size_t i) {

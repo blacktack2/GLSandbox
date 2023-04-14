@@ -34,6 +34,8 @@ void Graph::deserialize(std::ifstream& streamIn) {
 
     std::unordered_map<int, std::reference_wrapper<IPort>> outPorts;
     std::vector<std::pair<std::reference_wrapper<IPort>, int>> links;
+    std::unordered_map<int, std::pair<Node*, std::string>> dynamicOutPorts;
+    std::unordered_map<Node*, std::vector<std::pair<std::string, int>>> dynamicLinks;
 
     std::streampos end = SerializationUtils::findEnd(streamIn);
 
@@ -56,16 +58,52 @@ void Graph::deserialize(std::ifstream& streamIn) {
 
         streamIn.seekg(markBegin);
         if (node) {
-            node->deserialize(streamIn, markEnd, outPorts, links);
+            node->deserialize(streamIn, markEnd, outPorts, links, dynamicOutPorts, dynamicLinks);
             addNode(std::move(node));
         }
         streamIn.seekg(markEnd);
     }
 
+    // Static->Static
     for (auto& link : links) {
-        auto match = outPorts.find(link.second);
+        const auto match = outPorts.find(link.second);
         if (match != outPorts.end())
             link.first.get().link(match->second);
+    }
+    // Static->Dynamic
+    for (auto& link : links) {
+        const auto match = dynamicOutPorts.find(link.second);
+        if (match != dynamicOutPorts.end()) {
+            IPort* portB = match->second.first->getPortByName(match->second.second);
+            link.first.get().link(*portB);
+        }
+    }
+    // Dynamic->Static
+    for (auto& dynamicLinkPair : dynamicLinks) {
+        Node* nodeFrom = dynamicLinkPair.first;
+        const std::vector<std::pair<std::string, int>>& nodeLinks = dynamicLinkPair.second;
+        for (const auto& link : nodeLinks) {
+            const auto match = outPorts.find(link.second);
+            if (match == outPorts.end())
+                continue;
+            IPort* portA = nodeFrom->getPortByName(link.first);
+            if (portA)
+                portA->link(match->second);
+        }
+    }
+    // Dynamic->Dynamic
+    for (auto& dynamicLinkPair : dynamicLinks) {
+        Node* nodeFrom = dynamicLinkPair.first;
+        const std::vector<std::pair<std::string, int>>& nodeLinks = dynamicLinkPair.second;
+        for (const auto& link : nodeLinks) {
+            const auto match = dynamicOutPorts.find(link.second);
+            if (match == dynamicOutPorts.end())
+                continue;
+            IPort* portA = nodeFrom->getPortByName(link.first);
+            IPort* portB = match->second.first->getPortByName(match->second.second);
+            if (portA && portB)
+                portA->link(*portB);
+        }
     }
 }
 

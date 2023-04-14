@@ -69,7 +69,7 @@ void RenderPassNode::onShaderUpdate() {
             std::visit([this, shader, &uniform, &name, &uniqueName](auto arg) {
                 using port_type = std::decay_t<decltype(arg)>;
                 std::unique_ptr<Port<port_type>> port = std::make_unique<Port<port_type>>(
-                    *this, IPort::Direction::In, uniqueName, name
+                    *this, IPort::Direction::In, uniqueName, name, nullptr, false, true
                 );
                 Port<port_type>* rawPort = port.get();
                 std::string uniformName = uniform.name;

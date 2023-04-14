@@ -85,6 +85,7 @@ public:
     virtual void halfValueUpdated() = 0;
 
     [[nodiscard]] virtual bool isLinked() const = 0;
+    [[nodiscard]] virtual bool isDynamic() const = 0;
 
     /**
      * @return Unique ID for this port.
@@ -138,10 +139,10 @@ public:
      * @param useDefault If true a default value will be generated and used.
      */
     Port(Node& parent, Direction direction, std::string uniqueName, std::string displayName,
-         const value_get_callback& getValue = nullptr, bool useDefault = false) :
+         const value_get_callback& getValue = nullptr, bool useDefault = false, bool isDynamic = false) :
         mID(gPortIDCounter++), mParent(parent),
         mDirection(direction), mUniqueName(std::move(uniqueName)), mDisplayName(std::move(displayName)),
-        mGetValue(getValue), mUseDefault(useDefault) {
+        mGetValue(getValue), mUseDefault(useDefault), mIsDynamic(isDynamic) {
 
         switch (mDirection) {
             case Direction::In  : mDrawPort = [this]() { drawIn();  }; break;
@@ -218,6 +219,9 @@ public:
 
     [[nodiscard]] bool isLinked() const final {
         return mLink != nullptr;
+    }
+    [[nodiscard]] bool isDynamic() const final {
+        return mIsDynamic;
     }
 
     [[nodiscard]] int getID() const final {
@@ -321,6 +325,7 @@ private:
     std::string mDisplayName;
     std::string mUniqueName;
 
+    bool mIsDynamic;
     bool mUseDefault;
     std::unique_ptr<std::variant<Types...>> mDefaultValue = nullptr;
 
