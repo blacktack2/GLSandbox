@@ -68,12 +68,12 @@ protected:
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
     void onDeserialize() final {
-        generateModelMatrix();
+        mValue = generateModelMatrix();
     }
 
     bool drawInputArea(const std::string& label) final;
 private:
-    inline glm::mat4 generateModelMatrix() {
+    [[nodiscard]] inline glm::mat4 generateModelMatrix() const {
         return glm::translate(mPosition) *
             glm::rotate(glm::radians(mRoll), glm::vec3(0.0f, 0.0f, 1.0f)) *
             glm::rotate(glm::radians(mPitch), glm::vec3(1.0f, 0.0f, 0.0f)) *
@@ -106,12 +106,12 @@ protected:
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
     void onDeserialize() final {
-        generateViewMatrix();
+        mValue = generateViewMatrix();
     }
 
     bool drawInputArea(const std::string& label) final;
 private:
-    inline glm::mat4 generateViewMatrix() {
+    [[nodiscard]] inline glm::mat4 generateViewMatrix() const {
         return glm::rotate(-glm::radians(mRoll),  glm::vec3(0.0f, 0.0f, 1.0f)) *
                glm::rotate(-glm::radians(mPitch), glm::vec3(1.0f, 0.0f, 0.0f)) *
                glm::rotate(-glm::radians(mYaw),   glm::vec3(0.0f, 1.0f, 0.0f)) *
@@ -142,7 +142,7 @@ protected:
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
     void onDeserialize() final {
-        generateProjMatrix();
+        mValue = generateProjMatrix();
     }
 
     bool drawInputArea(const std::string& label) final;
@@ -153,7 +153,7 @@ private:
         Max,
     };
 
-    inline glm::mat4 generateProjMatrix() {
+    [[nodiscard]] inline glm::mat4 generateProjMatrix() const {
         switch (mType) {
             case Type::Perspective : return glm::perspective(glm::radians(mFoV), mAspect, mClipZ.x, mClipZ.y);
             case Type::Orthogonal  : return glm::ortho(mClipX.x, mClipX.y, mClipY.x, mClipY.y, mClipZ.x, mClipZ.y);
