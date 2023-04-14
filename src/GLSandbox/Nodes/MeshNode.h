@@ -54,10 +54,9 @@ private:
     };
 
     void loadFromFile();
-    void loadFromStream(std::ifstream& stream, const std::string& extension);
     void loadFromStreamOBJ(std::ifstream& stream);
     void loadFromStreamMSH(std::ifstream& stream);
-    void writeToFile() const;
+    void writeToFile(const std::string& filename) const;
     void writeToStreamMSH(std::ofstream& stream) const;
 
     [[nodiscard]] static std::string generateFilename() ;
@@ -185,6 +184,6 @@ private:
     };
 
     std::string mFilename;
-    MeshFileExtension mFileExtension = gMESH_DEFAULT_EXTENSION;
+    bool mCanWriteToFile = true;
 };
 

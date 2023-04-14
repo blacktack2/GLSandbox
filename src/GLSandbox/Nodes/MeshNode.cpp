@@ -1,5 +1,7 @@
 #include "MeshNode.h"
 
+#include "../../Utils/FileUtils.h"
+
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
@@ -16,13 +18,17 @@ MeshNode::MeshNode() : Node("Mesh") {
 }
 
 std::vector<std::pair<std::string, std::string>> MeshNode::generateSerializedData() const {
+    if (!mCanWriteToFile)
+        return {};
+
     std::string filename = mFilename;
     if (filename.empty())
         filename = generateFilename();
 
-    writeToFile();
-
-    filename.append(getFileExtension(mFileExtension));
+    std::size_t index = mFilename.find_last_of('.');
+    std::string fileExtension = mFilename.substr(index);
+    if (parseFileExtension(fileExtension.c_str()) == gMESH_DEFAULT_EXTENSION)
+        writeToFile(filename);
 
     return {
         {"File", filename},
@@ -31,11 +37,7 @@ std::vector<std::pair<std::string, std::string>> MeshNode::generateSerializedDat
 
 void MeshNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
     if (dataID == "File") {
-        std::string filename;
-        stream >> filename;
-        std::size_t index = filename.find_last_of('.');
-        mFilename = filename.substr(0, index);
-        mFileExtension = parseFileExtension(filename.substr(index).c_str());
+        stream >> mFilename;
         loadFromFile();
     }
 }
@@ -60,21 +62,19 @@ void MeshNode::drawContents() {
 }
 
 void MeshNode::loadFromFile() {
-    const std::string fileExtension = getFileExtension(mFileExtension);
-    const std::string fullPath = std::string(gMESH_ASSET_DIR).append(mFilename).append(fileExtension);
+    std::size_t index = mFilename.find_last_of('.');
+    std::string fileExtension = mFilename.substr(index);
 
     clearMesh();
 
-    std::ifstream stream(fullPath);
-    if (stream)
-        loadFromStream(stream, fileExtension);
-}
-
-void MeshNode::loadFromStream(std::ifstream& stream, const std::string& extension) {
-    if (extension == ".obj")
-        loadFromStreamOBJ(stream);
-    else if (extension == ".msh")
-        loadFromStreamMSH(stream);
+    std::ifstream stream(mFilename);
+    if (!stream)
+        return;
+    switch (parseFileExtension(fileExtension.c_str())) {
+        case MeshFileExtension::MSH: loadFromStreamMSH(stream); break;
+        case MeshFileExtension::OBJ: loadFromStreamOBJ(stream); break;
+        default: break;
+    }
 }
 
 void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
@@ -205,13 +205,9 @@ void MeshNode::loadFromStreamMSH(std::ifstream& stream) {
     }
 }
 
-void MeshNode::writeToFile() const {
-    if (mFileExtension == gMESH_DEFAULT_EXTENSION) {
-        const std::string fileExtension = getFileExtension(gMESH_DEFAULT_EXTENSION);
-        const std::string fullPath = std::string(gMESH_ASSET_DIR).append(mFilename).append(fileExtension);
-        std::ofstream stream(fullPath);
-        writeToStreamMSH(stream);
-    }
+void MeshNode::writeToFile(const std::string& filename) const {
+    std::ofstream stream(filename);
+    writeToStreamMSH(stream);
 }
 
 void MeshNode::writeToStreamMSH(std::ofstream& stream) const {
@@ -306,30 +302,14 @@ void MeshNode::uploadMesh() {
 }
 
 void MeshNode::drawGlobalParameters() {
-    ImGui::Text("File");
-    const std::string filenameInputLabel = generateNodeLabel("", "File");
+    std::size_t index = mFilename.find_last_of('/');
+    ImGui::Text("%s", mFilename.substr(index + 1).c_str());
+
+    const std::string chooseFileButtonLabel = generateNodeLabel("Choose File");
     ImGui::SetNextItemWidth(getTextInputWidth());
-    ImGui::InputText(filenameInputLabel.c_str(), &mFilename);
+    if (ImGui::Button(chooseFileButtonLabel.c_str(), getButtonBounds()))
+        FileUtils::openFileDialog(mFilename);
 
-    ImGui::SameLine();
-
-    ImGui::SetNextItemWidth(getMiniComboWidth());
-    const std::string fileTypeComboLabel = generateNodeLabel("", "FileExtension");
-    if (ImGui::BeginCombo(fileTypeComboLabel.c_str(), getFileExtension(mFileExtension))) {
-        for (unsigned int i = 0; i < (unsigned int)MeshFileExtension::Max; i++) {
-            MeshFileExtension ext = (MeshFileExtension)i;
-            bool isSelected = ext == mFileExtension;
-
-            const std::string fileTypeButtonLabel = generateNodeLabel(getFileExtension(ext), "FileExtension");
-            ImGui::SetNextItemWidth(getMiniComboItemWidth());
-            if (ImGui::Selectable(fileTypeButtonLabel.c_str(), isSelected))
-                mFileExtension = ext;
-
-            if (isSelected)
-                ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndCombo();
-    }
     const std::string loadFileButtonLabel = generateNodeLabel("Load");
     if (ImGui::Button(loadFileButtonLabel.c_str(), getButtonBounds()))
         loadFromFile();
