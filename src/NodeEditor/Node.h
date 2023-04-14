@@ -24,16 +24,17 @@ namespace ax::NodeEditor {
 
 class Node {
 public:
+    typedef std::unordered_map<int, std::pair<Node*, std::string>> port_data_t;
+    typedef std::unordered_map<Node*, std::vector<std::pair<std::string, int>>> link_data_t;
+
     virtual ~Node() = default;
 
     [[nodiscard]] virtual unsigned int getTypeID() = 0;
 
     void serialize(std::ofstream& streamOut) const;
     void deserialize(std::ifstream& streamIn, std::streampos end,
-                     std::unordered_map<int, std::reference_wrapper<IPort>>& outPorts,
-                     std::vector<std::pair<std::reference_wrapper<IPort>, int>>& links,
-                     std::unordered_map<int, std::pair<Node*, std::string>>& dynamicOutPorts,
-                     std::unordered_map<Node*, std::vector<std::pair<std::string, int>>>& dynamicLinks);
+                     port_data_t& staticPortData, link_data_t& staticLinkData,
+                     port_data_t& dynamicPortData, link_data_t& dynamicLinkData);
 
     void draw();
     void drawLinks();

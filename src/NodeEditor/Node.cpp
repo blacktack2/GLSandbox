@@ -52,10 +52,8 @@ void Node::serialize(std::ofstream& streamOut) const {
 }
 
 void Node::deserialize(std::ifstream& streamIn, std::streampos end,
-                       std::unordered_map<int, std::reference_wrapper<IPort>>& outPorts,
-                       std::vector<std::pair<std::reference_wrapper<IPort>, int>>& links,
-                       std::unordered_map<int, std::pair<Node*, std::string>>& dynamicOutPorts,
-                       std::unordered_map<Node*, std::vector<std::pair<std::string, int>>>& dynamicLinks) {
+                       port_data_t& staticPortData, link_data_t& staticLinkData,
+                       port_data_t& dynamicPortData, link_data_t& dynamicLinkData) {
     std::streampos begin = streamIn.tellg();
 
     std::string dataID;
@@ -72,35 +70,25 @@ void Node::deserialize(std::ifstream& streamIn, std::streampos end,
             int linkID;
             streamIn >> uniqueName;
             streamIn >> linkID;
-            for (IPort& port : mInPorts) {
-                if (port.getUniqueName() == uniqueName) {
-                    links.emplace_back(port, linkID);
-                    break;
-                }
-            }
+            staticLinkData[this].emplace_back(uniqueName, linkID);
         } else if (dataID == gSERIAL_DATA_OUTPORT) {
             std::string uniqueName;
             int id;
             streamIn >> uniqueName;
             streamIn >> id;
-            for (IPort& port : mOutPorts) {
-                if (port.getUniqueName() == uniqueName) {
-                    outPorts.emplace(id, port);
-                    break;
-                }
-            }
+            staticPortData.emplace(id, std::make_pair(this, uniqueName));
         } else if (dataID == gSERIAL_DATA_DYNAMIC_INPORT) {
             std::string uniqueName;
             int linkID;
             streamIn >> uniqueName;
             streamIn >> linkID;
-            dynamicLinks[this].emplace_back(uniqueName, linkID);
+            dynamicLinkData[this].emplace_back(uniqueName, linkID);
         } else if (dataID == gSERIAL_DATA_DYNAMIC_OUTPORT) {
             std::string uniqueName;
             int id;
             streamIn >> uniqueName;
             streamIn >> id;
-            dynamicOutPorts.emplace(id, std::make_pair(this, uniqueName));
+            dynamicPortData.emplace(id, std::make_pair(this, uniqueName));
         } else {
             SerializationUtils::skipToNextLine(streamIn);
         }

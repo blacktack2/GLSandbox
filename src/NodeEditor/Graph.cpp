@@ -10,6 +10,22 @@ static constexpr char gSERIAL_MARK_NODE[] = "Node";
 static constexpr char gSERIAL_DATA_PREFIX = '^';
 static constexpr char gSERIAL_DATA_NODE_TYPE[] = "Direction";
 
+void deserializeLinks(Node::port_data_t& portData, Node::link_data_t& linkData) {
+    for (auto& dynamicLinkPair : linkData) {
+        Node* nodeFrom = dynamicLinkPair.first;
+        const std::vector<std::pair<std::string, int>>& nodeLinks = dynamicLinkPair.second;
+        for (const auto& link : nodeLinks) {
+            const auto match = portData.find(link.second);
+            if (match == portData.end())
+                continue;
+            IPort* portA = nodeFrom->getPortByName(link.first);
+            IPort* portB = match->second.first->getPortByName(match->second.second);
+            if (portA && portB)
+                portA->link(*portB);
+        }
+    }
+}
+
 Graph::Graph() {
     mContext = ImNodes::CreateContext();
     ImNodes::PushAttributeFlag(ImNodesAttributeFlags_EnableLinkDetachWithDragClick);
@@ -32,10 +48,8 @@ void Graph::serialize(std::ofstream& streamOut) const {
 void Graph::deserialize(std::ifstream& streamIn) {
     mNodes.clear();
 
-    std::unordered_map<int, std::reference_wrapper<IPort>> outPorts;
-    std::vector<std::pair<std::reference_wrapper<IPort>, int>> links;
-    std::unordered_map<int, std::pair<Node*, std::string>> dynamicOutPorts;
-    std::unordered_map<Node*, std::vector<std::pair<std::string, int>>> dynamicLinks;
+    Node::port_data_t staticPortData, dynamicPortData;
+    Node::link_data_t staticLinkData, dynamicLinkData;
 
     std::streampos end = SerializationUtils::findEnd(streamIn);
 
@@ -58,53 +72,16 @@ void Graph::deserialize(std::ifstream& streamIn) {
 
         streamIn.seekg(markBegin);
         if (node) {
-            node->deserialize(streamIn, markEnd, outPorts, links, dynamicOutPorts, dynamicLinks);
+            node->deserialize(streamIn, markEnd, staticPortData, staticLinkData, dynamicPortData, dynamicLinkData);
             addNode(std::move(node));
         }
         streamIn.seekg(markEnd);
     }
 
-    // Static->Static
-    for (auto& link : links) {
-        const auto match = outPorts.find(link.second);
-        if (match != outPorts.end())
-            link.first.get().link(match->second);
-    }
-    // Static->Dynamic
-    for (auto& link : links) {
-        const auto match = dynamicOutPorts.find(link.second);
-        if (match != dynamicOutPorts.end()) {
-            IPort* portB = match->second.first->getPortByName(match->second.second);
-            link.first.get().link(*portB);
-        }
-    }
-    // Dynamic->Static
-    for (auto& dynamicLinkPair : dynamicLinks) {
-        Node* nodeFrom = dynamicLinkPair.first;
-        const std::vector<std::pair<std::string, int>>& nodeLinks = dynamicLinkPair.second;
-        for (const auto& link : nodeLinks) {
-            const auto match = outPorts.find(link.second);
-            if (match == outPorts.end())
-                continue;
-            IPort* portA = nodeFrom->getPortByName(link.first);
-            if (portA)
-                portA->link(match->second);
-        }
-    }
-    // Dynamic->Dynamic
-    for (auto& dynamicLinkPair : dynamicLinks) {
-        Node* nodeFrom = dynamicLinkPair.first;
-        const std::vector<std::pair<std::string, int>>& nodeLinks = dynamicLinkPair.second;
-        for (const auto& link : nodeLinks) {
-            const auto match = dynamicOutPorts.find(link.second);
-            if (match == dynamicOutPorts.end())
-                continue;
-            IPort* portA = nodeFrom->getPortByName(link.first);
-            IPort* portB = match->second.first->getPortByName(match->second.second);
-            if (portA && portB)
-                portA->link(*portB);
-        }
-    }
+    deserializeLinks(staticPortData, staticLinkData);
+    deserializeLinks(staticPortData, dynamicLinkData);
+    deserializeLinks(dynamicPortData, staticLinkData);
+    deserializeLinks(dynamicPortData, dynamicLinkData);
 }
 
 void Graph::preDraw() {
