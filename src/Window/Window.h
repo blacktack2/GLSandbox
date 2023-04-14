@@ -1,5 +1,5 @@
 #pragma once
-#include "imgui.h"
+#include <imgui.h>
 
 #ifdef WIN32
 #include <SDL.h>
@@ -29,7 +29,6 @@ private:
 
     SDL_Window* mWindow = nullptr;
     SDL_GLContext mGLContext;
-    ImGuiIO mIO;
 
     std::unique_ptr<Renderer> mRenderer;
     std::unique_ptr<Graph> mGraph;

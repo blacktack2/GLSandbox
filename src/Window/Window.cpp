@@ -7,7 +7,7 @@
 #include <glad/glad.h>
 
 #include <imgui_impl_opengl3.h>
-#include <imgui_impl_sdl.h>
+#include <imgui_impl_sdl2.h>
 #include <imgui_stdlib.h>
 
 #include <filesystem>
@@ -55,7 +55,7 @@ mWidth(width), mHeight(height) {
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    mIO = ImGui::GetIO();
+    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     ImGui::StyleColorsDark();
 
@@ -108,6 +108,8 @@ void Window::mainloop() {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame(mWindow);
         ImGui::NewFrame();
+
+        ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 
         drawGraph();
 

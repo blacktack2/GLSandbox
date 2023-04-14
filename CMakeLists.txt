@@ -51,3 +51,5 @@ else()
         target_link_libraries(${EXECUTABLE} ${SDL2_LIBRARIES} ${CMAKE_DL_LIBS} glad glm imgui)
     endif()
 endif()
+
+add_compile_definitions(IMGUI_DEFINE_MATH_OPERATORS)

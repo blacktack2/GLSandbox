@@ -121,7 +121,7 @@ void Graph::checkPanning() {
 }
 
 void Graph::drawEditor() {
-    ImGui::Begin("Editor", nullptr);
+    ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoCollapse);
     ImNodes::BeginNodeEditor();
 
     for (auto& node : mNodes)

@@ -35,7 +35,7 @@
 //
 //   Mikko Mononen: compound shape support, more cmap formats
 //   Tor Andersson: kerning, subpixel rendering
-//   Dougall Johnson: OpenType / Direction 2 font handling
+//   Dougall Johnson: OpenType / Type 2 font handling
 //   Daniel Ribeiro Maciel: basic GPOS-based kerning
 //
 //   Misc other:
@@ -1442,7 +1442,7 @@ static int stbtt_InitFont_internal(stbtt_fontinfo *info, unsigned char *data, in
       stbtt__dict_get_ints(&topdict, 0x100 | 37, 1, &fdselectoff);
       info->subrs = stbtt__get_subrs(b, topdict);
 
-      // we only support Direction 2 charstrings
+      // we only support Type 2 charstrings
       if (cstype != 2) return 0;
       if (charstrings == 0) return 0;
 
@@ -2008,7 +2008,7 @@ static stbtt__buf stbtt__cid_get_glyph_subrs(const stbtt_fontinfo *info, int gly
          start = end;
       }
    }
-   if (fdselector == -1) stbtt__new_buf(NULL, 0);
+   if (fdselector == -1) return stbtt__new_buf(NULL, 0); // [DEAR IMGUI] fixed, see #6007 and nothings/stb#1422
    return stbtt__get_subrs(info->cff, stbtt__cff_index_get(info->fontdicts, fdselector));
 }
 
