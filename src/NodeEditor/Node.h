@@ -39,11 +39,11 @@ public:
     void draw();
     void drawLinks();
 
-    void setAbsolutePosition(const glm::vec2& pos);
+    void setAbsolutePosition(const ImVec2& pos);
 
-    [[nodiscard]] glm::vec2 getAbsolutePosition() const;
+    [[nodiscard]] ImVec2 getAbsolutePosition() const;
 
-    [[nodiscard]] glm::vec2 getSize() const;
+    [[nodiscard]] ImVec2 getSize() const;
 
     [[nodiscard]] inline int getID() const {
         return mID;
@@ -157,6 +157,6 @@ private:
     std::vector<std::reference_wrapper<IPort>> mInPorts;
     std::vector<std::reference_wrapper<IPort>> mOutPorts;
 
-    glm::vec2 mPosition = glm::vec2(0.0f, 0.0f);
+    ImVec2 mPosition = ImVec2(0.0f, 0.0f);
     bool mIsPositionDirty = false;
 };

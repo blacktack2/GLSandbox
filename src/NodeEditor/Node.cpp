@@ -32,12 +32,13 @@ void writeDataPoints(std::ofstream& streamOut, char prefix,
 }
 
 Node::Node(std::string title) : mTitle(std::move(title)), mID{gGraphIDCounter++} {
-    setAbsolutePosition(glm::vec2(0.0f, 0.0f));
+    setAbsolutePosition(ImVec2(0.0f, 0.0f));
 }
 
 void Node::serialize(std::ofstream& streamOut) const {
     std::string serializedID = std::to_string(getID());
-    std::string serializedPosition = std::to_string(mPosition.x).append(" ").append(std::to_string(mPosition.y));
+    ImVec2 position = getAbsolutePosition();
+    std::string serializedPosition = std::to_string(position.x).append(" ").append(std::to_string(position.y));
 
     std::vector<std::pair<std::string, std::string>> data{};
 
@@ -68,7 +69,7 @@ void Node::deserialize(std::ifstream& streamIn, std::streampos end,
         if (dataID == gSERIAL_DATA_ID) {
             streamIn >> dataID;
         } else if (dataID == gSERIAL_DATA_POSITION) {
-            glm::vec2 position;
+            ImVec2 position;
             streamIn >> position.x;
             streamIn >> position.y;
             setAbsolutePosition(position);
@@ -123,9 +124,10 @@ void Node::draw() {
     ed::BeginNode(mID);
 
     if (mIsPositionDirty) {
-        ed::SetNodePosition(getID(), ImVec2(mPosition.x, mPosition.y));
+        ed::SetNodePosition(getID(), mPosition);
         mIsPositionDirty = false;
     }
+    mPosition = ed::GetNodePosition(getID());
 
 //    ImNodes::BeginNodeTitleBar();
     ImGui::Text("%s", mTitle.c_str());
@@ -152,18 +154,17 @@ void Node::drawLinks() {
         port.get().drawLink();
 }
 
-void Node::setAbsolutePosition(const glm::vec2& pos) {
+void Node::setAbsolutePosition(const ImVec2& pos) {
     mPosition = pos;
     mIsPositionDirty = true;
 }
 
-glm::vec2 Node::getAbsolutePosition() const {
+ImVec2 Node::getAbsolutePosition() const {
     return mPosition;
 }
 
-glm::vec2 Node::getSize() const {
-    ImVec2 size = ed::GetNodeSize(getID());
-    return glm::vec2(size.x, size.y);
+ImVec2 Node::getSize() const {
+    return ed::GetNodeSize(getID());
 }
 
 void Node::addPort(IPort& port) {
