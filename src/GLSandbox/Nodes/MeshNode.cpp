@@ -273,7 +273,7 @@ std::string MeshNode::generateFilename() {
     unsigned int counter = 0;
     while (paths.contains(++counter)) {}
 
-    return std::string("Mesh").append(std::to_string(counter));
+    return std::string("Mesh").append(std::to_string(counter)).append(getFileExtension(gMESH_DEFAULT_EXTENSION));
 }
 
 void MeshNode::uploadMesh() {
