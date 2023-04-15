@@ -40,19 +40,8 @@ public:
     void drawLinks();
 
     void setAbsolutePosition(const glm::vec2& pos);
-    void setRelativePosition(const glm::vec2& pos);
 
-    [[nodiscard]] glm::vec2 getAbsolutePositionC() const;
-    [[nodiscard]] glm::vec2 getAbsolutePositionTR() const;
-    [[nodiscard]] glm::vec2 getAbsolutePositionBR() const;
-    [[nodiscard]] glm::vec2 getAbsolutePositionBL() const;
-    [[nodiscard]] glm::vec2 getAbsolutePositionTL() const;
-
-    [[nodiscard]] glm::vec2 getRelativePositionC() const;
-    [[nodiscard]] glm::vec2 getRelativePositionTR() const;
-    [[nodiscard]] glm::vec2 getRelativePositionBR() const;
-    [[nodiscard]] glm::vec2 getRelativePositionBL() const;
-    [[nodiscard]] glm::vec2 getRelativePositionTL() const;
+    [[nodiscard]] glm::vec2 getAbsolutePosition() const;
 
     [[nodiscard]] glm::vec2 getSize() const;
 
@@ -104,7 +93,7 @@ protected:
         return generatePopupID(popupName, "Node", getID(), args...);
     }
 
-    inline void drawMessage(const std::string& text, const ImVec4& colour) {
+    static inline void drawMessage(const std::string& text, const ImVec4& colour) {
         ImGui::PushStyleColor(ImGuiCol_Text, colour);
         ImGui::TextWrapped("%s", text.c_str());
         ImGui::PopStyleColor();
@@ -132,7 +121,7 @@ protected:
         return getNodeWidth() * 0.5f;
     }
     static inline constexpr float getMultiNumericInputWidth(unsigned int numComponents = 1) {
-        return getNodeWidth() * 0.25f * numComponents;
+        return getNodeWidth() * 0.25f * (float)numComponents;
     }
     static inline constexpr float getComboWidth() {
         return getButtonWidth();
@@ -160,9 +149,6 @@ protected:
         return "%d";
     }
 private:
-    void writeDataPoints(std::ofstream& streamOut, char prefix,
-                         const std::vector<std::pair<std::string, std::string>>& dataPoints) const;
-
     int mID;
 
     std::string mTitle;
@@ -170,4 +156,6 @@ private:
     std::vector<std::reference_wrapper<IPort>> mPorts;
     std::vector<std::reference_wrapper<IPort>> mInPorts;
     std::vector<std::reference_wrapper<IPort>> mOutPorts;
+
+    glm::vec2 mPosition = glm::vec2(0.0f, 0.0f);
 };

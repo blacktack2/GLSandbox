@@ -23,14 +23,19 @@ static constexpr char gSERIAL_DATA_DYNAMIC_OUTPORT[] = "Dynamic-OutPort";
 
 static constexpr char gSERIAL_SUBDATA_PREFIX = '-';
 
+void writeDataPoints(std::ofstream& streamOut, char prefix,
+                     const std::vector<std::pair<std::string, std::string>>& dataPoints) {
+    for (const auto& dataPair : dataPoints)
+        SerializationUtils::writeDataPoint(streamOut, prefix, dataPair.first, dataPair.second);
+}
+
 Node::Node(std::string title) : mTitle(std::move(title)), mID{gNodeIDCounter++} {
-    ImNodes::SetNodeScreenSpacePos(getID(), ImVec2(0.0f, 0.0f));
+    setAbsolutePosition(glm::vec2(0.0f, 0.0f));
 }
 
 void Node::serialize(std::ofstream& streamOut) const {
     std::string serializedID = std::to_string(getID());
-    glm::vec2 position = getAbsolutePositionC();
-    std::string serializedPosition = std::to_string(position.x).append(" ").append(std::to_string(position.y));
+    std::string serializedPosition = std::to_string(mPosition.x).append(" ").append(std::to_string(mPosition.y));
 
     std::vector<std::pair<std::string, std::string>> data{};
 
@@ -132,73 +137,13 @@ void Node::drawLinks() {
         port.get().drawLink();
 }
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "readability-make-member-function-const"
 void Node::setAbsolutePosition(const glm::vec2& pos) {
-    ImNodes::SetNodeEditorSpacePos(getID(), ImVec2(pos.x, pos.y));
+    mPosition = pos;
+    ImNodes::SetNodeGridSpacePos(getID(), ImVec2(pos.x, pos.y));
 }
 
-void Node::setRelativePosition(const glm::vec2& pos) {
-    ImNodes::SetNodeScreenSpacePos(getID(), ImVec2(pos.x, pos.y));
-}
-#pragma clang diagnostic pop
-
-glm::vec2 Node::getAbsolutePositionC() const {
-    ImVec2 absCenter = ImNodes::GetNodeEditorSpacePos(getID());
-    return glm::vec2(absCenter.x, absCenter.y);
-}
-
-glm::vec2 Node::getAbsolutePositionTR() const {
-    ImVec2 absCenter = ImNodes::GetNodeEditorSpacePos(getID());
-    ImVec2 size = ImNodes::GetNodeDimensions(getID());
-    return glm::vec2(absCenter.x + size.x * 0.5f, absCenter.y + size.y * 0.5f);
-}
-
-glm::vec2 Node::getAbsolutePositionBR() const {
-    ImVec2 absCenter = ImNodes::GetNodeEditorSpacePos(getID());
-    ImVec2 size = ImNodes::GetNodeDimensions(getID());
-    return glm::vec2(absCenter.x + size.x * 0.5f, absCenter.y - size.y * 0.5f);
-}
-
-glm::vec2 Node::getAbsolutePositionBL() const {
-    ImVec2 absCenter = ImNodes::GetNodeEditorSpacePos(getID());
-    ImVec2 size = ImNodes::GetNodeDimensions(getID());
-    return glm::vec2(absCenter.x - size.x * 0.5f, absCenter.y - size.y * 0.5f);
-}
-
-glm::vec2 Node::getAbsolutePositionTL() const {
-    ImVec2 absCenter = ImNodes::GetNodeEditorSpacePos(getID());
-    ImVec2 size = ImNodes::GetNodeDimensions(getID());
-    return glm::vec2(absCenter.x - size.x * 0.5f, absCenter.y + size.y * 0.5f);
-}
-
-glm::vec2 Node::getRelativePositionC() const {
-    ImVec2 relCenter = ImNodes::GetNodeScreenSpacePos(getID());
-    return glm::vec2(relCenter.x, relCenter.y);
-}
-
-glm::vec2 Node::getRelativePositionTR() const {
-    ImVec2 relCenter = ImNodes::GetNodeScreenSpacePos(getID());
-    ImVec2 size = ImNodes::GetNodeDimensions(getID());
-    return glm::vec2(relCenter.x + size.x * 0.5f, relCenter.y + size.y * 0.5f);
-}
-
-glm::vec2 Node::getRelativePositionBR() const {
-    ImVec2 relCenter = ImNodes::GetNodeScreenSpacePos(getID());
-    ImVec2 size = ImNodes::GetNodeDimensions(getID());
-    return glm::vec2(relCenter.x + size.x * 0.5f, relCenter.y - size.y * 0.5f);
-}
-
-glm::vec2 Node::getRelativePositionBL() const {
-    ImVec2 relCenter = ImNodes::GetNodeScreenSpacePos(getID());
-    ImVec2 size = ImNodes::GetNodeDimensions(getID());
-    return glm::vec2(relCenter.x - size.x * 0.5f, relCenter.y - size.y * 0.5f);
-}
-
-glm::vec2 Node::getRelativePositionTL() const {
-    ImVec2 relCenter = ImNodes::GetNodeScreenSpacePos(getID());
-    ImVec2 size = ImNodes::GetNodeDimensions(getID());
-    return glm::vec2(relCenter.x - size.x * 0.5f, relCenter.y + size.y * 0.5f);
+glm::vec2 Node::getAbsolutePosition() const {
+    return mPosition;
 }
 
 glm::vec2 Node::getSize() const {
@@ -247,12 +192,3 @@ IPort* Node::getPort(int portID) {
             return &port.get();
     return nullptr;
 }
-
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
-void Node::writeDataPoints(std::ofstream& streamOut, char prefix,
-                           const std::vector<std::pair<std::string, std::string>>& dataPoints) const {
-    for (const auto& dataPair : dataPoints)
-        SerializationUtils::writeDataPoint(streamOut, prefix, dataPair.first, dataPair.second);
-}
-#pragma clang diagnostic pop
