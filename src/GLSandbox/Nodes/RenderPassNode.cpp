@@ -1,7 +1,5 @@
 #include "RenderPassNode.h"
 
-#include <imgui.h>
-
 RenderPassNode::RenderPassNode() : Node("Render Pass") {
     addPort(mExecutionIn);
     addPort(mExecutionOut);

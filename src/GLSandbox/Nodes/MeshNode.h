@@ -69,9 +69,6 @@ private:
     void drawAttribute(Attribute& attribute);
 
     void drawAddAttributePopup();
-    void drawAttributeSelection();
-
-    void drawUploadButton();
 
     void drawMeshStatus();
 
@@ -81,8 +78,8 @@ private:
     void clearAttributes();
 
     template<typename... Args>
-    inline std::string generateAttributeLabel(const std::string& displayText, const Attribute& attribute, Args... args) const {
-        return generateNodeLabel(displayText, "Attribute", attribute.id, args...);
+    inline std::string generateAttributeLabelID(const Attribute& attribute, Args... args) const {
+        return generateNodeLabelID("Attribute", attribute.id, args...);
     }
 
     static inline std::string getDataTypeName(Mesh::AttributeType type) {
@@ -100,7 +97,7 @@ private:
             default: return "UNDEFINED";
         }
     }
-    static inline std::string getDataTypeName(VectorVariant<Mesh::attribute_t> attr) {
+    static inline std::string getDataTypeName(const VectorVariant<Mesh::attribute_t>& attr) {
         return std::visit(VisitOverload{
             [](const auto& arg                   ) { return "UNDEFINED"; },
 
@@ -162,6 +159,16 @@ private:
             case Mesh::AttributeType::Vec4: return std::vector<glm::vec4>();
         }
     }
+    static inline std::string getPrimitiveTypeLabel(Mesh::Type type) {
+        switch (type) {
+            default: return "Undefined";
+            case Mesh::Type::Triangles     : return "Triangles";
+            case Mesh::Type::TriangleStrip : return "Triangle Strip";
+            case Mesh::Type::TriangleFan   : return "Triangle Fan";
+            case Mesh::Type::Lines         : return "Lines";
+            case Mesh::Type::Points        : return "Points";
+        }
+    }
 
     std::unique_ptr<Mesh> mMesh;
     Port<Mesh*> mMeshOut = Port<Mesh*>(*this, IPort::Direction::Out, "MeshOut", "Mesh", [&]() { return mMesh.get(); });
@@ -173,15 +180,6 @@ private:
 
     std::vector<Attribute> mAttributes;
     std::vector<GLuint> mIndices{};
-
-    // Matches Mesh::Type
-    const std::vector<std::string> mTypes {
-        "Triangles",
-        "Triangle Strip",
-        "Triangle Fan",
-        "Lines",
-        "Points",
-    };
 
     std::string mFilename;
     bool mCanWriteToFile = true;

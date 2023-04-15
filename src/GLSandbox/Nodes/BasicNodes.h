@@ -18,7 +18,7 @@ public:
     ~NumericNode() override = default;
 protected:
     void drawContents() final {
-        const std::string LABEL = generateNodeLabel("", "Input");
+        const std::string LABEL = generateNodeLabelID("Input");
         if (drawInputArea(LABEL))
             mValueOut.valueUpdated();
     }

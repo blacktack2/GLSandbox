@@ -29,29 +29,25 @@ protected:
 
     void drawContents() final;
 private:
-    template<typename T1, typename T2>
-    using operation_callback = std::function<T1(T1, T2)>;
-
     enum class Operation {
-        Add = 0ull,
+        Add = 0,
         Subtract,
         Multiply,
         Divide,
-    };
 
-    void drawOperationSelector();
+        Max,
+    };
 
     std::variant<float, int> calculateValue();
 
-    static inline const std::vector<std::string>& getOperationLabels() {
-        // Matches Operation enum
-        static const std::vector<std::string> OPERATIONS = {
-            "Add",
-            "Subtract",
-            "Multiply",
-            "Divide",
-        };
-        return OPERATIONS;
+    static inline std::string getOperationLabel(Operation operation) {
+        switch (operation) {
+            default: return "Undefined";
+            case Operation::Add: return "Add";
+            case Operation::Subtract: return "Subtract";
+            case Operation::Multiply: return "Multiply";
+            case Operation::Divide: return "Divide";
+        }
     }
 
     template<typename T1, typename T2>

@@ -1,7 +1,5 @@
 #include "ExtendedNodes.h"
 
-#include <imgui.h>
-
 #include <sstream>
 
 UVNode::UVNode() : NumericNode<glm::vec2>("UV") {
@@ -22,8 +20,7 @@ void UVNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
 }
 
 bool UVNode::drawInputArea(const std::string& label) {
-    ImGui::SetNextItemWidth(getMultiNumericInputWidth(2));
-    return ImGui::DragFloat2(label.c_str(), &mValue[0], 0.01f, -1.0f, 1.0f, getFloatFormat());
+    return ImUtils::inputFloatN(&mValue[0], 2, label, -1.0f, 1.0f);
 }
 
 ColourNode::ColourNode() : NumericNode<glm::vec3>("Colour") {
@@ -44,8 +41,7 @@ void ColourNode::deserializeData(const std::string& dataID, std::ifstream& strea
 }
 
 bool ColourNode::drawInputArea(const std::string& label) {
-    ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
-    return ImGui::DragFloat3(label.c_str(), &mValue[0], 0.01f, 0.0f, 1.0f, getFloatFormat());
+    return ImUtils::inputFloatN(&mValue[0], 3, label, 0.0f, 1.0f);
 }
 
 DirectionNode::DirectionNode() : NumericNode<glm::vec3>("Direction") {
@@ -67,8 +63,7 @@ void DirectionNode::deserializeData(const std::string& dataID, std::ifstream& st
 
 bool DirectionNode::drawInputArea(const std::string& label) {
     glm::vec3 tempValue = mValue;
-    ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
-    if (ImGui::DragFloat3(label.c_str(), &tempValue[0], 0.01f, -1.0f, 1.0f, getFloatFormat())) {
+    if (ImUtils::inputFloatN(&mValue[0], 3, label, -1.0f, 1.0f)) {
         if (tempValue.x != mValue.x) {
             float x = tempValue.x;
             tempValue = glm::normalize(tempValue);
@@ -147,22 +142,13 @@ bool ModelMatrixNode::drawInputArea(const std::string& label) {
     bool valueUpdated = false;
 
     ImGui::Text("Position");
-    ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
-    valueUpdated = ImGui::DragFloat3(std::string(label).append("Position").c_str(), &mPosition[0], 0.1f, 0.0f, 0.0f, getFloatFormat());
+    valueUpdated |= ImUtils::inputFloatN(&mPosition[0], 3, std::string(label).append("Position"));
 
-    ImGui::Text("Rotation");
-    ImGui::Text("Roll:");
-    ImGui::SameLine(getMultiNumericInputWidth());
-    ImGui::Text("Pitch:");
-    ImGui::SameLine(getMultiNumericInputWidth(2));
-    ImGui::Text("Yaw:");
-
-    ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
-    valueUpdated = ImGui::DragFloat3(std::string(label).append("Rotation").c_str(), &mRotations[0], 0.1f, 0.0f, 360.0f, getFloatFormat()) || valueUpdated;
+    ImUtils::multiInputLabel("Roll", "Pitch", "Yaw");
+    valueUpdated |= ImUtils::inputFloatN(&mRotations[0], 3, std::string(label).append("Rotation"), 0.0f, 360.0f);
 
     ImGui::Text("Scale");
-    ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
-    valueUpdated = ImGui::DragFloat3(std::string(label).append("Scale").c_str(), &mScale[0], 0.1f, 0.0f, FLT_MAX, getFloatFormat()) || valueUpdated;
+    valueUpdated |= ImUtils::inputFloatN(&mScale[0], 3, std::string(label).append("Scale"), 0.0f, FLT_MAX);
 
     if (valueUpdated) {
         mValue = generateModelMatrix();
@@ -199,21 +185,13 @@ void ViewMatrixNode::deserializeData(const std::string& dataID, std::ifstream& s
 }
 
 bool ViewMatrixNode::drawInputArea(const std::string& label) {
-    bool valueUpdated;
+    bool valueUpdated = false;
 
     ImGui::Text("Position");
-    ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
-    valueUpdated = ImGui::DragFloat3(std::string(label).append("Position").c_str(), &mPosition[0], 0.1f, 0.0f, 0.0f, getFloatFormat());
+    valueUpdated |= ImUtils::inputFloatN(&mPosition[0], 3, std::string(label).append("Position"));
 
-    ImGui::Text("Rotation");
-    ImGui::Text("Roll:");
-    ImGui::SameLine(getMultiNumericInputWidth());
-    ImGui::Text("Pitch:");
-    ImGui::SameLine(getMultiNumericInputWidth(2));
-    ImGui::Text("Yaw:");
-
-    ImGui::SetNextItemWidth(getMultiNumericInputWidth(3));
-    valueUpdated = ImGui::DragFloat3(std::string(label).append("Rotation").c_str(), &mRotations[0], 0.1f, 0.0f, 360.0f, getFloatFormat()) || valueUpdated;
+    ImUtils::multiInputLabel("Roll", "Pitch", "Yaw");
+    valueUpdated |= ImUtils::inputFloatN(&mRotations[0], 3, std::string(label).append("Rotation"), 0.0f, 360.0f);
 
     if (valueUpdated) {
         mValue = generateViewMatrix();
@@ -264,23 +242,11 @@ void ProjMatrixNode::deserializeData(const std::string& dataID, std::ifstream& s
 bool ProjMatrixNode::drawInputArea(const std::string& label) {
     bool valueUpdated = false;
 
-    ImGui::SetNextItemWidth(getComboWidth());
-    if (ImGui::BeginCombo(std::string(label).append("Combo").c_str(), getTypeName(mType).c_str())) {
-        for (unsigned int i = 0; i < (unsigned int)Type::Max; i++) {
-            Type type = (Type)i;
-            bool isSelected = mType == type;
-            ImGui::SetNextItemWidth(getComboItemWidth());
-            if (ImGui::Selectable(getTypeName(type).c_str(), isSelected)) {
-                mType = type;
-                valueUpdated = true;
-            }
-            if (isSelected)
-                ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndCombo();
-    }
+    ImUtils::cycleButton(std::string(label).append("Type"), (size_t&)mType, (size_t)Type::Max,
+                         [](size_t index) { return getTypeName((Type)index); });
 
     switch (mType) {
+        default: break;
         case Type::Perspective : valueUpdated = drawPerspective(label) || valueUpdated; break;
         case Type::Orthogonal  : valueUpdated = drawOrthogonal(label)  || valueUpdated; break;
     }
@@ -293,48 +259,31 @@ bool ProjMatrixNode::drawInputArea(const std::string& label) {
 }
 
 bool ProjMatrixNode::drawPerspective(const std::string& label) {
-    bool valueUpdated;
-
-    ImGui::PushItemWidth(getNumericInputWidth());
+    bool valueUpdated = false;
 
     ImGui::Text("FoV");
-    valueUpdated = ImGui::DragFloat(std::string(label).append("FoV").c_str(), &mFoV, 0.1f, 0.0f, 180.0f, getFloatFormat());
+    valueUpdated |= ImUtils::inputFloat(&mFoV, std::string(label).append("FoV"), 0.0f, 180.0f);
 
     ImGui::Text("Aspect Ratio");
-    valueUpdated = ImGui::DragFloat(std::string(label).append("Aspect").c_str(), &mAspect, 0.1f, 0.0f, FLT_MAX, getFloatFormat()) || valueUpdated;
+    valueUpdated |= ImUtils::inputFloat(&mAspect, std::string(label).append("Aspect"), 0.0f, FLT_MAX);
 
-    ImGui::PopItemWidth();
-
-    ImGui::Text("Near");
-    ImGui::SameLine(getMultiNumericInputWidth());
-    ImGui::Text("Far");
-    ImGui::SetNextItemWidth(getMultiNumericInputWidth(2));
-    valueUpdated = ImGui::DragFloat2(std::string(label).append("Near").c_str(), &mClipZ.x, 0.1f, 0.0f, FLT_MAX, getFloatFormat()) || valueUpdated;
+    ImUtils::multiInputLabel("Near", "Far");
+    valueUpdated |= ImUtils::inputFloatN(&mClipZ[0], 2, std::string(label).append("NF"), 0.0f, FLT_MAX);
 
     return valueUpdated;
 }
 
 bool ProjMatrixNode::drawOrthogonal(const std::string& label) {
-    bool valueUpdated;
+    bool valueUpdated = false;
 
-    ImGui::PushItemWidth(getMultiNumericInputWidth(2));
+    ImUtils::multiInputLabel("Left", "Right");
+    valueUpdated |= ImUtils::inputFloatN(&mClipX[0], 2, std::string(label).append("LR"));
 
-    ImGui::Text("Left:");
-    ImGui::SameLine(getMultiNumericInputWidth());
-    ImGui::Text("Right:");
-    valueUpdated = ImGui::DragFloat2(std::string(label).append("Left").c_str(), &mClipX.x, 0.1f, 0.0f, 0.0f, getFloatFormat());
+    ImUtils::multiInputLabel("Top", "Bottom");
+    valueUpdated |= ImUtils::inputFloatN(&mClipY[0], 2, std::string(label).append("TB"));
 
-    ImGui::Text("Top:");
-    ImGui::SameLine(getMultiNumericInputWidth());
-    ImGui::Text("Bottom:");
-    valueUpdated = ImGui::DragFloat2(std::string(label).append("Top").c_str(), &mClipY.x, 0.1f, 0.0f, 0.0f, getFloatFormat()) || valueUpdated;
-
-    ImGui::Text("Near");
-    ImGui::SameLine(getMultiNumericInputWidth());
-    ImGui::Text("Far");
-    valueUpdated = ImGui::DragFloat2(std::string(label).append("NearFar").c_str(), &mClipZ.x, 0.1f, 0.0f, 0.0f, getFloatFormat()) || valueUpdated;
-
-    ImGui::PopItemWidth();
+    ImUtils::multiInputLabel("Near", "Far");
+    valueUpdated |= ImUtils::inputFloatN(&mClipZ[0], 2, std::string(label).append("NF"));
 
     return valueUpdated;
 }

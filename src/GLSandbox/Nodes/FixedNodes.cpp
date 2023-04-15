@@ -2,8 +2,6 @@
 
 #include "RenderPassNode.h"
 
-#include <imgui.h>
-
 EntryNode::EntryNode(IPipelineHandler& pipelineHandler) : Node("Entry"), mPipelineHandler(pipelineHandler) {
     addPort(mExecutionOut);
 }
@@ -17,8 +15,7 @@ void EntryNode::deserializeData(const std::string& dataID, std::ifstream& stream
 }
 
 void EntryNode::drawContents() {
-    const std::string updateButtonLabel = generateNodeLabel("Update");
-    if (ImGui::Button(updateButtonLabel.c_str(), getButtonBounds()) && validatePipeline())
+    if (ImUtils::button("Update", generateNodeLabelID("Update")) && validatePipeline())
         updatePipeline();
     if (!mMessage.empty())
         drawMessage(mMessage, getMessageColour(mMessageType));

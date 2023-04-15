@@ -2,8 +2,6 @@
 
 #include "../Assets.h"
 
-#include <imgui.h>
-
 #include <algorithm>
 #include <filesystem>
 
@@ -70,52 +68,18 @@ void ShaderNode::onDeserialize() {
 }
 
 void ShaderNode::drawContents() {
-    drawShaderChooseButton("Vertex",    mVertFile, findVertexFiles,   getVertexFiles);
-    drawShaderChooseButton("Fragment",  mFragFile, findFragmentFiles, getFragmentFiles);
-    drawShaderChooseButton("Tess-Cont", mTescFile, findTessContFiles, getTessContFiles);
-    drawShaderChooseButton("Tess-Eval", mTeseFile, findTessEvalFiles, getTessEvalFiles);
-    drawShaderChooseButton("Geometry",  mGeomFile, findGeometryFiles, getGeometryFiles);
+    ImUtils::fileChooseDialog(mVertFile, generateNodeLabelID("VertexFile"));
+    ImUtils::fileChooseDialog(mFragFile, generateNodeLabelID("FragmentFile"));
+    ImUtils::fileChooseDialog(mTescFile, generateNodeLabelID("Tess-ContFile"));
+    ImUtils::fileChooseDialog(mTeseFile, generateNodeLabelID("Tess-EvalFile"));
+    ImUtils::fileChooseDialog(mGeomFile, generateNodeLabelID("GeometryFile"));
 
-    const std::string loadShaderButtonLabel = generateNodeLabel("Reload Shader");
-    if (ImGui::Button(loadShaderButtonLabel.c_str(), getButtonBounds())) {
+    if (ImUtils::button("Upload", generateNodeLabelID("Upload"))) {
         uploadShader();
         mShaderOut.valueUpdated();
     }
 
     drawShaderStatus();
-}
-
-void ShaderNode::drawShaderChooseButton(const std::string& shaderType, std::string& value,
-                                        const update_files_callback& updateFiles, const get_files_callback& getFiles) {
-    ImGui::Text("%s: %s", shaderType.c_str(), value.empty() ? "<not-selected>" : value.c_str());
-
-    const std::string choseShaderPopupID = generateNodePopupID("ChooseShader", shaderType);
-    const std::string chooseShaderButtonLabel = generateNodeLabel(std::string("Choose ").append(shaderType));
-    if (ImGui::Button(chooseShaderButtonLabel.c_str(), getButtonBounds())) {
-        ImGui::OpenPopup(choseShaderPopupID.c_str());
-        updateFiles();
-    }
-    drawShaderChoosePopup(choseShaderPopupID, getFiles(), value);
-}
-
-void ShaderNode::drawShaderChoosePopup(const std::string& popupID, const std::vector<std::string>& files, std::string& value) {
-    if (!ImGui::BeginPopup(popupID.c_str()))
-        return;
-
-    if (files.empty()) {
-        ImGui::Text("No files found");
-    } else {
-        for (const std::string& file : files) {
-            const std::string fileSelectButtonLabel = generateNodeLabel(file, "FileSelect");
-            ImGui::SetNextItemWidth(getPopupSelectableWidth());
-            if (!ImGui::Selectable(fileSelectButtonLabel.c_str()))
-                continue;
-            value = file;
-            break;
-        }
-    }
-
-    ImGui::EndPopup();
 }
 
 void ShaderNode::drawShaderStatus() {
@@ -154,13 +118,7 @@ void ShaderNode::uploadShader() {
         mShader = std::make_unique<Shader>();
         return;
     }
-    mShader = std::make_unique<Shader>(
-        gSHADER_ASSET_DIR + mVertFile,
-        gSHADER_ASSET_DIR + mFragFile,
-        mTescFile.empty() ? "" : gSHADER_ASSET_DIR + mTescFile,
-        mTeseFile.empty() ? "" : gSHADER_ASSET_DIR + mTeseFile,
-        mGeomFile.empty() ? "" : gSHADER_ASSET_DIR + mGeomFile
-    );
+    mShader = std::make_unique<Shader>(mVertFile, mFragFile, mTescFile, mTeseFile, mGeomFile);
 }
 
 void ShaderNode::findFiles(std::vector<std::string>& files, const std::vector<std::string>& extensions) {

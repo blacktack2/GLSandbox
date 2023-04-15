@@ -1,7 +1,5 @@
 #include "MathNodes.h"
 
-#include <imgui.h>
-
 std::vector<std::pair<std::string, std::string>> ArithmeticNode::generateSerializedData() const {
     return {};
 }
@@ -11,23 +9,8 @@ void ArithmeticNode::deserializeData(const std::string& dataID, std::ifstream& s
 }
 
 void ArithmeticNode::drawContents() {
-    drawOperationSelector();
-}
-
-void ArithmeticNode::drawOperationSelector() {
-    const std::string operationComboLabel = generateNodeLabel("", "Combo");
-    ImGui::SetNextItemWidth(getComboWidth());
-    if (ImGui::BeginCombo(operationComboLabel.c_str(), getOperationLabels()[(size_t)mCurrentOperation].c_str())) {
-        for (size_t i = 0; i < getOperationLabels().size(); i++) {
-            const bool isSelected = (Operation)i == mCurrentOperation;
-            ImGui::SetNextItemWidth(getComboItemWidth());
-            if (ImGui::Selectable(getOperationLabels()[i].c_str(), isSelected))
-                mCurrentOperation = (Operation)i;
-
-            if (isSelected)
-                ImGui::SetItemDefaultFocus();
-        }
-    }
+    ImUtils::cycleButton(generateNodeLabelID("Combo"), (size_t&)mCurrentOperation, (size_t)Operation::Max,
+                         [](size_t index) { return getOperationLabel((Operation)index); });
 }
 
 std::variant<float, int> ArithmeticNode::calculateValue() {

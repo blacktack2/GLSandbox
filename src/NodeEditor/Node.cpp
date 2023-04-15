@@ -123,6 +123,8 @@ void Node::deserialize(std::ifstream& streamIn, std::streampos end,
 void Node::draw() {
     ed::BeginNode(mID);
 
+    ImUtils::nodeDummy();
+
     if (mIsPositionDirty) {
         ed::SetNodePosition(getID(), mPosition);
         mIsPositionDirty = false;

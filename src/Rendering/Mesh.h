@@ -41,6 +41,8 @@ public:
         TriangleFan,
         Lines,
         Points,
+
+        Max,
     };
 
     Mesh();

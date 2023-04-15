@@ -42,9 +42,6 @@ private:
     typedef std::function<void()> update_files_callback;
     typedef std::function<std::vector<std::string>&()> get_files_callback;
 
-    void drawShaderChooseButton(const std::string& shaderType, std::string& value,
-                                const update_files_callback& updateFiles, const get_files_callback& getFiles);
-    void drawShaderChoosePopup(const std::string& popupID, const std::vector<std::string>& files, std::string& value);
     void drawShaderStatus();
 
     void uploadShader();
