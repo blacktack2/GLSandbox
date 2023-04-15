@@ -14,6 +14,7 @@ This project makes use of the following dependencies
 - [ImNodes](https://github.com/Nelarius/imnodes)
 - [GLM](https://github.com/g-truc/glm)
 - [OpenGL](https://www.khronos.org/opengl/)
+- [nativefiledialog](https://github.com/mlabbe/nativefiledialog)
 
 The SDL2 library must be built separately from this project as follows:
 
