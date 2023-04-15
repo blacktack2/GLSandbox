@@ -4,11 +4,13 @@
 #include "../Utils/SerializationUtils.h"
 
 #include <imgui.h>
-#include <imnodes.h>
+#include <imgui_node_editor.h>
 
 #include <utility>
 
-int gNodeIDCounter = 1;
+namespace ed = ax::NodeEditor;
+
+int gGraphIDCounter = 1;
 
 static constexpr char gSERIAL_MARK_PREFIX = '%';
 static constexpr char gSERIAL_MARK_DATA[] = "Data";
@@ -29,7 +31,7 @@ void writeDataPoints(std::ofstream& streamOut, char prefix,
         SerializationUtils::writeDataPoint(streamOut, prefix, dataPair.first, dataPair.second);
 }
 
-Node::Node(std::string title) : mTitle(std::move(title)), mID{gNodeIDCounter++} {
+Node::Node(std::string title) : mTitle(std::move(title)), mID{gGraphIDCounter++} {
     setAbsolutePosition(glm::vec2(0.0f, 0.0f));
 }
 
@@ -118,18 +120,31 @@ void Node::deserialize(std::ifstream& streamIn, std::streampos end,
 }
 
 void Node::draw() {
-    ImNodes::BeginNode(mID);
+    ed::BeginNode(mID);
 
-    ImNodes::BeginNodeTitleBar();
+    if (mIsPositionDirty) {
+        ed::SetNodePosition(getID(), ImVec2(mPosition.x, mPosition.y));
+        mIsPositionDirty = false;
+    }
+
+//    ImNodes::BeginNodeTitleBar();
     ImGui::Text("%s", mTitle.c_str());
-    ImNodes::EndNodeTitleBar();
+//    ImNodes::EndNodeTitleBar();
 
-    for (auto& port : mPorts)
-        port.get().drawPort();
+    for (size_t i = 0; i < std::max(mInPorts.size(), mOutPorts.size()); i++) {
+        bool drawIn = mInPorts.size() > i;
+        bool drawOut = mOutPorts.size() > i;
+        if (drawIn)
+            mInPorts[i].get().drawPort();
+        if (drawIn && drawOut)
+            ImGui::SameLine();
+        if (drawOut)
+            mOutPorts[i].get().drawPort();
+    }
 
     drawContents();
 
-    ImNodes::EndNode();
+    ed::EndNode();
 }
 
 void Node::drawLinks() {
@@ -139,7 +154,7 @@ void Node::drawLinks() {
 
 void Node::setAbsolutePosition(const glm::vec2& pos) {
     mPosition = pos;
-    ImNodes::SetNodeGridSpacePos(getID(), ImVec2(pos.x, pos.y));
+    mIsPositionDirty = true;
 }
 
 glm::vec2 Node::getAbsolutePosition() const {
@@ -147,7 +162,7 @@ glm::vec2 Node::getAbsolutePosition() const {
 }
 
 glm::vec2 Node::getSize() const {
-    ImVec2 size = ImNodes::GetNodeDimensions(getID());
+    ImVec2 size = ed::GetNodeSize(getID());
     return glm::vec2(size.x, size.y);
 }
 

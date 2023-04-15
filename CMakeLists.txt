@@ -52,4 +52,4 @@ else()
     endif()
 endif()
 
-add_compile_definitions(IMGUI_DEFINE_MATH_OPERATORS)
+target_compile_definitions(imgui PUBLIC IMGUI_DEFINE_MATH_OPERATORS)

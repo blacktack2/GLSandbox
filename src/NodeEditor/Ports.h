@@ -1,7 +1,7 @@
 #pragma once
 #include "Node.h"
 
-#include <imnodes.h>
+#include <imgui_node_editor.h>
 
 #include <algorithm>
 #include <functional>
@@ -9,6 +9,8 @@
 #include <set>
 #include <typeindex>
 #include <variant>
+
+namespace ed = ax::NodeEditor;
 
 class IPort {
 public:
@@ -121,9 +123,6 @@ public:
     [[nodiscard]] virtual std::set<std::type_index> getParameterTypes() const = 0;
 };
 
-extern int gPortIDCounter;
-extern int gLinkIDCounter;
-
 template<typename... Types>
 class Port final : public IPort {
 public:
@@ -140,7 +139,7 @@ public:
      */
     Port(Node& parent, Direction direction, std::string uniqueName, std::string displayName,
          const value_get_callback& getValue = nullptr, bool useDefault = false, bool isDynamic = false) :
-        mID(gPortIDCounter++), mParent(parent),
+        mID(gGraphIDCounter++), mParent(parent),
         mDirection(direction), mUniqueName(std::move(uniqueName)), mDisplayName(std::move(displayName)),
         mGetValue(getValue), mUseDefault(useDefault), mIsDynamic(isDynamic) {
 
@@ -175,14 +174,13 @@ public:
     }
 
     bool link(IPort& linkTo) final {
-
         if (linkTo.getDirection() == getDirection() || !isTypeMatch(linkTo) ||
             !(validateLink(linkTo) && linkTo.validateLink(*this)))
             return false;
 
         if (mLink)
             unlink();
-        int linkID = gLinkIDCounter++;
+        int linkID = gGraphIDCounter++;
         halfLink(linkTo, linkID);
         linkTo.halfLink(*this, linkID);
         return true;
@@ -257,7 +255,7 @@ public:
     }
     void drawLink() final {
         if (mDirection == Direction::In && mLink)
-            ImNodes::Link(mLinkID, mLink->getID(), getID());
+            ed::Link(mLinkID, mLink->getID(), getID());
     }
 
     [[nodiscard]] std::set<std::type_index> getParameterTypes() const final {
@@ -299,18 +297,19 @@ private:
     }
 
     void drawIn() {
-        ImNodes::BeginInputAttribute(mID);
+        ed::BeginPin(mID, ed::PinKind::Input);
 
         ImGui::Text("-> %s", mDisplayName.c_str());
 
-        ImNodes::EndInputAttribute();
+        ed::EndPin();
     }
     void drawOut() {
-        ImNodes::BeginOutputAttribute(mID);
+        ImGui::SameLine(mParent.getSize().x - ImGui::CalcTextSize((mDisplayName + " ->").c_str()).x - ed::GetStyle().NodePadding.x - ed::GetStyle().NodePadding.z);
+        ed::BeginPin(mID, ed::PinKind::Output);
 
         ImGui::Text("%s ->", mDisplayName.c_str());
 
-        ImNodes::EndOutputAttribute();
+        ed::EndPin();
     }
 
     value_get_callback mGetValue;

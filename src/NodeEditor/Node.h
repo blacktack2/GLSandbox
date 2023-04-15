@@ -14,7 +14,7 @@
 #include <unordered_map>
 #include <vector>
 
-extern int gNodeIDCounter;
+extern int gGraphIDCounter;
 
 class IPort;
 
@@ -158,4 +158,5 @@ private:
     std::vector<std::reference_wrapper<IPort>> mOutPorts;
 
     glm::vec2 mPosition = glm::vec2(0.0f, 0.0f);
+    bool mIsPositionDirty = false;
 };

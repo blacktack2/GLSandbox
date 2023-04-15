@@ -3,7 +3,7 @@
 #include "Ports.h"
 #include "../Utils/SerializationUtils.h"
 
-#include <imnodes.h>
+#include <imgui_node_editor.h>
 
 static constexpr char gSERIAL_MARK_NODE[] = "Node";
 
@@ -27,12 +27,11 @@ void deserializeLinks(Node::port_data_t& portData, Node::link_data_t& linkData) 
 }
 
 Graph::Graph() {
-    mContext = ImNodes::CreateContext();
-    ImNodes::PushAttributeFlag(ImNodesAttributeFlags_EnableLinkDetachWithDragClick);
+    mContext = ed::CreateEditor();
 }
 
 Graph::~Graph() {
-    ImNodes::DestroyContext(mContext);
+    ed::DestroyEditor(mContext);
 }
 
 void Graph::serialize(std::ofstream& streamOut) const {
@@ -85,7 +84,7 @@ void Graph::deserialize(std::ifstream& streamIn) {
 }
 
 void Graph::preDraw() {
-    checkPanning();
+
 }
 
 void Graph::draw() {
@@ -95,42 +94,31 @@ void Graph::draw() {
 }
 
 void Graph::postDraw() {
-    checkLinkCreated();
-    checkLinkDestroyed();
-    checkLinksDeleted();
-    checkNodesDeleted();
-}
 
-void Graph::checkPanning() {
-    if (mIsPanning && (ImGui::GetIO().MouseReleased[1] || !ImGui::GetIO().MouseDown[1])) {
-        mIsPanning = false;
-        return;
-    }
-
-    if (mIsPanning) {
-        ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
-        ImNodes::EditorContextResetPanning(ImVec2(mPanOriginX + delta.x, mPanOriginY + delta.y));
-    } else {
-        if (!ImGui::GetIO().MouseClicked[1])
-            return;
-        mIsPanning = true;
-        ImVec2 current = ImNodes::EditorContextGetPanning();
-        mPanOriginX = current.x;
-        mPanOriginY = current.y;
-    }
 }
 
 void Graph::drawEditor() {
     ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoCollapse);
-    ImNodes::BeginNodeEditor();
+    ed::SetCurrentEditor(mContext);
+    ed::Begin("Graph");
 
     for (auto& node : mNodes)
         node->draw();
     for (auto& node : mNodes)
         node->drawLinks();
 
-    ImNodes::MiniMap();
-    ImNodes::EndNodeEditor();
+    if (ed::BeginCreate()) {
+        checkLinkCreated();
+    }
+    ed::EndCreate();
+    if (ed::BeginDelete()) {
+        checkLinksDeleted();
+        checkNodesDeleted();
+    }
+    ed::EndDelete();
+
+    ed::End();
+    ed::SetCurrentEditor(nullptr);
     ImGui::End();
 }
 
@@ -144,15 +132,15 @@ void Graph::drawConfig() {
 }
 
 void Graph::checkLinkCreated() {
-    int outputID, inputID;
-    if (!ImNodes::IsLinkCreated(&outputID, &inputID))
+    ed::PinId outputID, inputID;
+    if (!ed::QueryNewLink(&inputID, &outputID))
         return;
 
     IPort* output = nullptr;
     IPort*  input  = nullptr;
     for (auto& node : mNodes) {
-        IPort* in = node->getPort(inputID);
-        IPort* out = node->getPort(outputID);
+        IPort* in = node->getPort(inputID.Get());
+        IPort* out = node->getPort(outputID.Get());
         if (!output && out && out->getDirection() == IPort::Direction::Out)
             output = out;
         if (!input && in && in->getDirection() == IPort::Direction::In)
@@ -163,15 +151,15 @@ void Graph::checkLinkCreated() {
         input->link(*output);
 }
 
-void Graph::checkLinkDestroyed() {
-    int linkID;
-    if (!ImNodes::IsLinkDestroyed(&linkID))
+void Graph::checkLinksDeleted() {
+    ed::LinkId linkID;
+    if (!ed::QueryDeletedLink(&linkID) || !ed::AcceptDeletedItem())
         return;
 
     for (auto& node : mNodes) {
         for (size_t i = 0; i < node->numPorts(); i++) {
             IPort& port = node->getPortByIndex(i);
-            if (port.getLinkID() == linkID) {
+            if (port.getLinkID() == linkID.Get()) {
                 port.unlink();
                 return;
             }
@@ -179,35 +167,18 @@ void Graph::checkLinkDestroyed() {
     }
 }
 
-void Graph::checkLinksDeleted() {
-    const int numSelected = ImNodes::NumSelectedLinks();
-    if (numSelected == 0 || !ImGui::IsKeyReleased(ImGuiKey_Delete))
-        return;
-
-    std::vector<int> selectedLinks(numSelected);
-    ImNodes::GetSelectedLinks(selectedLinks.data());
-    for (auto& node : mNodes) {
-        for (size_t i = 0; i < node->numPorts(); i++) {
-            IPort& port = node->getPortByIndex(i);
-            if (std::find(selectedLinks.begin(), selectedLinks.end(), port.getLinkID()) != selectedLinks.end())
-                port.unlink();
-        }
-    }
-}
-
 void Graph::checkNodesDeleted() {
-    const int numSelected = ImNodes::NumSelectedNodes();
-    if (numSelected == 0 || !ImGui::IsKeyReleased(ImGuiKey_Delete))
+    ed::NodeId nodeId;
+    if (!ed::QueryDeletedNode(&nodeId))
         return;
 
-    std::vector<int> selectedNodes(numSelected);
-    ImNodes::GetSelectedNodes(selectedNodes.data());
     mNodes.erase(
         std::remove_if(
             mNodes.begin(), mNodes.end(),
-            [&selectedNodes](const auto& node) {
-                return std::find(selectedNodes.begin(), selectedNodes.end(), node->getID()) != selectedNodes.end();
-            }),
+            [nodeId](const auto& node) {
+                return node->getID() == nodeId.Get();
+            }
+        ),
         mNodes.end()
     );
 }

@@ -4,7 +4,11 @@
 #include <memory>
 #include <vector>
 
-struct ImNodesContext;
+namespace ed = ax::NodeEditor;
+
+namespace ax::NodeEditor {
+    struct EditorContext;
+}
 
 class Graph {
 public:
@@ -37,23 +41,17 @@ protected:
             mNodes.push_back(std::move(node));
     }
 private:
-    void checkPanning();
-
     void drawEditor();
     void drawConfig();
 
     void checkLinkCreated();
-    void checkLinkDestroyed();
     void checkLinksDeleted();
     void checkNodesDeleted();
 
-    ImNodesContext* mContext;
+    ed::EditorContext* mContext;
 
     std::vector<std::unique_ptr<Node>> mNodes{};
 
     bool mConfigPanelOpen = true;
-
-    bool mIsPanning = false;
-    float mPanOriginX = 0, mPanOriginY = 0;
 };
 
