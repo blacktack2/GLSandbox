@@ -133,7 +133,7 @@ void Graph::drawConfig() {
 
 void Graph::checkLinkCreated() {
     ed::PinId outputID, inputID;
-    if (!ed::QueryNewLink(&inputID, &outputID))
+    if (!ed::QueryNewLink(&outputID, &inputID) || !ed::AcceptNewItem())
         return;
 
     IPort* output = nullptr;
