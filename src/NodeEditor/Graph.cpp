@@ -132,23 +132,23 @@ void Graph::drawConfig() {
 }
 
 void Graph::checkLinkCreated() {
-    ed::PinId outputID, inputID;
-    if (!ed::QueryNewLink(&outputID, &inputID) || !ed::AcceptNewItem())
+    ed::PinId portAID, portBID;
+    if (!ed::QueryNewLink(&portAID, &portBID) || !ed::AcceptNewItem())
         return;
 
-    IPort* output = nullptr;
-    IPort*  input  = nullptr;
+    IPort* portA = nullptr;
+    IPort* portB  = nullptr;
     for (auto& node : mNodes) {
-        IPort* in = node->getPort(inputID.Get());
-        IPort* out = node->getPort(outputID.Get());
-        if (!output && out && out->getDirection() == IPort::Direction::Out)
-            output = out;
-        if (!input && in && in->getDirection() == IPort::Direction::In)
-            input = in;
+        IPort* in = node->getPort(portAID.Get());
+        IPort* out = node->getPort(portBID.Get());
+        if (!portA && out)
+            portA = out;
+        if (!portB && in)
+            portB = in;
     }
 
-    if (output && input)
-        input->link(*output);
+    if (portA && portB)
+        portB->link(*portA);
 }
 
 void Graph::checkLinksDeleted() {
