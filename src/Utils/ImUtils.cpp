@@ -87,10 +87,10 @@ bool ImUtils::inputIntN(int* value, unsigned int numComponents, const std::strin
     ImGui::SetNextItemWidth(gMULTI_NUMERIC_INPUT_WIDTH * (float)numComponents);
     switch (numComponents) {
         default:
-        case 1: return ImGui::DragInt(formatLabel(labelID).c_str(), value, 0.1f, min, max, gFLOAT_FORMAT);
-        case 2: return ImGui::DragInt2(formatLabel(labelID).c_str(), value, 0.1f, min, max, gFLOAT_FORMAT);
-        case 3: return ImGui::DragInt3(formatLabel(labelID).c_str(), value, 0.1f, min, max, gFLOAT_FORMAT);
-        case 4: return ImGui::DragInt4(formatLabel(labelID).c_str(), value, 0.1f, min, max, gFLOAT_FORMAT);
+        case 1: return ImGui::DragInt(formatLabel(labelID).c_str(), value, 1, min, max, gINT_FORMAT);
+        case 2: return ImGui::DragInt2(formatLabel(labelID).c_str(), value, 1, min, max, gINT_FORMAT);
+        case 3: return ImGui::DragInt3(formatLabel(labelID).c_str(), value, 1, min, max, gINT_FORMAT);
+        case 4: return ImGui::DragInt4(formatLabel(labelID).c_str(), value, 1, min, max, gINT_FORMAT);
     }
 }
 
