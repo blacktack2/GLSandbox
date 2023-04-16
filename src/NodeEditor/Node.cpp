@@ -140,10 +140,13 @@ void Node::draw() {
         bool drawOut = mOutPorts.size() > i;
         if (drawIn)
             mInPorts[i].get().drawPort();
-        if (drawIn && drawOut)
-            ImGui::SameLine();
+        else
+            ImGui::Dummy(ImVec2(0.0f, 0.0f));
+        
         if (drawOut)
             mOutPorts[i].get().drawPort();
+        else
+            ImGui::Dummy(ImVec2(0.0f, 0.0f));
     }
 
     drawContents();
