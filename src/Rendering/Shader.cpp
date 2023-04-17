@@ -1,5 +1,7 @@
 #include "Shader.h"
 
+#include <glad/glad.h>
+
 #include <fstream>
 #include <regex>
 #include <sstream>
@@ -98,6 +100,18 @@ void Shader::setUniform(const std::string& name, glm::mat4 value) {
 }
 #pragma clang diagnostic pop
 
+int Shader::getUniformLocation(const std::string& name) const {
+    return glGetUniformLocation(mProgramID, name.c_str());
+}
+
+void Shader::bind() const {
+    glUseProgram(mProgramID);
+}
+
+void Shader::unbind() {
+    glUseProgram(0);
+}
+
 std::vector<Shader::UniformSet> Shader::getUniforms() {
     std::vector<UniformSet> uniforms;
 
@@ -153,7 +167,7 @@ bool Shader::readShader(const std::string& filename, std::string& code) {
     return true;
 }
 
-bool Shader::compileShader(const std::string& code, GLenum type) {
+bool Shader::compileShader(const std::string& code, unsigned int type) {
     GLuint shader = glCreateShader(type);
 
     const GLchar* data = code.c_str();

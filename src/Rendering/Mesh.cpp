@@ -1,5 +1,7 @@
 #include "Mesh.h"
 
+#include <glad/glad.h>
+
 Mesh::Mesh() {
     glGenVertexArrays(1, &mArrayObject);
     hardClean();
@@ -28,6 +30,28 @@ void Mesh::hardClean() {
 
     mIndices.clear();
     mAttributes.clear();
+}
+
+void Mesh::draw() const {
+    if (mIndices.empty())
+        glDrawArrays(mType, 0, mNumVertices);
+    else
+        glDrawElements(mType, mIndices.size(), GL_UNSIGNED_INT, nullptr);
+}
+
+void Mesh::draw(int instanceCount) const {
+    if (mIndices.empty())
+        glDrawArraysInstanced(mType, 0, mNumVertices, instanceCount);
+    else
+        glDrawElementsInstanced(mType, mIndices.size(), GL_UNSIGNED_INT, nullptr, instanceCount);
+}
+
+void Mesh::bind() const {
+    glBindVertexArray(mArrayObject);
+}
+
+void Mesh::unbind() {
+    glBindVertexArray(0);
 }
 
 void Mesh::addAttribute(const void* data, GLint attribSize, size_t dataSize, const std::string& debugName) {

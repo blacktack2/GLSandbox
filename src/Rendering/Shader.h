@@ -2,8 +2,6 @@
 #include "../Utils/VariantUtils.h"
 #include "../Utils/GLMUtils.h"
 
-#include <glad/glad.h>
-
 #include <glm/glm.hpp>
 
 #include <any>
@@ -58,17 +56,11 @@ public:
     void setUniform(const std::string& name, glm::mat3 value);
     void setUniform(const std::string& name, glm::mat4 value);
 
-    [[nodiscard]] inline int getUniformLocation(const std::string& name) const {
-        return glGetUniformLocation(mProgramID, name.c_str());
-    }
+    [[nodiscard]] int getUniformLocation(const std::string& name) const;
 
-    inline void bind() const {
-        glUseProgram(mProgramID);
-    }
+    void bind() const;
 
-    static inline void unbind() {
-        glUseProgram(0);
-    }
+    static void unbind();
 
     [[nodiscard]] inline ErrorState getState() const {
         return mState;
@@ -85,14 +77,14 @@ public:
     std::vector<UniformSet> getUniforms();
 private:
     struct ShaderPass {
-        ShaderPass(std::string filename, GLenum type) : filename(std::move(filename)), type(type) {}
+        ShaderPass(std::string filename, unsigned int type) : filename(std::move(filename)), type(type) {}
         std::string filename;
-        GLenum type;
+        unsigned int type;
         std::string code;
     };
     bool loadShaders();
     bool readShader(const std::string& filename, std::string& code);
-    bool compileShader(const std::string& code, GLenum type);
+    bool compileShader(const std::string& code, unsigned int type);
     bool linkProgram();
 
     /**
@@ -110,7 +102,7 @@ private:
 
     std::vector<ShaderPass> mShaderPasses;
 
-    GLuint mProgramID = 0;
+    unsigned int mProgramID = 0;
 
     ErrorState mState = ErrorState::INVALID;
     std::string mMessage = "Not Initialized";

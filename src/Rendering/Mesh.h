@@ -1,6 +1,4 @@
 #pragma once
-#include <glad/glad.h>
-
 #include <glm/glm.hpp>
 
 #include <fstream>
@@ -52,35 +50,21 @@ public:
     void hardClean();
 
     void setType(Type type);
-    inline void setNumVertices(GLuint numVertices) {
+    inline void setNumVertices(unsigned int numVertices) {
         mNumVertices = numVertices;
     }
 
-    inline void setIndices(const std::vector<GLuint>& indices) {
+    inline void setIndices(const std::vector<unsigned int>& indices) {
         mIndices = indices;
     }
 
-    inline void draw() const {
-        if (mIndices.empty())
-            glDrawArrays(mType, 0, mNumVertices);
-        else
-            glDrawElements(mType, mIndices.size(), GL_UNSIGNED_INT, nullptr);
-    }
+    void draw() const;
 
-    inline void draw(GLsizei instanceCount) const {
-        if (mIndices.empty())
-            glDrawArraysInstanced(mType, 0, mNumVertices, instanceCount);
-        else
-        glDrawElementsInstanced(mType, mIndices.size(), GL_UNSIGNED_INT, nullptr, instanceCount);
-    }
+    void draw(int instanceCount) const;
 
-    inline void bind() const {
-        glBindVertexArray(mArrayObject);
-    }
+    void bind() const;
 
-    static inline void unbind() {
-        glBindVertexArray(0);
-    }
+    static void unbind();
 
     /**
      *
@@ -89,7 +73,7 @@ public:
      * @param dataSize Size of the data type (e.g. vec3 is sizeof(vec3)).
      * @param debugName Label for printing debug information about this attribute.
      */
-    void addAttribute(const void* data, GLint attribSize, size_t dataSize, const std::string& debugName);
+    void addAttribute(const void* data, int attribSize, size_t dataSize, const std::string& debugName);
     void bufferData();
 
     static void makeScreenQuad(Mesh& mesh);
@@ -103,11 +87,11 @@ public:
     }
 private:
     struct VertexAttribute {
-        GLuint vbo = 0;
+        unsigned int vbo = 0;
 
-        GLuint index{};
+        unsigned int index{};
         const void* data{};
-        GLint attribSize{};
+        int attribSize{};
         size_t dataSize{};
         std::string debugName;
     };
@@ -116,14 +100,14 @@ private:
 
     void uploadIndices();
 
-    GLuint mArrayObject = 0;
+    unsigned int mArrayObject = 0;
 
-    GLuint mType = 0;
-    GLuint mNumVertices = 0;
+    unsigned int mType = 0;
+    unsigned int mNumVertices = 0;
 
-    GLuint mIndexVBO = 0;
+    unsigned int mIndexVBO = 0;
 
-    std::vector<GLuint> mIndices;
+    std::vector<unsigned int> mIndices;
     std::vector<VertexAttribute> mAttributes{};
 
     ErrorState mErrorState = ErrorState::INVALID;

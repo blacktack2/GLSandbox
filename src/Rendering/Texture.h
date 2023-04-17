@@ -1,6 +1,4 @@
 #pragma once
-#include <glad/glad.h>
-
 #include <glm/glm.hpp>
 
 typedef unsigned long long tex_format_t;
