@@ -18,6 +18,8 @@ static constexpr float gMULTI_NUMERIC_INPUT_WIDTH = gNODE_WIDTH * 0.25f;
 static constexpr ImVec2 gCYCLE_BUTTON_NOTCH_BOUNDS = ImVec2(30.0f, 0.0f);
 static constexpr float gCYCLE_BUTTON_WIDTH = gBUTTON_BOUNDS.x - gCYCLE_BUTTON_NOTCH_BOUNDS.x * 2.0f;
 
+static constexpr ImVec2 gRANGE_BUTTON_NOTCH_BOUNDS = ImVec2(30.0f, 0.0f);
+
 static constexpr float gFILE_TEXT_WIDTH = gNODE_WIDTH * 0.5f;
 static constexpr ImVec2 gFILE_BUTTON_BOUNDS = ImVec2(gNODE_WIDTH * 0.25f, 0.0f);
 
@@ -145,7 +147,7 @@ bool ImUtils::cycleButton(const std::string& labelID, size_t& index,
                           const std::vector<std::string>& contents) {
     bool valueChanged = false;
     size_t newIndex = index;
-    if (ImGui::Button("<", gCYCLE_BUTTON_NOTCH_BOUNDS)) {
+    if (ImGui::Button(formatLabel("<", labelID).c_str(), gCYCLE_BUTTON_NOTCH_BOUNDS)) {
         newIndex = (index == 0) ? contents.size() - 1 : index - 1;
         valueChanged = true;
     }
@@ -153,8 +155,8 @@ bool ImUtils::cycleButton(const std::string& labelID, size_t& index,
     ImGui::SetNextItemWidth(gCYCLE_BUTTON_WIDTH);
     ImGui::Text("%s", contents[index].c_str());
 
-    if (ImGui::Button(">", gCYCLE_BUTTON_NOTCH_BOUNDS)) {
-        newIndex = (index == contents.size() - 1) ? 0 : index + 1;
+    if (ImGui::Button(formatLabel(">", labelID).c_str(), gCYCLE_BUTTON_NOTCH_BOUNDS)) {
+        newIndex = (index >= contents.size() - 1) ? 0 : index + 1;
         valueChanged = true;
     }
     index = newIndex;
@@ -165,8 +167,8 @@ bool ImUtils::cycleButton(const std::string& labelID, size_t& index,
                           size_t max, const std::function<std::string(size_t)>& contents) {
     bool valueChanged = false;
     size_t newIndex = index;
-    if (ImGui::Button("<", gCYCLE_BUTTON_NOTCH_BOUNDS)) {
-        newIndex = (index == 0) ? max : index - 1;
+    if (ImGui::Button(formatLabel("<", labelID + "Left").c_str(), gCYCLE_BUTTON_NOTCH_BOUNDS)) {
+        newIndex = (index == 0) ? max - 1 : index - 1;
         valueChanged = true;
     }
 
@@ -177,12 +179,39 @@ bool ImUtils::cycleButton(const std::string& labelID, size_t& index,
 
     ImGui::SameLine();
 
-    if (ImGui::Button(">", gCYCLE_BUTTON_NOTCH_BOUNDS)) {
-        newIndex = (index == max) ? 0 : index + 1;
+    if (ImGui::Button(formatLabel(">", labelID + "Right").c_str(), gCYCLE_BUTTON_NOTCH_BOUNDS)) {
+        newIndex = (index >= max - 1) ? 0 : index + 1;
         valueChanged = true;
     }
     index = newIndex;
     return valueChanged;
+}
+
+bool ImUtils::rangeButton(const std::string& labelID, size_t& numSelected, size_t max) {
+    bool valueChanged = false;
+    size_t changedIndex = 0;
+
+    if (ImGui::Button(formatLabel(0 < numSelected ? "X" : "O", labelID).c_str(), gRANGE_BUTTON_NOTCH_BOUNDS))
+        valueChanged = true;
+    for (size_t i = 1; i < max; i++) {
+        ImGui::SameLine();
+        if (ImGui::Button(formatLabel(i < numSelected ? "X" : "O", labelID + std::to_string(i)).c_str(), gRANGE_BUTTON_NOTCH_BOUNDS)) {
+            valueChanged = true;
+            changedIndex = i;
+        }
+    }
+
+    if (valueChanged)
+        numSelected = numSelected == (changedIndex + 1) ? changedIndex : changedIndex + 1;
+    return valueChanged;
+}
+
+void ImUtils::rangeButtonLabel(const std::vector<std::string>& labels) {
+    ImGui::Text("%s", labels[0].c_str());
+    for (size_t i = 1; i < labels.size(); i++) {
+        ImGui::SameLine((float)(i + 1) * gRANGE_BUTTON_NOTCH_BOUNDS.x);
+        ImGui::Text("%s", labels[i].c_str());
+    }
 }
 
 bool ImUtils::fileChooseDialog(std::string& filename, const std::string& labelID) {

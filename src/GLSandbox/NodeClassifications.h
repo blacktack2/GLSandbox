@@ -22,8 +22,9 @@ enum class NodeType {
     Mat3 = 331,
     Mat4 = 332,
 
-    Mesh   = 400,
-    Shader = 401,
+    Mesh    = 400,
+    Shader  = 401,
+    Texture = 402,
 
     UV = 1000,
 
@@ -69,7 +70,7 @@ static NodeGroup getNodeGroup(NodeType type) {
         case NodeType::ModelMatrix: case NodeType::ViewMatrix: case NodeType::ProjMatrix:
             return NodeGroup::Data;
 
-        case NodeType::Mesh: case NodeType::Shader:
+        case NodeType::Mesh: case NodeType::Shader: case NodeType::Texture:
             return NodeGroup::Graphics;
 
         default:

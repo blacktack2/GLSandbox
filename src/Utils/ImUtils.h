@@ -59,6 +59,9 @@ namespace ImUtils {
     bool cycleButton(const std::string& labelID, size_t& index,
                             size_t max, const std::function<std::string(size_t)>& contents);
 
+    bool rangeButton(const std::string& labelID, size_t& numSelected, size_t max);
+    void rangeButtonLabel(const std::vector<std::string>& labels);
+
     bool fileChooseDialog(std::string& filename, const std::string& labelID = "");
 };
 
