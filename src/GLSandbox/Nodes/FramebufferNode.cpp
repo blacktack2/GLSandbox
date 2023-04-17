@@ -54,10 +54,19 @@ FramebufferNode::FramebufferNode() : Node("Framebuffer") {
 
 bool FramebufferNode::isValid() const {
     bool isValid = true;
-    isValid &= !mEnableDepthBuffer || mDepthTexIn->isLinked();
-    isValid &= !mEnableDepthStencilBuffer || mDepthStencilTexIn->isLinked();
+
+    isValid &= !mEnableDepthBuffer || (mDepthTexIn->isLinked() &&
+        std::visit([](const auto& arg) {
+            return arg->getInternalFormat() == Texture::InternalFormat::DepthComponent;
+        }, mDepthTexIn->getConnectedValue()));
+    isValid &= !mEnableDepthStencilBuffer || (mDepthStencilTexIn->isLinked() &&
+        std::visit([](const auto& arg) {
+            return arg->getInternalFormat() == Texture::InternalFormat::DepthStencil;
+        }, mDepthStencilTexIn->getConnectedValue()));
+
     for (const auto& texPort : mTextureInPorts)
         isValid &= texPort->isLinked();
+
     return isValid;
 }
 
@@ -115,19 +124,8 @@ void FramebufferNode::updateTexturePorts() {
 
     if (originalSize < mNumColourBuffers) {
         mTextureInPorts.resize(mNumColourBuffers);
-        for (unsigned int i = originalSize; i < mNumColourBuffers; i++) {
-            std::string name = std::string("Tex").append(std::to_string(i));
-            mTextureInPorts[i] = std::make_unique<Port<Texture*>>(*this, IPort::Direction::In, name, name);
-            addPort(*mTextureInPorts[i]);
-            mTextureInPorts[i]->addValidateLinkEvent([](IPort& linkTo) {
-                Port<Texture*>* port = dynamic_cast<Port<Texture*>*>(&linkTo);
-                return port && std::visit([](auto* arg) {
-                    return arg->getInternalFormat() != Texture::InternalFormat::DepthComponent &&
-                           arg->getInternalFormat() != Texture::InternalFormat::DepthStencil;
-                }, port->getValue());
-            });
-            mTextureInPorts[i]->addOnUpdateEvent([this]() { updateFramebuffer(); });
-        }
+        for (unsigned int i = originalSize; i < mNumColourBuffers; i++)
+            mTextureInPorts[i] = generateTexPort(std::string("Tex").append(std::to_string(i)));
     } else if (originalSize > mNumColourBuffers) {
         for (unsigned int i = mNumColourBuffers; i < originalSize; i++)
             removePort(*mTextureInPorts[i]);
@@ -135,30 +133,14 @@ void FramebufferNode::updateTexturePorts() {
     }
 
     if (mEnableDepthBuffer && !mDepthTexIn) {
-        mDepthTexIn = std::make_unique<Port<Texture*>>(*this, IPort::Direction::In, "D-Tex", "DepthTex");
-        addPort(*mDepthTexIn);
-        mDepthTexIn->addValidateLinkEvent([](IPort& linkTo) {
-            Port<Texture*>* port = dynamic_cast<Port<Texture*>*>(&linkTo);
-            return port && std::visit([](auto* arg) {
-                return arg->getInternalFormat() == Texture::InternalFormat::DepthComponent;
-            }, port->getValue());
-        });
-        mDepthTexIn->addOnUpdateEvent([this]() { updateFramebuffer(); });
+        mDepthTexIn = generateTexPort("D-Tex");
     } else if (!mEnableDepthBuffer && mDepthTexIn) {
         removePort(*mDepthTexIn);
         mDepthTexIn = nullptr;
     }
 
     if (mEnableDepthStencilBuffer && !mDepthStencilTexIn) {
-        mDepthStencilTexIn = std::make_unique<Port<Texture*>>(*this, IPort::Direction::In, "DS-Tex", "DepthStencilTex");
-        addPort(*mDepthStencilTexIn);
-        mDepthStencilTexIn->addValidateLinkEvent([](IPort& linkTo) {
-            Port<Texture*>* port = dynamic_cast<Port<Texture*>*>(&linkTo);
-            return port && std::visit([](auto* arg) {
-                return arg->getInternalFormat() == Texture::InternalFormat::DepthStencil;
-            }, port->getValue());
-        });
-        mDepthStencilTexIn->addOnUpdateEvent([this]() { updateFramebuffer(); });
+        mDepthStencilTexIn = generateTexPort("DS-Tex");
     } else if (!mEnableDepthStencilBuffer && mDepthStencilTexIn) {
         removePort(*mDepthStencilTexIn);
         mDepthStencilTexIn = nullptr;
@@ -187,4 +169,11 @@ void FramebufferNode::updateFramebuffer() {
     mFramebuffer->drawBuffers();
 
     mFramebuffer->unbind();
+}
+
+std::unique_ptr<Port<Texture*>> FramebufferNode::generateTexPort(const std::string& name) {
+    std::unique_ptr<Port<Texture*>> texPort = std::make_unique<Port<Texture*>>(*this, IPort::Direction::In, name, name);
+    addPort(*texPort);
+    texPort->addOnUpdateEvent([this]() { updateFramebuffer(); });
+    return texPort;
 }

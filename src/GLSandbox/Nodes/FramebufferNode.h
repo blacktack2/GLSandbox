@@ -32,6 +32,8 @@ private:
     void updateTexturePorts();
     void updateFramebuffer();
 
+    std::unique_ptr<Port<Texture*>> generateTexPort(const std::string& name);
+
     std::unique_ptr<Framebuffer> mFramebuffer = std::make_unique<Framebuffer>();
     Port<Framebuffer*> mFramebufferOut = Port<Framebuffer*>(*this, IPort::Direction::Out, "FramebufferOut", "Framebuffer", [&]() { return mFramebuffer.get(); });
 
