@@ -179,7 +179,7 @@ private:
     Mesh::Type mType = Mesh::Type::Triangles;
 
     std::vector<Attribute> mAttributes;
-    std::vector<GLuint> mIndices{};
+    std::vector<unsigned int> mIndices{};
 
     std::string mFilename;
     bool mCanWriteToFile = true;

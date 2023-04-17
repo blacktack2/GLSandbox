@@ -206,6 +206,13 @@ public:
     inline void setInternalFormat(InternalFormat format) {
         mInternalFormat = format;
     }
+    [[nodiscard]] inline InternalFormat getInternalFormat() const {
+        return mInternalFormat;
+    }
+
+    [[nodiscard]] inline unsigned int getID() const {
+        return mTexID;
+    }
 
     inline ErrorState getState() {
         return mState;

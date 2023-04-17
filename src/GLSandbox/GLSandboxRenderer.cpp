@@ -1,5 +1,7 @@
 #include "GLSandboxRenderer.h"
 
+#include <glad/glad.h>
+
 #include <imgui.h>
 
 #include <chrono>

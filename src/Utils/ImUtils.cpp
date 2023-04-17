@@ -34,7 +34,7 @@ std::string formatLabel(const std::string& id) {
 }
 
 void ImUtils::nodeDummy() {
-    ImGui::Dummy(gBUTTON_BOUNDS);
+    ImGui::Dummy(ImVec2(gNODE_WIDTH, 0.0f));
 }
 
 void ImUtils::message(const char* format...) {
