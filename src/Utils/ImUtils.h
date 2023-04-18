@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+class Texture;
+
 namespace ImUtils {
     template<typename T>
     void concatString(std::stringstream& stream, const std::string& delimiter, T val) {
@@ -63,5 +65,7 @@ namespace ImUtils {
     void rangeButtonLabel(const std::vector<std::string>& labels);
 
     bool fileChooseDialog(std::string& filename, const std::string& defaultLocation, const std::string& labelID);
+
+    void image(const Texture& tex, const std::string& labelID);
 };
 

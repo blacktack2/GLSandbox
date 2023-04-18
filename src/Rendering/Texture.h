@@ -214,6 +214,13 @@ public:
         return mTexID;
     }
 
+    [[nodiscard]] inline int getWidth() const {
+        return mWidth;
+    }
+    [[nodiscard]] inline int getHeight() const {
+        return mHeight;
+    }
+
     inline ErrorState getState() {
         return mState;
     }

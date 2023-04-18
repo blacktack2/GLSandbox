@@ -49,15 +49,16 @@ void TextureFileNode::onDeserialize() {
 
 void TextureFileNode::drawContents() {
     ImGui::Text("File");
-    ImUtils::fileChooseDialog(mFilename, gTEXTURE_ASSET_DIR, generateNodeLabelID("FileChoose"));
-
-    if (ImUtils::button("Load", generateNodeLabelID("LoadFile")))
+    if (ImUtils::fileChooseDialog(mFilename, gTEXTURE_ASSET_DIR, generateNodeLabelID("FileChoose")))
         loadFromFile();
 
     std::string message;
     ImVec4 colour;
     getTextureStatus(mState, message, colour);
     drawMessage(message, colour);
+
+    if (mTexture->getState() == Texture::ErrorState::VALID)
+        ImUtils::image(*mTexture, generateNodeLabelID("Preview"));
 }
 
 void TextureFileNode::loadFromFile() {

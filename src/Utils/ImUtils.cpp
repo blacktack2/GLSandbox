@@ -1,5 +1,7 @@
 #include "ImUtils.h"
 
+#include "../Rendering/Texture.h"
+
 #include "FileUtils.h"
 
 #include <imgui_stdlib.h>
@@ -22,6 +24,8 @@ static constexpr ImVec2 gRANGE_BUTTON_NOTCH_BOUNDS = ImVec2(30.0f, 0.0f);
 
 static constexpr float gFILE_TEXT_WIDTH = gNODE_WIDTH * 0.5f;
 static constexpr ImVec2 gFILE_BUTTON_BOUNDS = ImVec2(gNODE_WIDTH * 0.25f, 0.0f);
+
+static constexpr float gIMAGE_WIDTH = gNODE_WIDTH;
 
 static constexpr const char* gFLOAT_FORMAT = "%.2f";
 static constexpr const char* gINT_FORMAT = "%d";
@@ -225,4 +229,14 @@ bool ImUtils::fileChooseDialog(std::string& filename, const std::string& default
 
     ImGui::Text("%s", filename.empty() ? "<none>" : filename.substr(nameStart == std::string::npos ? 0 : nameStart + 1).c_str());
     return false;
+}
+
+void ImUtils::image(const Texture& tex, const std::string& labelID) {
+    if (!beginHeader("Preview", labelID))
+        return;
+
+    float height = gIMAGE_WIDTH * (float)tex.getHeight() / (float)tex.getWidth();
+    ImGui::Image((ImTextureID)(intptr_t)tex.getID(), ImVec2(gIMAGE_WIDTH, height));
+
+    endHeader();
 }
