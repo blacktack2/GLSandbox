@@ -41,6 +41,13 @@ bool RenderPassNode::validate() const {
     if (mFramebufferIn.isLinked() && !mFramebufferIn.getLinkedParent().validate())
         mValidationState |= ValidationState::InvalidFramebuffer;
 
+    for (const auto& port : mSamplerPorts) {
+        if (!port.get().isLinked()) {
+            mValidationState |= ValidationState::MissingSampler;
+            break;
+        }
+    }
+
     return mValidationState == ValidationState::Unloaded;
 }
 
@@ -78,6 +85,7 @@ void RenderPassNode::onShaderUpdate() {
         return;
 
     Shader* shader = mShaderIn.getSingleConnectedValue<Shader*>();
+    shader->bind();
     const std::vector<Shader::UniformSet> uniforms = shader->getUniforms();
 
     for (size_t i = 0; i < uniforms.size(); i++) {
@@ -86,21 +94,34 @@ void RenderPassNode::onShaderUpdate() {
             const Shader::Uniform& uniform = uniformSet.uniforms[j];
             const std::string name = std::string(uniformSet.name).append("-(").append(uniform.name).append(")");
             const std::string uniqueName = std::string("DynamicIn-").append(std::to_string(i + j * 100));
+
             std::visit([this, shader, &uniform, &name, &uniqueName](auto arg) {
                 using port_type = std::decay_t<decltype(arg)>;
                 std::unique_ptr<Port<port_type>> port = std::make_unique<Port<port_type>>(
                     *this, IPort::Direction::In, uniqueName, name, nullptr, false, true
                 );
+
                 Port<port_type>* rawPort = port.get();
                 std::string uniformName = uniform.name;
-                port->addOnUpdateEvent([rawPort, shader, uniformName]() {
-                    if (!rawPort->isLinked())
-                        return;
-                    std::visit([shader, uniformName](auto arg2) {
-                        shader->bind();
-                        shader->setUniform(uniformName, arg2);
-                    }, rawPort->getConnectedValue());
-                });
+                std::variant<port_type> variant;
+                std::visit(VisitOverload{
+                    [this, rawPort](Texture* arg2) {
+                        mSamplerPorts.push_back(*rawPort);
+                    },
+                    [rawPort, shader, uniformName](auto arg2) {
+                        rawPort->addOnUpdateEvent([rawPort, shader, uniformName]() {
+                            if (!rawPort->isLinked())
+                                return;
+                            std::visit(VisitOverload{
+                                [](Texture* arg2) {},
+                                [shader, uniformName](auto arg2) {
+                                    shader->bind();
+                                    shader->setUniform(uniformName, arg2);
+                                },
+                            }, rawPort->getConnectedValue());
+                        });
+                    },
+                }, variant);
                 addPort(*port);
                 mUniformInPorts.push_back(std::move(port));
             }, uniform.value);
@@ -112,6 +133,7 @@ void RenderPassNode::clearUniformPorts() {
     for (const auto& port : mUniformInPorts)
         removePort(*port);
     mUniformInPorts.clear();
+    mSamplerPorts.clear();
 }
 
 void RenderPassNode::drawValidationMessage() {
@@ -138,6 +160,8 @@ void RenderPassNode::drawValidationMessage() {
         drawMessage("Shader Invalid", ImVec4(1, 0, 0, 1));
     if (mValidationState & ValidationState::InvalidFramebuffer)
         drawMessage("Framebuffer Invalid", ImVec4(1, 0, 0, 1));
+    if (mValidationState & ValidationState::MissingSampler)
+        drawMessage("Missing Sampler Texture", ImVec4(1, 0, 0, 1));
 
     ImUtils::endHeader();
 }

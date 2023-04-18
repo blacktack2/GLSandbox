@@ -24,6 +24,7 @@ public:
         InvalidMesh        = 1 << 4,
         InvalidShader      = 1 << 5,
         InvalidFramebuffer = 1 << 6,
+        MissingSampler     = 1 << 7,
     };
 
     RenderPassNode();
@@ -61,6 +62,7 @@ private:
     Port<Shader*>      mShaderIn      = Port<Shader*>(*this, IPort::Direction::In, "ShaderIn", "Shader");
 
     std::vector<std::unique_ptr<IPort>> mUniformInPorts{};
+    std::vector<std::reference_wrapper<IPort>> mSamplerPorts{};
 
     mutable ValidationState mValidationState = ValidationState::Unloaded;
 };

@@ -12,12 +12,15 @@
 #include <variant>
 #include <vector>
 
+class Texture;
+
 class Shader {
 public:
     typedef std::variant<
         float, glm::vec2,  glm::vec3,  glm::vec4,
         int,   glm::ivec2, glm::ivec3, glm::ivec4,
-               glm::mat2,  glm::mat3,  glm::mat4
+               glm::mat2,  glm::mat3,  glm::mat4,
+        Texture*
     > uniform_t;
 
     enum class ErrorState {
@@ -56,6 +59,10 @@ public:
     void setUniform(const std::string& name, glm::mat3 value);
     void setUniform(const std::string& name, glm::mat4 value);
 
+    [[nodiscard]] int getSamplerLocation(const std::string& name) const {
+        return std::find(mSamplers.begin(), mSamplers.end(), name) - mSamplers.begin();
+    }
+
     [[nodiscard]] int getUniformLocation(const std::string& name) const;
 
     void bind() const;
@@ -92,7 +99,7 @@ private:
      * @param code glsl format shader code to parse.
      * @param uniforms Vector of uniforms to populate with uniform data.
      */
-    static void parseUniforms(const std::string& code, std::vector<Uniform>& uniforms);
+    void parseUniforms(const std::string& code, std::vector<Uniform>& uniforms);
     /**
      * @param type glsl format data type.
      * @param defaultValue glsl format variable instantiation (if present).
@@ -103,6 +110,8 @@ private:
     std::vector<ShaderPass> mShaderPasses;
 
     unsigned int mProgramID = 0;
+
+    std::vector<std::string> mSamplers{};
 
     ErrorState mState = ErrorState::INVALID;
     std::string mMessage = "Not Initialized";

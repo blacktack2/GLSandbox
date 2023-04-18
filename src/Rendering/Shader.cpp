@@ -1,5 +1,7 @@
 #include "Shader.h"
 
+#include "Texture.h"
+
 #include <glad/glad.h>
 
 #include <fstream>
@@ -203,6 +205,8 @@ bool Shader::linkProgram() {
 }
 
 void Shader::parseUniforms(const std::string& code, std::vector<Uniform>& uniforms) {
+    mSamplers.clear();
+
     static const std::regex cUNIFORM_REGEX("uniform +([a-zA-Z0-9_]+) +([a-zA-Z0-9_]+)( *= *(.*) *)?;");
     for (std::sregex_iterator i = std::sregex_iterator(code.begin(), code.end(), cUNIFORM_REGEX);
          i != std::sregex_iterator(); ++i) {
@@ -213,6 +217,10 @@ void Shader::parseUniforms(const std::string& code, std::vector<Uniform>& unifor
 
         uniform_t uniform = generateUniform(type, defaultValue);
         uniforms.push_back({name, uniform});
+        std::visit(VisitOverload{
+            [this, name](Texture* arg) { mSamplers.emplace_back(name); },
+            [this, name](auto&    arg) { setUniform(name, arg);        },
+        }, uniform);
     }
 }
 
@@ -229,6 +237,7 @@ Shader::uniform_t Shader::generateUniform(const std::string& type, const std::st
         {"mat2", glm::mat2(1.0f)},
         {"mat3", glm::mat3(1.0f)},
         {"mat4", glm::mat4(1.0f)},
+        {"sampler2D", (Texture*)nullptr},
     };
     uniform_t value = cUNIFORM_TYPE_MAP.find(type)->second;
     if (!defaultValue.empty())
