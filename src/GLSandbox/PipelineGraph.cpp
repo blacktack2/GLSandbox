@@ -8,6 +8,7 @@
 #include "Nodes/MeshNode.h"
 #include "Nodes/RenderPassNode.h"
 #include "Nodes/ShaderNode.h"
+#include "Nodes/TextureFileNode.h"
 #include "Nodes/TextureNode.h"
 
 #include <imgui.h>
@@ -81,6 +82,7 @@ std::unique_ptr<Node> PipelineGraph::generateNode(NodeType type) const {
         case NodeType::Shader      : return std::make_unique<ShaderNode>();
         case NodeType::Texture     : return std::make_unique<TextureNode>();
         case NodeType::Framebuffer : return std::make_unique<FramebufferNode>();
+        case NodeType::TextureFile : return std::make_unique<TextureFileNode>();
 
         case NodeType::UV          : return std::make_unique<UVNode>();
 
@@ -117,6 +119,7 @@ std::string PipelineGraph::getNodeName(NodeType type) {
         case NodeType::Shader      : return "Shader";
         case NodeType::Texture     : return "Texture";
         case NodeType::Framebuffer : return "Framebuffer";
+        case NodeType::TextureFile : return "File-Texture";
 
         case NodeType::UV          : return "UV";
 

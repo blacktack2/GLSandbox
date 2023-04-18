@@ -11,6 +11,7 @@ enum class MeshFileExtension {
 
 static const char* gSHADER_ASSET_DIR = "Shaders/";
 static const char* gMESH_ASSET_DIR = "Meshes/";
+static const char* gTEXTURE_ASSET_DIR = "Textures/";
 
 static constexpr MeshFileExtension gMESH_DEFAULT_EXTENSION = MeshFileExtension::MSH;
 

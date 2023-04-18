@@ -26,6 +26,7 @@ enum class NodeType {
     Shader      = 401,
     Texture     = 402,
     Framebuffer = 403,
+    TextureFile = 404,
 
     UV = 1000,
 
@@ -72,6 +73,7 @@ static NodeGroup getNodeGroup(NodeType type) {
             return NodeGroup::Data;
 
         case NodeType::Mesh: case NodeType::Shader: case NodeType::Texture: case NodeType::Framebuffer:
+        case NodeType::TextureFile:
             return NodeGroup::Graphics;
 
         default:
