@@ -52,7 +52,7 @@ FramebufferNode::FramebufferNode() : Node("Framebuffer") {
     addPort(mFramebufferOut);
 }
 
-bool FramebufferNode::isValid() const {
+bool FramebufferNode::validate() const {
     bool isValid = true;
 
     isValid &= !mEnableDepthBuffer || (mDepthTexIn->isLinked() &&
@@ -153,7 +153,7 @@ void FramebufferNode::updateFramebuffer() {
     mFramebuffer->bind();
     mFramebuffer->reset();
 
-    if (!isValid()) {
+    if (!validate()) {
         mFramebuffer->unbind();
         return;
     }

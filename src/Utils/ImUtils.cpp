@@ -40,7 +40,9 @@ void ImUtils::nodeDummy() {
 void ImUtils::message(const char* format...) {
     va_list args;
     va_start(args, format);
-    ImGui::TextWrapped(format, args);
+    ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + gNODE_WIDTH);
+    ImGui::Text(format, args);
+    ImGui::PopTextWrapPos();
     va_end(args);
 }
 

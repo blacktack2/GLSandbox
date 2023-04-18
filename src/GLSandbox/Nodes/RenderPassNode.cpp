@@ -4,6 +4,7 @@ RenderPassNode::RenderPassNode() : Node("Render Pass") {
     addPort(mExecutionIn);
     addPort(mExecutionOut);
 
+    addPort(mFramebufferIn);
     addPort(mMeshIn);
     addPort(mShaderIn);
 
@@ -19,35 +20,56 @@ void RenderPassNode::deserializeData(const std::string& dataID, std::ifstream& s
 }
 
 void RenderPassNode::drawContents() {
-    if (!errorText.empty())
-        drawMessage(errorText, ImVec4(1, 0, 0, 1));
+    drawValidationMessage();
 }
 
-RenderPassNode::ValidationState RenderPassNode::validate() const {
-    if (!mMeshIn.isLinked())
-        return ValidationState::NoMesh;
-    if (!mShaderIn.isLinked())
-        return ValidationState::NoShader;
+bool RenderPassNode::validate() const {
+    mValidationState = ValidationState::Unloaded;
 
-    const Mesh* mesh = mMeshIn.getSingleConnectedValue<Mesh*>();
-    const Shader* shader = mShaderIn.getSingleConnectedValue<Shader*>();
-    if (mesh->getState() != Mesh::ErrorState::VALID)
-        return ValidationState::InvalidShader;
-    if (shader->getState() != Shader::ErrorState::VALID)
-        return ValidationState::InvalidMesh;
+    if (mMeshIn.isLinked()) {
+        if (mMeshIn.getSingleConnectedValue<Mesh*>()->getState() != Mesh::ErrorState::VALID)
+            mValidationState |= ValidationState::InvalidMesh;
+    } else {
+        mValidationState |= ValidationState::NoMesh;
+    }
+    if (mShaderIn.isLinked()) {
+        if (mShaderIn.getSingleConnectedValue<Shader*>()->getState() != Shader::ErrorState::VALID)
+            mValidationState |= ValidationState::InvalidShader;
+    } else {
+        mValidationState |= ValidationState::NoShader;
+    }
+    if (mFramebufferIn.isLinked() && !mFramebufferIn.getLinkedParent().validate())
+        mValidationState |= ValidationState::InvalidFramebuffer;
 
-    return ValidationState::Valid;
+    return mValidationState == ValidationState::Unloaded;
 }
 
 RenderPassNode::pipeline_callback RenderPassNode::generateCallback() const {
+    mValidationState = ValidationState::Loaded;
+
+    const Framebuffer* framebuffer = mFramebufferIn.isLinked() ? mFramebufferIn.getSingleConnectedValue<Framebuffer*>() : nullptr;
     const Mesh* mesh = mMeshIn.getSingleConnectedValue<Mesh*>();
     const Shader* shader = mShaderIn.getSingleConnectedValue<Shader*>();
 
-    return [mesh, shader]() {
-        shader->bind();
-        mesh->bind();
-        mesh->draw();
-    };
+    if (framebuffer) {
+        return [framebuffer, mesh, shader]() {
+            framebuffer->bind();
+
+            shader->bind();
+
+            mesh->bind();
+            mesh->draw();
+
+            Framebuffer::unbind();
+        };
+    } else {
+        return [mesh, shader]() {
+            shader->bind();
+
+            mesh->bind();
+            mesh->draw();
+        };
+    }
 }
 
 void RenderPassNode::onShaderUpdate() {
@@ -90,4 +112,32 @@ void RenderPassNode::clearUniformPorts() {
     for (const auto& port : mUniformInPorts)
         removePort(*port);
     mUniformInPorts.clear();
+}
+
+void RenderPassNode::drawValidationMessage() {
+    if (mValidationState == ValidationState::Unloaded) {
+        drawMessage("Not Loaded", ImVec4(1, 1, 0, 1));
+        return;
+    } else if (mValidationState == ValidationState::Loaded) {
+        drawMessage("Loaded", ImVec4(0, 1, 0, 1));
+        return;
+    }
+
+    if (!ImUtils::beginHeader("Show Problems", generateNodeLabelID("ProblemHeader")))
+        return;
+
+    if (mValidationState & ValidationState::Invalid)
+        drawMessage("Unknown Error", ImVec4(1, 0, 0, 1));
+    if (mValidationState & ValidationState::NoMesh)
+        drawMessage("Missing Mesh", ImVec4(1, 0, 0, 1));
+    if (mValidationState & ValidationState::NoShader)
+        drawMessage("Missing Shader", ImVec4(1, 0, 0, 1));
+    if (mValidationState & ValidationState::InvalidMesh)
+        drawMessage("Mesh Invalid", ImVec4(1, 0, 0, 1));
+    if (mValidationState & ValidationState::InvalidShader)
+        drawMessage("Shader Invalid", ImVec4(1, 0, 0, 1));
+    if (mValidationState & ValidationState::InvalidFramebuffer)
+        drawMessage("Framebuffer Invalid", ImVec4(1, 0, 0, 1));
+
+    ImUtils::endHeader();
 }

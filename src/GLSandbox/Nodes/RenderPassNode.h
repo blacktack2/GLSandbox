@@ -3,6 +3,7 @@
 
 #include "../../NodeEditor/Ports.h"
 
+#include "../../Rendering/Framebuffer.h"
 #include "../../Rendering/Mesh.h"
 #include "../../Rendering/Shader.h"
 
@@ -14,13 +15,15 @@
 class RenderPassNode final : public Node {
 public:
     typedef std::function<void()> pipeline_callback;
-    enum class ValidationState {
-        Valid,
-        Invalid,
-        NoMesh,
-        NoShader,
-        InvalidMesh,
-        InvalidShader,
+    enum class ValidationState : unsigned int {
+        Unloaded           = 0,
+        Loaded             = 1 << 0,
+        Invalid            = 1 << 1,
+        NoMesh             = 1 << 2,
+        NoShader           = 1 << 3,
+        InvalidMesh        = 1 << 4,
+        InvalidShader      = 1 << 5,
+        InvalidFramebuffer = 1 << 6,
     };
 
     RenderPassNode();
@@ -30,7 +33,8 @@ public:
         return (unsigned int)NodeType::RenderPass;
     }
 
-    [[nodiscard]] ValidationState validate() const;
+    [[nodiscard]] bool validate() const final;
+
     [[nodiscard]] pipeline_callback generateCallback() const;
 
     [[nodiscard]] inline const RenderPassNode* getNextPass() const {
@@ -47,13 +51,23 @@ private:
 
     void clearUniformPorts();
 
+    void drawValidationMessage();
+
     Port<void*> mExecutionIn  = Port<void*>(*this, IPort::Direction::In, "In", "In");
     Port<void*> mExecutionOut = Port<void*>(*this, IPort::Direction::Out, "Out", "Out", [&]() { return (void*)nullptr; });
 
-    Port<Mesh*>   mMeshIn   = Port<Mesh*>(*this, IPort::Direction::In, "MeshIn", "Mesh");
-    Port<Shader*> mShaderIn = Port<Shader*>(*this, IPort::Direction::In, "ShaderIn", "Shader");
+    Port<Framebuffer*> mFramebufferIn = Port<Framebuffer*>(*this, IPort::Direction::In, "FramebufferIn", "Framebuffer");
+    Port<Mesh*>        mMeshIn        = Port<Mesh*>(*this, IPort::Direction::In, "MeshIn", "Mesh");
+    Port<Shader*>      mShaderIn      = Port<Shader*>(*this, IPort::Direction::In, "ShaderIn", "Shader");
 
     std::vector<std::unique_ptr<IPort>> mUniformInPorts{};
 
-    std::string errorText;
+    mutable ValidationState mValidationState = ValidationState::Unloaded;
 };
+
+inline unsigned int operator&(RenderPassNode::ValidationState a, RenderPassNode::ValidationState b) {
+    return (unsigned int)a & (unsigned int)b;
+}
+inline void operator|=(RenderPassNode::ValidationState& a, RenderPassNode::ValidationState b) {
+    a = (RenderPassNode::ValidationState)((unsigned int)a | (unsigned int)b);
+}

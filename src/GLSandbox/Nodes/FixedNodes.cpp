@@ -15,10 +15,18 @@ void EntryNode::deserializeData(const std::string& dataID, std::ifstream& stream
 }
 
 void EntryNode::drawContents() {
-    if (ImUtils::button("Update", generateNodeLabelID("Update")) && validatePipeline())
-        updatePipeline();
+    if (ImUtils::button("Update", generateNodeLabelID("Update")))
+        pipelineUpdateEvent();
+
     if (!mMessage.empty())
         drawMessage(mMessage, getMessageColour(mMessageType));
+}
+
+void EntryNode::pipelineUpdateEvent() {
+    if (validatePipeline())
+        updatePipeline();
+    else
+        mPipelineHandler.resetPipeline();
 }
 
 bool EntryNode::validatePipeline() {
@@ -28,33 +36,9 @@ bool EntryNode::validatePipeline() {
         return false;
     }
     const RenderPassNode* current = &dynamic_cast<const RenderPassNode&>(mExecutionOut.getLinkedParent());
+    bool isValid = true;
     while (current) {
-        RenderPassNode::ValidationState state = current->validate();
-        switch (state) {
-            case RenderPassNode::ValidationState::NoMesh:
-                mMessage = "Missing mesh";
-                mMessageType = MessageType::Error;
-                return false;
-            case RenderPassNode::ValidationState::NoShader:
-                mMessage = "Missing shader";
-                mMessageType = MessageType::Error;
-                return false;
-            case RenderPassNode::ValidationState::InvalidMesh:
-                mMessage = "Invalid mesh";
-                mMessageType = MessageType::Error;
-                return false;
-            case RenderPassNode::ValidationState::InvalidShader:
-                mMessage = "Invalid shader";
-                mMessageType = MessageType::Error;
-                return false;
-            default:
-            case RenderPassNode::ValidationState::Invalid:
-                mMessage = "Invalid state";
-                mMessageType = MessageType::Error;
-                return false;
-            case RenderPassNode::ValidationState::Valid:
-                break;
-        }
+        isValid &= current->validate();
 
         const RenderPassNode* next = current->getNextPass();
         if (next == current) {
@@ -63,9 +47,15 @@ bool EntryNode::validatePipeline() {
         }
         current = next;
     }
-    mMessage = "Uploaded";
-    mMessageType = MessageType::Confirmation;
-    return true;
+    if (isValid) {
+        mMessage = "Uploaded";
+        mMessageType = MessageType::Confirmation;
+        return true;
+    } else {
+        mMessage = "Invalid";
+        mMessageType = MessageType::Error;
+        return false;
+    }
 }
 
 void EntryNode::updatePipeline() {

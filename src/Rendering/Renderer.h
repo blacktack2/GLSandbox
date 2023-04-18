@@ -16,6 +16,6 @@ public:
     void appendPipeline(pipeline_callback callback) final;
 protected:
     Renderer() = default;
-
+private:
     std::vector<pipeline_callback> mRenderPipeline{};
 };

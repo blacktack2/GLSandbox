@@ -14,13 +14,7 @@ GLSandboxRenderer::GLSandboxRenderer() : Renderer() {
     mDefaultMesh = std::make_unique<Mesh>();
     Mesh::makeScreenQuad(*mDefaultMesh);
     mDefaultShader = std::make_unique<Shader>("Shaders/simple-quad.vert", "Shaders/simple-quad.frag");
-    mRenderPipeline = {
-            [&]() {
-                mDefaultShader->bind();
-                mDefaultMesh->bind();
-                mDefaultMesh->draw();
-            }
-    };
+    resetPipeline();
 }
 
 void GLSandboxRenderer::update() {
@@ -35,6 +29,15 @@ void GLSandboxRenderer::drawDebug() {
         ImGui::TextWrapped("%s", message.c_str());
     ImGui::PopStyleColor();
     ImGui::End();
+}
+
+void GLSandboxRenderer::resetPipeline() {
+    clearPipeline();
+    appendPipeline([&]() {
+        mDefaultShader->bind();
+        mDefaultMesh->bind();
+        mDefaultMesh->draw();
+    });
 }
 
 void GLSandboxRenderer::debugOutput(unsigned int source, unsigned int type, unsigned int id, unsigned int severity,

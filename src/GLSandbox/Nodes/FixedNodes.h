@@ -20,6 +20,8 @@ protected:
 
     void drawContents() final;
 private:
+    void pipelineUpdateEvent();
+
     bool validatePipeline();
     void updatePipeline();
 

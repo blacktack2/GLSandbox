@@ -31,6 +31,10 @@ public:
 
     [[nodiscard]] virtual unsigned int getTypeID() = 0;
 
+    [[nodiscard]] virtual bool validate() const {
+        return true;
+    }
+
     void serialize(std::ofstream& streamOut) const;
     void deserialize(std::ifstream& streamIn, std::streampos end,
                      port_data_t& staticPortData, link_data_t& staticLinkData,
