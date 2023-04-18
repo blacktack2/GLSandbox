@@ -254,22 +254,16 @@ void MeshNode::writeToStreamMSH(std::ofstream& stream) const {
 }
 
 std::string MeshNode::generateFilename() {
-    static const std::regex cDEFAULT_FILE_REGEX("^Mesh(0-9)+$");
+    const std::string basePath = std::string(gMESH_ASSET_DIR).append("Mesh");
+    const std::string extension = getFileExtension(gMESH_DEFAULT_EXTENSION);
+    unsigned int index = 0;
+    std::filesystem::path filePath;
 
-    std::unordered_set<unsigned int> paths;
-    for (auto const& entry : std::filesystem::recursive_directory_iterator(std::filesystem::path(gMESH_ASSET_DIR))) {
-        if (!std::filesystem::is_regular_file(entry) ||
-            parseFileExtension(entry.path().extension().string().c_str()) == MeshFileExtension::Undefined)
-            continue;
-        std::smatch matches;
-        std::string filename = entry.path().filename().string();
-        if (std::regex_search(filename, matches, cDEFAULT_FILE_REGEX))
-            paths.emplace(std::stoi(matches[1]));
-    }
-    unsigned int counter = 0;
-    while (paths.contains(++counter)) {}
+    do {
+        filePath = std::string(basePath).append(std::to_string(index++)).append(extension);
+    } while (std::filesystem::exists(filePath));
 
-    return std::string("Mesh").append(std::to_string(counter)).append(getFileExtension(gMESH_DEFAULT_EXTENSION));
+    return filePath.string();
 }
 
 void MeshNode::uploadMesh() {
