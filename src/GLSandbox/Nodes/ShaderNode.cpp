@@ -68,11 +68,11 @@ void ShaderNode::onDeserialize() {
 }
 
 void ShaderNode::drawContents() {
-    ImUtils::fileChooseDialog(mVertFile, generateNodeLabelID("VertexFile"));
-    ImUtils::fileChooseDialog(mFragFile, generateNodeLabelID("FragmentFile"));
-    ImUtils::fileChooseDialog(mTescFile, generateNodeLabelID("Tess-ContFile"));
-    ImUtils::fileChooseDialog(mTeseFile, generateNodeLabelID("Tess-EvalFile"));
-    ImUtils::fileChooseDialog(mGeomFile, generateNodeLabelID("GeometryFile"));
+    ImUtils::fileChooseDialog(mVertFile, gSHADER_ASSET_DIR, generateNodeLabelID("VertexFile"));
+    ImUtils::fileChooseDialog(mFragFile, gSHADER_ASSET_DIR, generateNodeLabelID("FragmentFile"));
+    ImUtils::fileChooseDialog(mTescFile, gSHADER_ASSET_DIR, generateNodeLabelID("Tess-ContFile"));
+    ImUtils::fileChooseDialog(mTeseFile, gSHADER_ASSET_DIR, generateNodeLabelID("Tess-EvalFile"));
+    ImUtils::fileChooseDialog(mGeomFile, gSHADER_ASSET_DIR, generateNodeLabelID("GeometryFile"));
 
     if (ImUtils::button("Upload", generateNodeLabelID("Upload"))) {
         uploadShader();

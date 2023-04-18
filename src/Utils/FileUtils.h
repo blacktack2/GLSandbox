@@ -3,5 +3,5 @@
 
 class FileUtils {
 public:
-    static bool openFileDialog(std::string& filePath);
+    static bool openFileDialog(std::string& filePath, const std::string& defaultLocation);
 };

@@ -301,7 +301,7 @@ void MeshNode::drawGlobalParameters() {
     std::size_t index = mFilename.find_last_of('/');
     ImGui::Text("%s", mFilename.substr(index + 1).c_str());
 
-    ImUtils::fileChooseDialog(mFilename, generateNodeLabelID("FileChoose"));
+    ImUtils::fileChooseDialog(mFilename, gMESH_ASSET_DIR, generateNodeLabelID("FileChoose"));
 
     if (ImUtils::button("Load", generateNodeLabelID("LoadButton")))
         loadFromFile();
