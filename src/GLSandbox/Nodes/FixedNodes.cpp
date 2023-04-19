@@ -2,6 +2,8 @@
 
 #include "RenderPassNode.h"
 
+#include "../../Rendering/RenderConfig.h"
+
 EntryNode::EntryNode(IPipelineHandler& pipelineHandler) : Node("Entry"), mPipelineHandler(pipelineHandler) {
     addPort(mExecutionOut);
 }
@@ -67,6 +69,15 @@ void EntryNode::updatePipeline() {
 
         current = current->getNextPass();
     }
+    mPipelineHandler.appendPipeline([]() {
+        RenderConfig::setViewport();
+        RenderConfig::setClearColour();
+        RenderConfig::setBlend();
+        RenderConfig::setColourMask();
+        RenderConfig::setCullFace();
+        RenderConfig::setDepthTest();
+        RenderConfig::setDepthMask();
+    });
 }
 
 ExitNode::ExitNode() : Node("Exit") {

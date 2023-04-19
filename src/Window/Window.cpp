@@ -3,6 +3,7 @@
 #include "../GLSandbox/Assets.h"
 #include "../GLSandbox/GLSandboxRenderer.h"
 #include "../GLSandbox/PipelineGraph.h"
+#include "../Rendering/RenderConfig.h"
 
 #include <glad/glad.h>
 
@@ -52,6 +53,7 @@ mWidth(width), mHeight(height) {
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glViewport(0, 0, mWidth, mHeight);
+    RenderConfig::setDefaultViewport(0, 0, mWidth, mHeight);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -135,6 +137,7 @@ void Window::handleEvent(SDL_Event &e) {
                     mWidth  = e.window.data1;
                     mHeight = e.window.data2;
                     glViewport(0, 0, mWidth, mHeight);
+                    RenderConfig::setDefaultViewport(0, 0, mWidth, mHeight);
                     break;
             }
             break;

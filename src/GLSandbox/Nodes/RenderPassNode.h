@@ -5,6 +5,7 @@
 
 #include "../../Rendering/Framebuffer.h"
 #include "../../Rendering/Mesh.h"
+#include "../../Rendering/RenderConfig.h"
 #include "../../Rendering/Shader.h"
 #include "../../Rendering/Texture.h"
 
@@ -53,6 +54,7 @@ private:
 
     void clearUniformPorts();
 
+    void drawSettings();
     void drawValidationMessage();
 
     Port<void*> mExecutionIn  = Port<void*>(*this, IPort::Direction::In, "In", "In");
@@ -64,6 +66,26 @@ private:
 
     std::vector<std::unique_ptr<IPort>> mUniformInPorts{};
     std::vector<std::reference_wrapper<IPort>> mSamplerPorts{};
+
+    glm::vec4 mViewport = glm::vec4(0.0f);
+
+    bool mDoClear = false;
+    glm::vec4 mClearColour = glm::vec4(0.0f);
+
+    bool mEnableBlend = false;
+    RenderConfig::BlendFuncSrc mBlendFuncSrc = RenderConfig::BlendFuncSrc::One;
+    RenderConfig::BlendFuncDst mBlendFuncDst = RenderConfig::BlendFuncDst::Zero;
+
+    glm::bvec4 mColourMask = glm::bvec4(true);
+
+    bool mEnableFaceCulling = true;
+    RenderConfig::CullFaceMode mCullFaceMode = RenderConfig::CullFaceMode::Back;
+
+    bool mEnableDepthTest = false;
+    RenderConfig::DepthTestFunc mDepthTestFunc = RenderConfig::DepthTestFunc::Less;
+    glm::vec2 mDepthTestLimits = glm::vec2(0.0f, 1.0f);
+
+    bool mEnableDepthMask = false;
 
     mutable ValidationState mValidationState = ValidationState::Unloaded;
 };

@@ -46,6 +46,8 @@ namespace ImUtils {
     bool inputIntNxN(int* value, unsigned int numComponents, const std::string& labelID,
                             int min = 0, int max = 0);
 
+    bool inputBoolN(bool* value, unsigned int numComponents, const std::string& labelID);
+
     void multiInputLabel(const std::string& label0);
     void multiInputLabel(const std::string& label0, const std::string& label1);
     void multiInputLabel(const std::string& label0, const std::string& label1,
@@ -55,6 +57,9 @@ namespace ImUtils {
 
     bool beginHeader(const std::string& displayText, const std::string& labelID);
     void endHeader();
+
+    bool toggleButton(bool& value, const std::string& displayOnEnable, const std::string& displayOnDisable,
+                      const std::string& labelID);
 
     bool cycleButton(const std::string& labelID, size_t& index,
                             const std::vector<std::string>& contents);

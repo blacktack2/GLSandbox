@@ -1,5 +1,66 @@
 #include "RenderPassNode.h"
 
+std::string getBlendFuncSrcLabel(RenderConfig::BlendFuncSrc srcFactor) {
+    switch (srcFactor) {
+        default: return "Undefined";
+        case RenderConfig::BlendFuncSrc::One                    : return "1";
+        case RenderConfig::BlendFuncSrc::SrcColour              : return "Src";
+        case RenderConfig::BlendFuncSrc::OneMinusSrcColour      : return "1-Src";
+        case RenderConfig::BlendFuncSrc::DstColour              : return "Dst";
+        case RenderConfig::BlendFuncSrc::OneMinusDstColour      : return "1-Dst";
+        case RenderConfig::BlendFuncSrc::SrcAlpha               : return "SrcA";
+        case RenderConfig::BlendFuncSrc::OneMinusSrcAlpha       : return "1-SrcA";
+        case RenderConfig::BlendFuncSrc::ConstantColour         : return "Const";
+        case RenderConfig::BlendFuncSrc::OneMinusConstantColour : return "1-Const";
+        case RenderConfig::BlendFuncSrc::ConstantAlpha          : return "ConstA";
+        case RenderConfig::BlendFuncSrc::OneMinusConstantAlpha  : return "1-ConstA";
+        case RenderConfig::BlendFuncSrc::SrcAlphaSaturate       : return "SrcA Sat";
+    }
+}
+
+std::string getBlendFuncDstLabel(RenderConfig::BlendFuncDst dstFactor) {
+    switch (dstFactor) {
+        default: return "Undefined";
+        case RenderConfig::BlendFuncDst::Zero                   : return "0";
+        case RenderConfig::BlendFuncDst::One                    : return "1";
+        case RenderConfig::BlendFuncDst::SrcColour              : return "Src";
+        case RenderConfig::BlendFuncDst::OneMinusSrcColour      : return "1-Src";
+        case RenderConfig::BlendFuncDst::DstColour              : return "Dst";
+        case RenderConfig::BlendFuncDst::OneMinusDstColour      : return "1-Dst";
+        case RenderConfig::BlendFuncDst::SrcAlpha               : return "SrcA";
+        case RenderConfig::BlendFuncDst::OneMinusSrcAlpha       : return "1-SrcA";
+        case RenderConfig::BlendFuncDst::DstAlpha               : return "DstA";
+        case RenderConfig::BlendFuncDst::OneMinusDstAlpha       : return "1-DstA";
+        case RenderConfig::BlendFuncDst::ConstantColour         : return "Const";
+        case RenderConfig::BlendFuncDst::OneMinusConstantColour : return "1-Const";
+        case RenderConfig::BlendFuncDst::ConstantAlpha          : return "ConstA";
+        case RenderConfig::BlendFuncDst::OneMinusConstantAlpha  : return "1-ConstA";
+    }
+}
+
+std::string getCullFaceModeLabel(RenderConfig::CullFaceMode mode) {
+    switch (mode) {
+        default: return "Undefined";
+        case RenderConfig::CullFaceMode::Front        : return "Front";
+        case RenderConfig::CullFaceMode::Back         : return "Back";
+        case RenderConfig::CullFaceMode::FrontAndBack : return "Both";
+    }
+}
+
+std::string getDepthTestFuncLabel(RenderConfig::DepthTestFunc func) {
+    switch (func) {
+        default: return "Undefined";
+        case RenderConfig::DepthTestFunc::Never        : return "Never";
+        case RenderConfig::DepthTestFunc::Less         : return "Less";
+        case RenderConfig::DepthTestFunc::Equal        : return "Equal";
+        case RenderConfig::DepthTestFunc::LessEqual    : return "Less-Equal";
+        case RenderConfig::DepthTestFunc::Greater      : return "Greater";
+        case RenderConfig::DepthTestFunc::NotEqual     : return "Not-Equal";
+        case RenderConfig::DepthTestFunc::GreaterEqual : return "Greater-Equal";
+        case RenderConfig::DepthTestFunc::Always       : return "Always";
+    }
+}
+
 RenderPassNode::RenderPassNode() : Node("Render Pass") {
     addPort(mExecutionIn);
     addPort(mExecutionOut);
@@ -20,6 +81,7 @@ void RenderPassNode::deserializeData(const std::string& dataID, std::ifstream& s
 }
 
 void RenderPassNode::drawContents() {
+    drawSettings();
     drawValidationMessage();
 }
 
@@ -58,31 +120,55 @@ RenderPassNode::pipeline_callback RenderPassNode::generateCallback() const {
     const Mesh* mesh = mMeshIn.getSingleConnectedValue<Mesh*>();
     const Shader* shader = mShaderIn.getSingleConnectedValue<Shader*>();
 
-    if (framebuffer) {
+    std::vector<std::function<void()>> passCallbacks{};
+
+    bool useFramebuffer = framebuffer != nullptr;
+
+    if (useFramebuffer)
+        passCallbacks.emplace_back([framebuffer]() { framebuffer->bind(); });
+
+    passCallbacks.emplace_back([shader]() { shader->bind(); });
+
+    if (useFramebuffer) {
         std::vector<const Texture*> textures{};
         for (const auto& port : mSamplerPorts)
             textures.push_back(dynamic_cast<Port<Texture*>*>(&port.get())->getSingleValue<Texture*>());
-        return [framebuffer, textures, mesh, shader]() {
-            framebuffer->bind();
-
-            shader->bind();
-            
+        passCallbacks.emplace_back([textures]() {
             for (int i = 0; i < textures.size(); i++)
                 textures[i]->bind(i);
-
-            mesh->bind();
-            mesh->draw();
-
-            Framebuffer::unbind();
-        };
-    } else {
-        return [mesh, shader]() {
-            shader->bind();
-
-            mesh->bind();
-            mesh->draw();
-        };
+        });
     }
+
+    passCallbacks.emplace_back([this]() {
+        if (mViewport == glm::vec4(0.0f))
+            RenderConfig::setViewport();
+        else
+            RenderConfig::setViewport(mViewport.x, mViewport.y, mViewport.z, mViewport.w);
+
+        if (mDoClear) {
+            RenderConfig::setClearColour(mClearColour.r, mClearColour.g, mClearColour.b, mClearColour.a);
+            RenderConfig::clearBuffers(RenderConfig::ClearBit::Colour | RenderConfig::ClearBit::Depth | RenderConfig::ClearBit::Stencil);
+        }
+
+        RenderConfig::setBlend(mEnableBlend, mBlendFuncSrc, mBlendFuncDst);
+        RenderConfig::setColourMask(mColourMask.r, mColourMask.g, mColourMask.b, mColourMask.a);
+        RenderConfig::setCullFace(mEnableFaceCulling, mCullFaceMode);
+        RenderConfig::setDepthTest(mEnableDepthTest, mDepthTestFunc, mDepthTestLimits.x, mDepthTestLimits.y);
+        RenderConfig::setDepthMask(mEnableDepthMask);
+    });
+
+    passCallbacks.emplace_back([mesh]() {
+        mesh->bind();
+        mesh->draw();
+    });
+
+    if (useFramebuffer)
+        passCallbacks.emplace_back([]() { Framebuffer::unbind(); });
+
+    return [passCallbacks]() {
+        for (const auto& callback : passCallbacks)
+            callback();
+    };
 }
 
 void RenderPassNode::onShaderUpdate() {
@@ -140,6 +226,56 @@ void RenderPassNode::clearUniformPorts() {
         removePort(*port);
     mUniformInPorts.clear();
     mSamplerPorts.clear();
+}
+
+void RenderPassNode::drawSettings() {
+    if (!ImUtils::beginHeader("Settings", generateNodeLabelID("SettingsHeader")))
+        return;
+
+    ImGui::Text("Viewport");
+    ImUtils::inputFloatN(&mViewport[0], 4, generateNodeLabelID("Viewport"), 0.0f, 4096.0f);
+
+    ImUtils::toggleButton(mDoClear, "Clear Buffers (On)", "Clear Buffers (Off)", generateNodeLabelID("ClearBuffers"));
+    if (mDoClear)
+        ImUtils::inputFloatN(&mClearColour[0], 4, generateNodeLabelID("ClearColour"), 0.0f, 1.0f);
+
+    ImUtils::toggleButton(mEnableBlend, "Blend (On)", "Blend (Off)", generateNodeLabelID("Blend"));
+    if (mEnableBlend) {
+        ImGui::Text("Blend Source Function");
+        ImUtils::cycleButton(generateNodeLabelID("BlendFuncSrc"), (size_t&)mBlendFuncSrc,
+                             (size_t)RenderConfig::BlendFuncSrc::Max,
+                             [](size_t index) { return getBlendFuncSrcLabel((RenderConfig::BlendFuncSrc)index); });
+        ImGui::Text("Blend Destination Function");
+        ImUtils::cycleButton(generateNodeLabelID("BlendFuncDst"), (size_t&)mBlendFuncDst,
+                             (size_t)RenderConfig::BlendFuncDst::Max,
+                             [](size_t index) { return getBlendFuncDstLabel((RenderConfig::BlendFuncDst)index); });
+    }
+
+    ImGui::Text("Colour Mask");
+    ImUtils::multiInputLabel("R:", "G:", "B:", "A:");
+    ImUtils::inputBoolN(&mColourMask[0], 4, generateNodeLabelID("ColourMask"));
+
+    ImUtils::toggleButton(mEnableFaceCulling, "Face Cull (On)", "Face Cull (Off)", generateNodeLabelID("FaceCull"));
+    if (mEnableFaceCulling) {
+        ImGui::Text("Face Cull Mode");
+        ImUtils::cycleButton(generateNodeLabelID("FaceCullMode"), (size_t&)mCullFaceMode,
+                             (size_t)RenderConfig::CullFaceMode::Max,
+                             [](size_t index) { return getCullFaceModeLabel((RenderConfig::CullFaceMode)index); });
+    }
+
+    ImUtils::toggleButton(mEnableDepthTest, "Depth Test (On)", "Depth Test (Off)", generateNodeLabelID("DepthTest"));
+    if (mEnableDepthTest) {
+        ImGui::Text("Depth Test Func");
+        ImUtils::cycleButton(generateNodeLabelID("DepthTestFunc"), (size_t&)mDepthTestFunc,
+                             (size_t)RenderConfig::DepthTestFunc::Max,
+                             [](size_t index) { return getDepthTestFuncLabel((RenderConfig::DepthTestFunc)index); });
+        ImUtils::multiInputLabel("Near:", "Far:");
+        ImUtils::inputFloat(&mDepthTestLimits[0], generateNodeLabelID("DepthTestLimits"), 0.0f, 1.0f);
+    }
+
+    ImUtils::toggleButton(mEnableDepthMask, "Depth Mask (On)", "Depth Mask (Off)", generateNodeLabelID("DepthMask"));
+
+    ImUtils::endHeader();
 }
 
 void RenderPassNode::drawValidationMessage() {

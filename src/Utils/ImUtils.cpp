@@ -16,6 +16,7 @@ static constexpr float gTEXT_INPUT_WIDTH = gNODE_WIDTH * 0.5f;
 
 static constexpr float gNUMERIC_INPUT_WIDTH = gNODE_WIDTH * 0.5f;
 static constexpr float gMULTI_NUMERIC_INPUT_WIDTH = gNODE_WIDTH * 0.25f;
+static constexpr ImVec2 gMULTI_BUTTON_INPUT_BOUNDS = ImVec2(gMULTI_NUMERIC_INPUT_WIDTH, 0.0f);
 
 static constexpr ImVec2 gCYCLE_BUTTON_NOTCH_BOUNDS = ImVec2(30.0f, 0.0f);
 static constexpr float gCYCLE_BUTTON_WIDTH = gBUTTON_BOUNDS.x - gCYCLE_BUTTON_NOTCH_BOUNDS.x * 2.0f;
@@ -111,6 +112,19 @@ bool ImUtils::inputIntNxN(int* value, unsigned int numComponents, const std::str
     return valueChanged;
 }
 
+bool ImUtils::inputBoolN(bool* value, unsigned int numComponents, const std::string& labelID) {
+    bool valueChanged = false;
+    for (unsigned int i = 0; i < numComponents; i++) {
+        if (i != 0)
+            ImGui::SameLine();
+        if (ImGui::Button(formatLabel(value[i] ? "X" : "O", labelID + std::to_string(i)).c_str(), gMULTI_BUTTON_INPUT_BOUNDS)) {
+            valueChanged = true;
+            value[i] = !value[i];
+        }
+    }
+    return valueChanged;
+}
+
 void ImUtils::multiInputLabel(const std::string& label0) {
     ImGui::Text("%s", label0.c_str());
 }
@@ -147,6 +161,15 @@ bool ImUtils::beginHeader(const std::string& displayText, const std::string& lab
 
 void ImUtils::endHeader() {
     ImGui::TreePop();
+}
+
+bool ImUtils::toggleButton(bool& value, const std::string& displayOnEnable, const std::string& displayOnDisable,
+                           const std::string& labelID) {
+    if (ImGui::Button(formatLabel(value ? displayOnEnable : displayOnDisable, labelID).c_str(), gBUTTON_BOUNDS)) {
+        value = !value;
+        return true;
+    }
+    return false;
 }
 
 bool ImUtils::cycleButton(const std::string& labelID, size_t& index,
