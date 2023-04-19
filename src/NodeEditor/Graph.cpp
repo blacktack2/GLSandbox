@@ -56,7 +56,7 @@ void Graph::deserialize(std::ifstream& streamIn) {
     while (SerializationUtils::findNextMarkPair(streamIn, end, gSERIAL_MARK_NODE, markBegin, markEnd)) {
         streamIn.seekg(markBegin);
 
-        unsigned int nodeType;
+        unsigned int nodeType = -1;
 
         std::string dataID;
         while (SerializationUtils::seekNextDataPoint(streamIn, markEnd, gSERIAL_DATA_PREFIX, dataID)) {

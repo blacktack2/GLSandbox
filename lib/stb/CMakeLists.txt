@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
-project(stb)
+project(STB)
 
-add_library(stb stb_image.h)
+file(GLOB_RECURSE STB_HEAD *.h)
+add_library(stb INTERFACE ${STB_HEAD})
 set_target_properties(stb PROPERTIES LINKER_LANGUAGE C)
