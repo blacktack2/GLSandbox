@@ -75,9 +75,11 @@ void MeshNode::loadFromFile() {
 
 void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
     std::vector<unsigned int> indices;
+    std::vector<unsigned int> texIndices;
+    std::vector<unsigned int> normIndices;
     std::vector<glm::vec3> positions;
-    std::vector<glm::vec2> uvs;
-    std::vector<glm::vec3> normals;
+    std::vector<glm::vec2> uvsSoft;
+    std::vector<glm::vec3> normalsSoft;
 
     while (!stream.eof()) {
         std::string type;
@@ -93,14 +95,14 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
             glm::vec2 uv;
             stream >> uv.x;
             stream >> uv.y;
-            uvs.emplace_back(uv);
+            uvsSoft.emplace_back(uv);
             SerializationUtils::skipToNextLine(stream);
         } else if (type == "vn") {
             glm::vec3 normal;
             stream >> normal.x;
             stream >> normal.y;
             stream >> normal.z;
-            normals.emplace_back(normal);
+            normalsSoft.emplace_back(normal);
             SerializationUtils::skipToNextLine(stream);
         } else if (type == "f") {
             std::string indexData;
@@ -108,22 +110,59 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
 
             std::stringstream indexSetStream(indexData);
             indexSetStream >> std::ws;
+
             std::string indexSet;
-            std::vector<unsigned int> tempIndices;
+            std::vector<unsigned int> tempVis, tempTis, tempNis;
             while (std::getline(indexSetStream, indexSet, ' ')) {
                 std::stringstream indexStream(indexSet);
-                unsigned int index;
-                indexStream >> index;
-                tempIndices.push_back(index - 1);
+                unsigned int vi, ti, ni;
+                char sep1, sep2;
+                indexStream >> vi;
+
+                tempVis.push_back(vi - 1);
+                if (indexStream.peek() != '/')
+                    continue;
+
+                indexStream >> sep1;
+                if (indexStream.peek() != '/') {
+                    indexStream >> ti;
+                    tempTis.push_back(ti - 1);
+                }
+
+                if (indexStream.peek() != '/')
+                    continue;
+                indexStream >> sep2;
+                indexStream >> ni;
+                tempNis.push_back(ni - 1);
             }
-            if (tempIndices.size() <= 3) {
-                for (unsigned int index : tempIndices)
+            if (tempVis.size() <= 3) {
+                for (unsigned int index : tempVis)
                     indices.push_back(index);
             } else {
-                for (size_t i = 2; i < tempIndices.size(); i++) {
-                    indices.push_back(tempIndices[0]);
-                    indices.push_back(tempIndices[i - 1]);
-                    indices.push_back(tempIndices[i    ]);
+                for (size_t i = 2; i < tempVis.size(); i++) {
+                    indices.push_back(tempVis[0]);
+                    indices.push_back(tempVis[i - 1]);
+                    indices.push_back(tempVis[i    ]);
+                }
+            }
+            if (tempTis.size() <= 3) {
+                for (unsigned int index : tempTis)
+                    texIndices.push_back(index);
+            } else {
+                for (size_t i = 2; i < tempTis.size(); i++) {
+                    texIndices.push_back(tempTis[0]);
+                    texIndices.push_back(tempTis[i - 1]);
+                    texIndices.push_back(tempTis[i    ]);
+                }
+            }
+            if (tempNis.size() <= 3) {
+                for (unsigned int index : tempNis)
+                    normIndices.push_back(index);
+            } else {
+                for (size_t i = 2; i < tempNis.size(); i++) {
+                    normIndices.push_back(tempNis[0]);
+                    normIndices.push_back(tempNis[i - 1]);
+                    normIndices.push_back(tempNis[i    ]);
                 }
             }
             SerializationUtils::skipToNextLine(stream);
@@ -136,8 +175,19 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
     mNumVertices = positions.size();
     mNumIndices = indices.size();
 
-    uvs.resize(mNumVertices);
-    normals.resize(mNumVertices);
+    std::vector<glm::vec2> uvs(mNumVertices);
+    for (size_t i = 0; i < indices.size(); i++) {
+        unsigned int vi = indices[i];
+        unsigned int ti = texIndices[i];
+        uvs[vi] = uvsSoft[ti];
+    }
+
+    std::vector<glm::vec3> normals(mNumVertices);
+    for (size_t i = 0; i < indices.size(); i++) {
+        unsigned int vi = indices[i];
+        unsigned int ni = normIndices[i];
+        normals[vi] = normalsSoft[ni];
+    }
 
     mType = Mesh::Type::Triangles;
 
