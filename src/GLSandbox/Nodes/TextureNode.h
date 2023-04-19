@@ -41,10 +41,10 @@ protected:
 
     void drawContents() override;
 private:
-    void drawTextureSettings();
-    void drawTextureFormat();
+    bool drawTextureSettings();
+    bool drawTextureFormat();
 
-    void updateInternalFormat();
+    void updateTexture();
 
     std::unique_ptr<Texture> mTexture;
     Port<Texture*> mTextureOut = Port<Texture*>(*this, IPort::Direction::Out, "TextureOut", "Texture", [&]() { return mTexture.get(); });

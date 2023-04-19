@@ -316,6 +316,10 @@ void generateDummyTypes(Texture::InternalFormat internalFormat,
 
 Texture::Texture() {
     glGenTextures(1, &mTexID);
+    bind();
+    setFilters(MinFilter::Linear, MagFilter::Linear);
+    setEdgeWrap(EdgeWrap::ClampToEdge);
+    unbind();
 }
 
 Texture::~Texture() {

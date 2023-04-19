@@ -6,6 +6,7 @@
 #include "../../Rendering/Framebuffer.h"
 #include "../../Rendering/Mesh.h"
 #include "../../Rendering/Shader.h"
+#include "../../Rendering/Texture.h"
 
 #include "../NodeClassifications.h"
 

@@ -239,15 +239,12 @@ void TextureNode::deserializeData(const std::string& dataID, std::ifstream& stre
 }
 
 void TextureNode::onDeserialize() {
-    updateInternalFormat();
-    mTexture->bind();
-    mTexture->setFilters(mMinFilter, mMagFilter);
-    mTexture->setEdgeWrap(mEdgeWrap);
+    updateTexture();
 }
 
 void TextureNode::drawContents() {
-    drawTextureSettings();
-    drawTextureFormat();
+    if (drawTextureSettings() || drawTextureFormat())
+        updateTexture();
 
     std::string message;
     ImVec4 colour;
@@ -256,34 +253,35 @@ void TextureNode::drawContents() {
     drawMessage(message, colour);
 }
 
-void TextureNode::drawTextureSettings() {
+bool TextureNode::drawTextureSettings() {
     if (!ImUtils::beginHeader("Parameters", "Parameters"))
-        return;
+        return false;
+
+    bool updateSettings = false;
 
     ImGui::Text("Bounds:");
-    if (ImUtils::inputIntN(&mTexBounds[0], 2, generateNodeLabelID("TextureBounds"), 1, 4096))
-        mTexture->resize(mTexBounds.x, mTexBounds.y);
+    updateSettings |= ImUtils::inputIntN(&mTexBounds[0], 2, generateNodeLabelID("TextureBounds"), 1, 4096);
 
     ImGui::Text("Min-Filter");
-    if (ImUtils::cycleButton(generateNodeLabelID("MinFilter"), (size_t&)mMinFilter, (size_t)Texture::MinFilter::Max,
-                             [](size_t index) { return getMinFilterLabel((Texture::MinFilter)index); }))
-        mTexture->setFilters(mMinFilter, mMagFilter);
+    updateSettings |= ImUtils::cycleButton(generateNodeLabelID("MinFilter"), (size_t&)mMinFilter, (size_t)Texture::MinFilter::Max,
+                             [](size_t index) { return getMinFilterLabel((Texture::MinFilter)index); });
+
     ImGui::Text("Mag-Filter");
-    if (ImUtils::cycleButton(generateNodeLabelID("MagFilter"), (size_t&)mMagFilter, (size_t)Texture::MagFilter::Max,
-                             [](size_t index) { return getMagFilterLabel((Texture::MagFilter)index); }))
-        mTexture->setFilters(mMinFilter, mMagFilter);
+    updateSettings |= ImUtils::cycleButton(generateNodeLabelID("MagFilter"), (size_t&)mMagFilter, (size_t)Texture::MagFilter::Max,
+                             [](size_t index) { return getMagFilterLabel((Texture::MagFilter)index); });
 
     ImGui::Text("Edge-Wrap Mode");
-    if (ImUtils::cycleButton(generateNodeLabelID("EdgeWrap"), (size_t&)mEdgeWrap, (size_t)Texture::EdgeWrap::Max,
-                             [](size_t index) { return getEdgeWrapLabel((Texture::EdgeWrap)index); }))
-        mTexture->setEdgeWrap(mEdgeWrap);
+    updateSettings |= ImUtils::cycleButton(generateNodeLabelID("EdgeWrap"), (size_t&)mEdgeWrap, (size_t)Texture::EdgeWrap::Max,
+                             [](size_t index) { return getEdgeWrapLabel((Texture::EdgeWrap)index); });
 
     ImUtils::endHeader();
+
+    return updateSettings;
 }
 
-void TextureNode::drawTextureFormat() {
+bool TextureNode::drawTextureFormat() {
     if (!ImUtils::beginHeader("Internal Format", generateNodeLabelID("InternalFormatHeader")))
-        return;
+        return false;
 
     bool updateFormat = false;
 
@@ -312,15 +310,16 @@ void TextureNode::drawTextureFormat() {
         mIsCompressed = !mIsCompressed;
     }
 
-    if (updateFormat)
-        updateInternalFormat();
-
     ImUtils::endHeader();
+    return updateFormat;
 }
 
-void TextureNode::updateInternalFormat() {
+void TextureNode::updateTexture() {
     mInternalFormat = parseInternalFormat(mNumChannels, mDataType, mPrecision, mIsSigned, mIsSRGB, mIsCompressed);
+
     mTexture->bind();
     mTexture->setInternalFormat(mInternalFormat);
+    mTexture->setFilters(mMinFilter, mMagFilter);
+    mTexture->setEdgeWrap(mEdgeWrap);
     mTexture->resize(mTexBounds.x, mTexBounds.y);
 }

@@ -59,10 +59,16 @@ RenderPassNode::pipeline_callback RenderPassNode::generateCallback() const {
     const Shader* shader = mShaderIn.getSingleConnectedValue<Shader*>();
 
     if (framebuffer) {
-        return [framebuffer, mesh, shader]() {
+        std::vector<const Texture*> textures{};
+        for (const auto& port : mSamplerPorts)
+            textures.push_back(dynamic_cast<Port<Texture*>*>(&port.get())->getSingleValue<Texture*>());
+        return [framebuffer, textures, mesh, shader]() {
             framebuffer->bind();
 
             shader->bind();
+            
+            for (int i = 0; i < textures.size(); i++)
+                textures[i]->bind(i);
 
             mesh->bind();
             mesh->draw();
