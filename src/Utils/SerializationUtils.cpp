@@ -1,5 +1,7 @@
 #include "SerializationUtils.h"
 
+#include <string>
+
 static constexpr char gMARK_PREFIX = '$';
 static constexpr char gMARK_BEGIN_SUFFIX[] = "Begin";
 static constexpr char gMARK_END_SUFFIX[] = "End";
@@ -99,4 +101,11 @@ void SerializationUtils::skipToNextLine(std::istream& stream) {
         stream.seekg(0, std::ios::end);
         stream.setstate(std::ios::eofbit);
     }
+}
+
+std::string SerializationUtils::readLine(std::istream& stream, char delimiter) {
+    std::string result;
+    stream >> std::ws;
+    std::getline(stream, result, delimiter);
+    return result;
 }

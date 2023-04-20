@@ -244,13 +244,19 @@ void ImUtils::rangeButtonLabel(const std::vector<std::string>& labels) {
 }
 
 bool ImUtils::fileChooseDialog(std::string& filename, const std::string& defaultLocation, const std::string& labelID) {
+#ifdef _WIN32
+    std::size_t nameStart = filename.find_last_of('\\');
+#else
     std::size_t nameStart = filename.find_last_of('/');
+#endif // _WIN32
+
     if (ImGui::Button(formatLabel("Choose", labelID).c_str(), gFILE_BUTTON_BOUNDS))
         return FileUtils::openFileDialog(filename, filename.empty() ? defaultLocation : filename.substr(0, nameStart));
 
     ImGui::SameLine();
 
-    ImGui::Text("%s", filename.empty() ? "<none>" : filename.substr(nameStart == std::string::npos ? 0 : nameStart + 1).c_str());
+    const std::string displayName = filename.substr(nameStart == std::string::npos ? 0 : nameStart + 1);
+    ImGui::Text("%s", filename.empty() ? "<none>" : displayName.c_str());
     return false;
 }
 

@@ -1,5 +1,7 @@
 #include "ShaderNode.h"
 
+#include "../../Utils/SerializationUtils.h"
+
 #include "../Assets.h"
 
 #include <algorithm>
@@ -52,15 +54,15 @@ std::vector<std::pair<std::string, std::string>> ShaderNode::generateSerializedD
 
 void ShaderNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
     if (dataID == "Vertex") {
-        stream >> mVertFile;
+        mVertFile = SerializationUtils::readLine(stream);
     } else if (dataID == "Fragment") {
-        stream >> mFragFile;
+        mFragFile = SerializationUtils::readLine(stream);
     } else if (dataID == "TessCont") {
-        stream >> mTescFile;
+        mTescFile = SerializationUtils::readLine(stream);
     } else if (dataID == "TessEval") {
-        stream >> mTeseFile;
+        mTeseFile = SerializationUtils::readLine(stream);
     } else if (dataID == "Geometry") {
-        stream >> mGeomFile;
+        mGeomFile = SerializationUtils::readLine(stream);
     }
 }
 void ShaderNode::onDeserialize() {

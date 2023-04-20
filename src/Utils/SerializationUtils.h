@@ -1,6 +1,6 @@
 #pragma once
 #include <functional>
-#include <fstream>
+#include <iostream>
 
 class SerializationUtils {
 public:
@@ -80,5 +80,10 @@ public:
      * @brief If there is no next line the stream will be moved to the end of the file and the eof bit will be set.
      */
     static void skipToNextLine(std::istream& stream);
+    /**
+     * @returns Plain text starting at current stream position and ending at the next delimiter (or eof).
+     * Leading whitespace is ignored.
+     */
+    static std::string readLine(std::istream& stream, char delimiter = '\n');
 };
 

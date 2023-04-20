@@ -34,7 +34,7 @@ std::vector<std::pair<std::string, std::string>> MeshNode::generateSerializedDat
 
 void MeshNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
     if (dataID == "File") {
-        stream >> mFilename;
+        mFilename = SerializationUtils::readLine(stream);
         loadFromFile();
     }
 }
@@ -58,6 +58,8 @@ void MeshNode::drawContents() {
 }
 
 void MeshNode::loadFromFile() {
+    if (mFilename.empty())
+        return;
     std::size_t index = mFilename.find_last_of('.');
     std::string fileExtension = mFilename.substr(index);
 
@@ -342,9 +344,6 @@ void MeshNode::uploadMesh() {
 }
 
 void MeshNode::drawGlobalParameters() {
-    std::size_t index = mFilename.find_last_of('/');
-    ImGui::Text("%s", mFilename.substr(index + 1).c_str());
-
     ImUtils::fileChooseDialog(mFilename, gMESH_ASSET_DIR, generateNodeLabelID("FileChoose"));
 
     if (ImUtils::button("Load", generateNodeLabelID("LoadButton")))

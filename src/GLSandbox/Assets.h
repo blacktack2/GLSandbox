@@ -1,5 +1,6 @@
 #pragma once
 #include <cstring>
+#include <string>
 
 enum class MeshFileExtension {
     MSH = 0,
@@ -9,9 +10,14 @@ enum class MeshFileExtension {
     Undefined,
 };
 
-static const char* gSHADER_ASSET_DIR = "Shaders/";
-static const char* gMESH_ASSET_DIR = "Meshes/";
-static const char* gTEXTURE_ASSET_DIR = "Textures/";
+#ifdef _WIN32
+static const std::string gDIR_DELIMITER = "\\";
+#else
+static const std::string gDIR_DELIMITER = "/";
+#endif // _WIN32
+static const std::string gSHADER_ASSET_DIR  = "Shaders"  + gDIR_DELIMITER;
+static const std::string gMESH_ASSET_DIR    = "Meshes"   + gDIR_DELIMITER;
+static const std::string gTEXTURE_ASSET_DIR = "Textures" + gDIR_DELIMITER;
 
 static constexpr MeshFileExtension gMESH_DEFAULT_EXTENSION = MeshFileExtension::MSH;
 
