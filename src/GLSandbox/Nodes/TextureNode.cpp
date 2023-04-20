@@ -254,7 +254,7 @@ void TextureNode::drawContents() {
 }
 
 bool TextureNode::drawTextureSettings() {
-    if (!ImUtils::beginHeader("Parameters", "Parameters"))
+    if (!ImUtils::beginHeader("Parameters", generateNodeLabelID("Parameters"), mShowParameters))
         return false;
 
     bool updateSettings = false;
@@ -280,7 +280,7 @@ bool TextureNode::drawTextureSettings() {
 }
 
 bool TextureNode::drawTextureFormat() {
-    if (!ImUtils::beginHeader("Internal Format", generateNodeLabelID("InternalFormatHeader")))
+    if (!ImUtils::beginHeader("Internal Format", generateNodeLabelID("InternalFormat"), mShowInternalFormat))
         return false;
 
     bool updateFormat = false;

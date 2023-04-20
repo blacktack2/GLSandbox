@@ -87,6 +87,9 @@ private:
 
     bool mEnableDepthMask = false;
 
+    bool mShowSettings = false;
+    bool mShowProblems = false;
+
     mutable ValidationState mValidationState = ValidationState::Unloaded;
 };
 

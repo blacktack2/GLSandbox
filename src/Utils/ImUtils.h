@@ -55,7 +55,7 @@ namespace ImUtils {
     void multiInputLabel(const std::string& label0, const std::string& label1,
                                 const std::string& label2, const std::string& label3);
 
-    bool beginHeader(const std::string& displayText, const std::string& labelID);
+    bool beginHeader(const std::string& displayText, const std::string& labelID, bool& show, unsigned int depth = 0);
     void endHeader();
 
     bool toggleButton(bool& value, const std::string& displayOnEnable, const std::string& displayOnDisable,
@@ -71,7 +71,7 @@ namespace ImUtils {
 
     bool fileChooseDialog(std::string& filename, const std::string& defaultLocation, const std::string& labelID);
 
-    void image(const Texture& tex, const std::string& labelID);
+    void image(const Texture& tex, const std::string& labelID, bool& show);
 
     namespace Pins {
         void circleIcon(float outerRadius, float thickness, ImU32 outerColour, ImU32 innerColour);

@@ -51,6 +51,7 @@ private:
         VectorVariant<Mesh::attribute_t> data;
 
         bool isMarkedDelete = false;
+        bool show = false;
     };
 
     void loadFromFile();
@@ -183,5 +184,8 @@ private:
 
     std::string mFilename;
     bool mCanWriteToFile = true;
+
+    bool mShowAttributes = false;
+    bool mShowAddAttribute = false;
 };
 

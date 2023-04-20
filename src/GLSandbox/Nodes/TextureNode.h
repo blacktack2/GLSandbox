@@ -63,5 +63,8 @@ private:
     bool mIsSigned       = false;
     bool mIsSRGB         = false;
     bool mIsCompressed   = false;
+
+    bool mShowParameters = false;
+    bool mShowInternalFormat = false;
 };
 

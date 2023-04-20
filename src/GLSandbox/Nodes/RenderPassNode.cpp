@@ -229,7 +229,7 @@ void RenderPassNode::clearUniformPorts() {
 }
 
 void RenderPassNode::drawSettings() {
-    if (!ImUtils::beginHeader("Settings", generateNodeLabelID("SettingsHeader")))
+    if (!ImUtils::beginHeader("Settings", generateNodeLabelID("SettingsHeader"), mShowSettings))
         return;
 
     ImGui::Text("Viewport");
@@ -270,7 +270,7 @@ void RenderPassNode::drawSettings() {
                              (size_t)RenderConfig::DepthTestFunc::Max,
                              [](size_t index) { return getDepthTestFuncLabel((RenderConfig::DepthTestFunc)index); });
         ImUtils::multiInputLabel("Near:", "Far:");
-        ImUtils::inputFloat(&mDepthTestLimits[0], generateNodeLabelID("DepthTestLimits"), 0.0f, 1.0f);
+        ImUtils::inputFloatN(&mDepthTestLimits[0], 2, generateNodeLabelID("DepthTestLimits"), 0.0f, 1.0f);
     }
 
     ImUtils::toggleButton(mEnableDepthMask, "Depth Mask (On)", "Depth Mask (Off)", generateNodeLabelID("DepthMask"));
@@ -287,7 +287,7 @@ void RenderPassNode::drawValidationMessage() {
         return;
     }
 
-    if (!ImUtils::beginHeader("Show Problems", generateNodeLabelID("ProblemHeader")))
+    if (!ImUtils::beginHeader("Show Problems", generateNodeLabelID("ProblemHeader"), mShowSettings))
         return;
 
     if (mValidationState & ValidationState::Invalid)

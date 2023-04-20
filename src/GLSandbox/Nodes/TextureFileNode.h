@@ -39,5 +39,7 @@ private:
     std::string mFilename;
 
     ValidationState mState = ValidationState::Unloaded;
+
+    bool mShowPreview = false;
 };
 

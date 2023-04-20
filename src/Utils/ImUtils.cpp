@@ -11,7 +11,13 @@ namespace ed = ax::NodeEditor;
 
 static constexpr float gNODE_WIDTH = 200.0f;
 
-static constexpr ImVec2 gBUTTON_BOUNDS = ImVec2(100.0f, 0.0f);
+static constexpr ImVec2 gBUTTON_BOUNDS = ImVec2(gNODE_WIDTH * 0.5f, 0.0f);
+
+static constexpr ImVec2 gHEADER_BOUNDS = ImVec2(gNODE_WIDTH * 0.75f, 0.0f);
+static constexpr ImVec4 gHEADER_COLOURS[] = {
+    ImVec4(0.25f, 0.25f, 0.25f, 1.0f),
+    ImVec4(0.5f, 0.5f, 0.5f, 1.0f),
+};
 
 static constexpr ImVec2 gCHILD_PANEL_BOUNDS = ImVec2(gNODE_WIDTH * 0.75f, 0.0f);
 
@@ -158,12 +164,17 @@ void ImUtils::multiInputLabel(const std::string& label0, const std::string& labe
     ImGui::Text("%s", label3.c_str());
 }
 
-bool ImUtils::beginHeader(const std::string& displayText, const std::string& labelID) {
-    return ImGui::TreeNodeEx(formatLabel(displayText, labelID).c_str());
+bool ImUtils::beginHeader(const std::string& displayText, const std::string& labelID, bool& show, unsigned int depth) {
+    ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(gNODE_WIDTH - gHEADER_BOUNDS.x, 0.0f) * 0.5f);
+    ImGui::PushStyleColor(ImGuiCol_Button, gHEADER_COLOURS[depth]);
+    if (ImGui::Button(formatLabel(displayText, labelID).c_str(), gHEADER_BOUNDS))
+        show = !show;
+    ImGui::PopStyleColor();
+    return show;
 }
 
 void ImUtils::endHeader() {
-    ImGui::TreePop();
+
 }
 
 bool ImUtils::toggleButton(bool& value, const std::string& displayOnEnable, const std::string& displayOnDisable,
@@ -263,8 +274,8 @@ bool ImUtils::fileChooseDialog(std::string& filename, const std::string& default
     return false;
 }
 
-void ImUtils::image(const Texture& tex, const std::string& labelID) {
-    if (!beginHeader("Preview", labelID))
+void ImUtils::image(const Texture& tex, const std::string& labelID, bool& show) {
+    if (!beginHeader("Preview", labelID, show))
         return;
 
     float height = gIMAGE_WIDTH * (float)tex.getHeight() / (float)tex.getWidth();

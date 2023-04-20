@@ -58,7 +58,7 @@ void TextureFileNode::drawContents() {
     drawMessage(message, colour);
 
     if (mTexture->getState() == Texture::ErrorState::VALID)
-        ImUtils::image(*mTexture, generateNodeLabelID("Preview"));
+        ImUtils::image(*mTexture, generateNodeLabelID("Preview"), mShowPreview);
 }
 
 void TextureFileNode::loadFromFile() {

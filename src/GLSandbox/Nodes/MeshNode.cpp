@@ -46,11 +46,11 @@ void MeshNode::onDeserialize() {
 void MeshNode::drawContents() {
     drawGlobalParameters();
 
-    if (ImUtils::beginHeader("Attributes", generateNodeLabelID("AttributesHeader"))) {
+    if (ImUtils::beginHeader("Attributes", generateNodeLabelID("AttributesHeader"), mShowAttributes)) {
         drawAttributes();
-        drawAddAttributePopup();
         ImUtils::endHeader();
     }
+    drawAddAttributePopup();
     if (ImUtils::button("Upload", generateNodeLabelID("Upload")))
         uploadMesh();
 
@@ -374,7 +374,7 @@ void MeshNode::drawAttributes() {
 void MeshNode::drawAttribute(Attribute& attribute) {
     const std::string headerDisplayText = std::string(attribute.name).append(" (")
         .append(getDataTypeName(attribute.data)).append(")");
-    if (!ImUtils::beginHeader(headerDisplayText, generateAttributeLabelID(attribute, "Header")))
+    if (!ImUtils::beginHeader(headerDisplayText, generateAttributeLabelID(attribute, "Header"), attribute.show, 1))
         return;
 
     if (ImUtils::button("Remove", generateAttributeLabelID(attribute, "Remove"))) {
@@ -426,7 +426,7 @@ void MeshNode::drawAttribute(Attribute& attribute) {
 }
 
 void MeshNode::drawAddAttributePopup() {
-    if (!ImUtils::beginHeader("Add Attribute", generateNodeLabelID("AddAttribute")))
+    if (!ImUtils::beginHeader("Add Attribute", generateNodeLabelID("AddAttribute"), mShowAddAttribute))
         return;
 
     for (unsigned int i = 0; i < (unsigned int)Mesh::AttributeType::Max; i++) {
