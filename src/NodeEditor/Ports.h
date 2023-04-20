@@ -1,6 +1,8 @@
 #pragma once
 #include "Node.h"
 
+#include "../Utils/ImUtils.h"
+
 #include <imgui_node_editor.h>
 
 #include <algorithm>
@@ -298,16 +300,24 @@ private:
 
     void drawIn() {
         ed::BeginPin(mID, ed::PinKind::Input);
+        ed::PinPivotAlignment(ImVec2(0.0f, 0.5f));
+        ed::PinPivotSize(ImVec2(0.0f, 0.0f));
 
-        ImGui::Text("-> %s", mDisplayName.c_str());
+        ImUtils::Pins::circleIcon(5.0f, 2.0f, ImColor(1.0f, 0.0f, 0.0f), ImColor(0.0f, 0.0f, 0.0f));
+        ImGui::SameLine();
+        ImGui::TextUnformatted(mDisplayName.c_str());
 
         ed::EndPin();
     }
     void drawOut() {
         ImGui::SameLine(mParent.getSize().x - ImGui::CalcTextSize((mDisplayName + " ->").c_str()).x - ed::GetStyle().NodePadding.x - ed::GetStyle().NodePadding.z);
         ed::BeginPin(mID, ed::PinKind::Output);
+        ed::PinPivotAlignment(ImVec2(1.0f, 0.5f));
+        ed::PinPivotSize(ImVec2(0.0f, 0.0f));
 
-        ImGui::Text("%s ->", mDisplayName.c_str());
+        ImGui::TextUnformatted(mDisplayName.c_str());
+        ImGui::SameLine();
+        ImUtils::Pins::circleIcon(5.0f, 2.0f, ImColor(1.0f, 0.0f, 0.0f), ImColor(0.0f, 0.0f, 0.0f));
 
         ed::EndPin();
     }

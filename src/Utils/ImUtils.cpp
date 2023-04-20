@@ -5,6 +5,9 @@
 #include "FileUtils.h"
 
 #include <imgui_stdlib.h>
+#include <imgui_node_editor.h>
+
+namespace ed = ax::NodeEditor;
 
 static constexpr float gNODE_WIDTH = 200.0f;
 
@@ -268,4 +271,29 @@ void ImUtils::image(const Texture& tex, const std::string& labelID) {
     ImGui::Image((ImTextureID)(intptr_t)tex.getID(), ImVec2(gIMAGE_WIDTH, height));
 
     endHeader();
+}
+
+void ImUtils::Pins::circleIcon(float outerRadius, float thickness, ImU32 outerColour, ImU32 innerColour) {
+    auto drawList = ImGui::GetWindowDrawList();
+
+    float lineHeight = ImGui::GetTextLineHeight();
+    float yOffset = (lineHeight - outerRadius * 2.0f);
+
+    ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+    ImGui::SetCursorScreenPos(cursorPos + ImVec2(0.0f, yOffset));
+
+    ImGui::Dummy(ImVec2(outerRadius, outerRadius) * 2.0f);
+
+    ImGui::SetCursorScreenPos(cursorPos + ImVec2(outerRadius, 0.0f));
+
+    ImVec2 min = ImGui::GetItemRectMin();
+    ImVec2 max = ImGui::GetItemRectMax();
+    ImVec2 size = ImGui::GetItemRectSize();
+
+    ImVec2 center = (min + max) * 0.5f;
+    float radius = std::min(size.x, size.y) * 0.5f;
+
+    drawList->AddCircleFilled(center, radius - thickness * 0.5f, innerColour, 24);
+    drawList->AddCircle(center, radius, outerColour, 24, thickness);
+
 }

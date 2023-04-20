@@ -72,5 +72,9 @@ namespace ImUtils {
     bool fileChooseDialog(std::string& filename, const std::string& defaultLocation, const std::string& labelID);
 
     void image(const Texture& tex, const std::string& labelID);
+
+    namespace Pins {
+        void circleIcon(float outerRadius, float thickness, ImU32 outerColour, ImU32 innerColour);
+    }
 };
 
