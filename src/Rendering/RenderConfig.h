@@ -1,4 +1,5 @@
 #pragma once
+#include <climits>
 
 class RenderConfig {
 public:
@@ -8,7 +9,7 @@ public:
         Stencil = 1 << 2,
     };
 
-    enum class BlendFuncSrc {
+    enum class BlendFuncSrc : std::size_t {
         One = 0,
         SrcColour,
         OneMinusSrcColour,
@@ -24,7 +25,7 @@ public:
 
         Max,
     };
-    enum class BlendFuncDst {
+    enum class BlendFuncDst : std::size_t {
         Zero = 0,
         One,
         SrcColour,
@@ -43,7 +44,7 @@ public:
         Max,
     };
 
-    enum class CullFaceMode {
+    enum class CullFaceMode : std::size_t {
         Front,
         Back,
         FrontAndBack,
@@ -51,7 +52,7 @@ public:
         Max,
     };
 
-    enum class DepthTestFunc {
+    enum class DepthTestFunc : std::size_t {
         Never,
         Less,
         Equal,
