@@ -125,7 +125,7 @@ bool ImUtils::inputBoolN(bool* value, unsigned int numComponents, const std::str
     bool valueChanged = false;
     for (unsigned int i = 0; i < numComponents; i++) {
         if (i != 0)
-            ImGui::SameLine();
+            ImGui::SameLine(gMULTI_NUMERIC_INPUT_WIDTH * (float)i);
         if (ImGui::Button(formatLabel(value[i] ? "X" : "O", labelID + std::to_string(i)).c_str(), gMULTI_BUTTON_INPUT_BOUNDS)) {
             valueChanged = true;
             value[i] = !value[i];
