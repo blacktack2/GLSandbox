@@ -113,6 +113,7 @@ void Window::mainloop() {
 
         ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 
+        drawMenu();
         drawGraph();
 
         mRenderer->drawDebug();
@@ -145,6 +146,33 @@ void Window::handleEvent(SDL_Event &e) {
 
     if (ImGui::IsKeyPressed(ImGuiKey_Escape))
         mRunning = false;
+}
+
+void Window::drawMenu() {
+    if (!ImGui::BeginMainMenuBar())
+        return;
+
+    drawFileMenu();
+
+    ImGui::EndMainMenuBar();
+}
+
+void Window::drawFileMenu() {
+    if (!ImGui::BeginMenu("File##MainMenu"))
+        return;
+
+    ImGui::MenuItem("New##MainMenu_File");
+
+    ImGui::Separator();
+
+    ImGui::MenuItem("Save##MainMenu_File");
+    ImGui::MenuItem("Save As##MainMenu_File");
+
+    ImGui::Separator();
+
+    ImGui::MenuItem("Exit##MainMenu_File");
+
+    ImGui::EndMenu();
 }
 
 void Window::drawGraph() {

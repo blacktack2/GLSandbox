@@ -25,6 +25,9 @@ public:
 private:
     void handleEvent(SDL_Event& e);
 
+    void drawMenu();
+    void drawFileMenu();
+
     void drawGraph();
 
     SDL_Window* mWindow = nullptr;
