@@ -90,7 +90,7 @@ std::vector<std::pair<std::string, std::string>> RenderPassNode::generateSeriali
         data.emplace_back("DepthTestFunc", SerializationUtils::serializeData((int)mDepthTestFunc));
         data.emplace_back("DepthTestLimits", SerializationUtils::serializeData(mDepthTestLimits));
     }
-    data.emplace_back("DepthMask", SerializationUtils::serializeData(mEnableDepthTest));
+    data.emplace_back("DepthMask", SerializationUtils::serializeData(mEnableDepthMask));
     return data;
 }
 
