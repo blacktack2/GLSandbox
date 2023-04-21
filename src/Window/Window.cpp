@@ -161,7 +161,8 @@ void Window::drawFileMenu() {
     if (!ImGui::BeginMenu("File##MainMenu"))
         return;
 
-    ImGui::MenuItem("New##MainMenu_File");
+    if (ImGui::MenuItem("New##MainMenu_File"))
+        mGraph->clearNodes();
 
     ImGui::Separator();
 
