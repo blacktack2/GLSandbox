@@ -11,7 +11,7 @@ namespace ed = ax::NodeEditor;
 
 static constexpr float gNODE_WIDTH = 200.0f;
 
-static constexpr ImVec2 gBUTTON_BOUNDS = ImVec2(gNODE_WIDTH * 0.5f, 0.0f);
+static constexpr ImVec2 gBUTTON_BOUNDS = ImVec2(gNODE_WIDTH * 0.75f, 0.0f);
 
 static constexpr ImVec2 gHEADER_BOUNDS = ImVec2(gNODE_WIDTH * 0.75f, 0.0f);
 static constexpr ImVec4 gHEADER_COLOURS[] = {
