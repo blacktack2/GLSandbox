@@ -1,5 +1,7 @@
 #include "RenderPassNode.h"
 
+#include "../../Utils/SerializationUtils.h"
+
 std::string getBlendFuncSrcLabel(RenderConfig::BlendFuncSrc srcFactor) {
     switch (srcFactor) {
         default: return "Undefined";
@@ -73,11 +75,51 @@ RenderPassNode::RenderPassNode() : Node("Render Pass") {
 }
 
 std::vector<std::pair<std::string, std::string>> RenderPassNode::generateSerializedData() const {
-    return {};
+    std::vector<std::pair<std::string, std::string>> data{};
+    data.emplace_back("Viewport", SerializationUtils::serializeData(mViewport));
+    if (mDoClear)
+        data.emplace_back("ClearColour", SerializationUtils::serializeData(mClearColour));
+    if (mEnableBlend) {
+        data.emplace_back("BlendFuncSrc", SerializationUtils::serializeData((int)mBlendFuncSrc));
+        data.emplace_back("BlendFuncDst", SerializationUtils::serializeData((int)mBlendFuncDst));
+    }
+    data.emplace_back("ColourMask", SerializationUtils::serializeData(mColourMask));
+    if (mEnableFaceCulling)
+        data.emplace_back("FaceCull", SerializationUtils::serializeData((int)mCullFaceMode));
+    if (mEnableDepthTest) {
+        data.emplace_back("DepthTestFunc", SerializationUtils::serializeData((int)mDepthTestFunc));
+        data.emplace_back("DepthTestLimits", SerializationUtils::serializeData(mDepthTestLimits));
+    }
+    data.emplace_back("DepthMask", SerializationUtils::serializeData(mEnableDepthTest));
+    return data;
 }
 
 void RenderPassNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
-
+    if (dataID == "Viewport") {
+        SerializationUtils::deserializeData(stream, mViewport);
+    } else if (dataID == "ClearColour") {
+        mDoClear = true;
+        SerializationUtils::deserializeData(stream, mClearColour);
+    } else if (dataID == "BlendFuncSrc") {
+        mEnableBlend = true;
+        SerializationUtils::deserializeData(stream, (int&)mBlendFuncSrc);
+    } else if (dataID == "BlendFuncDst") {
+        mEnableBlend = true;
+        SerializationUtils::deserializeData(stream, (int&)mBlendFuncDst);
+    } else if (dataID == "ColourMask") {
+        SerializationUtils::deserializeData(stream, mColourMask);
+    } else if (dataID == "FaceCull") {
+        mEnableFaceCulling = true;
+        SerializationUtils::deserializeData(stream, (int&)mCullFaceMode);
+    } else if (dataID == "DepthTestFunc") {
+        mEnableDepthTest = true;
+        SerializationUtils::deserializeData(stream, (int&)mDepthTestFunc);
+    } else if (dataID == "DepthTestLimits") {
+        mEnableDepthTest = true;
+        SerializationUtils::deserializeData(stream, mDepthTestLimits);
+    } else if (dataID == "DepthMask") {
+        SerializationUtils::deserializeData(stream, mEnableDepthMask);
+    }
 }
 
 void RenderPassNode::drawContents() {
