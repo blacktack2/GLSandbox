@@ -53,17 +53,16 @@ std::vector<std::pair<std::string, std::string>> ShaderNode::generateSerializedD
 }
 
 void ShaderNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
-    if (dataID == "Vertex") {
+    if (dataID == "Vertex")
         mVertFile = SerializationUtils::readLine(stream);
-    } else if (dataID == "Fragment") {
+    else if (dataID == "Fragment")
         mFragFile = SerializationUtils::readLine(stream);
-    } else if (dataID == "TessCont") {
+    else if (dataID == "TessCont")
         mTescFile = SerializationUtils::readLine(stream);
-    } else if (dataID == "TessEval") {
+    else if (dataID == "TessEval")
         mTeseFile = SerializationUtils::readLine(stream);
-    } else if (dataID == "Geometry") {
+    else if (dataID == "Geometry")
         mGeomFile = SerializationUtils::readLine(stream);
-    }
 }
 void ShaderNode::onDeserialize() {
     uploadShader();

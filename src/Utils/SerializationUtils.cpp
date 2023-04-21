@@ -1,6 +1,5 @@
 #include "SerializationUtils.h"
 
-#include <string>
 
 static constexpr char gMARK_PREFIX = '$';
 static constexpr char gMARK_BEGIN_SUFFIX[] = "Begin";

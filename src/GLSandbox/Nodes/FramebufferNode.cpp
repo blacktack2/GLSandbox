@@ -2,6 +2,8 @@
 
 #include "../../Rendering/Texture.h"
 
+#include "../../Utils/SerializationUtils.h"
+
 #include <climits>
 
 void getFramebufferStatus(Framebuffer::ErrorState state, std::string& message, ImVec4& messageColour) {
@@ -71,20 +73,20 @@ bool FramebufferNode::validate() const {
 }
 
 std::vector<std::pair<std::string, std::string>> FramebufferNode::generateSerializedData() const {
-    return {
-        {"NumColourBuffers",   std::to_string(mNumColourBuffers)},
-        {"DepthBuffer",        std::to_string(mEnableDepthBuffer)},
-        {"DepthStencilBuffer", std::to_string(mEnableDepthStencilBuffer)},
-    };
+    std::vector<std::pair<std::string, std::string>> data{};
+    data.emplace_back("NumColourBuffers", SerializationUtils::serializeData(mNumColourBuffers));
+    data.emplace_back("DepthBuffer", SerializationUtils::serializeData(mEnableDepthBuffer));
+    data.emplace_back("DepthStencilBuffer", SerializationUtils::serializeData(mEnableDepthStencilBuffer));
+    return data;
 }
 
 void FramebufferNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
     if (dataID == "NumColourBuffers")
-        stream >> mNumColourBuffers;
+        SerializationUtils::deserializeData(stream, mNumColourBuffers);
     else if (dataID == "DepthBuffer")
-        stream >> mEnableDepthBuffer;
+        SerializationUtils::deserializeData(stream, mEnableDepthBuffer);
     else if (dataID == "DepthStencilBuffer")
-        stream >> mEnableDepthStencilBuffer;
+        SerializationUtils::deserializeData(stream, mEnableDepthStencilBuffer);
 }
 
 void FramebufferNode::onDeserialize() {

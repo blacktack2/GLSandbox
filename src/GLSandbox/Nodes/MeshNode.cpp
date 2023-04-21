@@ -1,6 +1,7 @@
 #include "MeshNode.h"
 
 #include "../../Utils/FileUtils.h"
+#include "../../Utils/SerializationUtils.h"
 
 #include <filesystem>
 #include <regex>
@@ -15,8 +16,9 @@ MeshNode::MeshNode() : Node("Mesh") {
 }
 
 std::vector<std::pair<std::string, std::string>> MeshNode::generateSerializedData() const {
+    std::vector<std::pair<std::string, std::string>> data{};
     if (!mCanWriteToFile)
-        return {};
+        return data;
 
     std::string filename = mFilename;
     if (filename.empty())
@@ -26,10 +28,9 @@ std::vector<std::pair<std::string, std::string>> MeshNode::generateSerializedDat
     std::string fileExtension = mFilename.substr(index);
     if (parseFileExtension(fileExtension.c_str()) == gMESH_DEFAULT_EXTENSION)
         writeToFile(filename);
+    data.emplace_back("File", filename);
 
-    return {
-        {"File", filename},
-    };
+    return data;
 }
 
 void MeshNode::deserializeData(const std::string& dataID, std::ifstream& stream) {

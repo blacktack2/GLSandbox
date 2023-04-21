@@ -5,7 +5,6 @@
 
 #include "../../Rendering/Mesh.h"
 
-#include "../../Utils/SerializationUtils.h"
 #include "../../Utils/VariantUtils.h"
 
 #include "../Assets.h"

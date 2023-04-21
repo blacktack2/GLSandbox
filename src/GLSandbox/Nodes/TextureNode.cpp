@@ -1,5 +1,7 @@
 #include "TextureNode.h"
 
+#include "../../Utils/SerializationUtils.h"
+
 #include <sstream>
 
 Texture::InternalFormat parseInternalFormat(size_t numChannels, TextureNode::DataType dataType, TextureNode::Precision precision,
@@ -199,43 +201,41 @@ bool TextureNode::isValid() const {
 }
 
 std::vector<std::pair<std::string, std::string>> TextureNode::generateSerializedData() const {
-    std::stringstream boundsStream;
-    boundsStream << mTexBounds.x << " " << mTexBounds.y;
-    return {
-        {"Bounds", boundsStream.str()},
-        {"Min", std::to_string((int)mMinFilter)},
-        {"Mag", std::to_string((int)mMagFilter)},
-        {"Wrap", std::to_string((int)mEdgeWrap)},
-        {"Channels", std::to_string(mNumChannels)},
-        {"DataType", std::to_string((int)mDataType)},
-        {"Precision", std::to_string((int)mPrecision)},
-        {"Signed", std::to_string(mIsSigned)},
-        {"SRGB", std::to_string(mIsSRGB)},
-        {"Compressed", std::to_string(mIsCompressed)},
-    };
+    std::vector<std::pair<std::string, std::string>> data{};
+    data.emplace_back("Bounds", SerializationUtils::serializeData(mTexBounds));
+    data.emplace_back("Min", SerializationUtils::serializeData((int)mMinFilter));
+    data.emplace_back("Mag", SerializationUtils::serializeData((int)mMagFilter));
+    data.emplace_back("Wrap", SerializationUtils::serializeData((int)mEdgeWrap));
+    data.emplace_back("Channels", SerializationUtils::serializeData(mNumChannels));
+    data.emplace_back("DataType", SerializationUtils::serializeData((int)mDataType));
+    data.emplace_back("Precision", SerializationUtils::serializeData((int)mPrecision));
+    data.emplace_back("Signed", SerializationUtils::serializeData(mIsSigned));
+    data.emplace_back("SRGB", SerializationUtils::serializeData(mIsSRGB));
+    data.emplace_back("Compressed", SerializationUtils::serializeData(mIsCompressed));
+    return data;
 }
 
 void TextureNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
     if (dataID == "Bounds")
-        stream >> mTexBounds.x >> mTexBounds.y;
+        SerializationUtils::deserializeData(stream, mTexBounds);
     else if (dataID == "Min")
-        stream >> (int&)mMinFilter;
+        SerializationUtils::deserializeData(stream, (int&)mMinFilter);
     else if (dataID == "Mag")
-        stream >> (int&)mMagFilter;
+        SerializationUtils::deserializeData(stream, (int&)mMagFilter);
     else if (dataID == "Wrap")
-        stream >> (int&)mEdgeWrap;
+        SerializationUtils::deserializeData(stream, (int&)mEdgeWrap);
     else if (dataID == "Channels")
-        stream >> mNumChannels;
+        SerializationUtils::deserializeData(stream, mNumChannels);
     else if (dataID == "DataType")
-        stream >> (int&)mDataType;
+        SerializationUtils::deserializeData(stream, (int&)mDataType);
     else if (dataID == "Precision")
-        stream >> (int&)mPrecision;
+        SerializationUtils::deserializeData(stream, (int&)mPrecision);
     else if (dataID == "Signed")
-        stream >> mIsSigned;
+        SerializationUtils::deserializeData(stream, mIsSigned);
     else if (dataID == "SRGB")
-        stream >> mIsSRGB;
+        SerializationUtils::deserializeData(stream, mIsSRGB);
     else if (dataID == "Compressed")
-        stream >> mIsCompressed;
+        SerializationUtils::deserializeData(stream, mIsCompressed);
 }
 
 void TextureNode::onDeserialize() {

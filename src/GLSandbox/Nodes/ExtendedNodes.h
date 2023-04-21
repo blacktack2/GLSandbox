@@ -19,9 +19,6 @@ public:
         return (unsigned int)NodeType::UV;
     }
 protected:
-    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
-    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
-
     bool drawInputArea(const std::string& label) final;
 };
 
@@ -34,9 +31,6 @@ public:
         return (unsigned int)NodeType::Colour;
     }
 protected:
-    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
-    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
-
     bool drawInputArea(const std::string& label) final;
 };
 
@@ -49,9 +43,6 @@ public:
         return (unsigned int)NodeType::Direction;
     }
 protected:
-    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
-    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
-
     bool drawInputArea(const std::string& label) final;
 };
 
@@ -64,8 +55,8 @@ public:
         return (unsigned int)NodeType::ModelMatrix;
     }
 protected:
-    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
-    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
+    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedDataExtra() const final;
+    void deserializeDataExtra(const std::string& dataID, std::ifstream& stream) final;
 
     void onDeserialize() final {
         mValue = generateModelMatrix();
@@ -102,8 +93,8 @@ public:
         return (unsigned int)NodeType::ViewMatrix;
     }
 protected:
-    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
-    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
+    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedDataExtra() const final;
+    void deserializeDataExtra(const std::string& dataID, std::ifstream& stream) final;
 
     void onDeserialize() final {
         mValue = generateViewMatrix();
@@ -138,8 +129,8 @@ public:
         return (unsigned int)NodeType::ProjMatrix;
     }
 protected:
-    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
-    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
+    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedDataExtra() const final;
+    void deserializeDataExtra(const std::string& dataID, std::ifstream& stream) final;
 
     void onDeserialize() final {
         mValue = generateProjMatrix();

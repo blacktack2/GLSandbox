@@ -6,19 +6,6 @@ UVNode::UVNode() : NumericNode<glm::vec2>("UV") {
     mValue = glm::vec2(0.0f);
 }
 
-std::vector<std::pair<std::string, std::string>> UVNode::generateSerializedData() const {
-    std::stringstream stream;
-    stream << mValue.x << " " << mValue.y;
-    return {
-        {"Value", stream.str()}
-    };
-}
-
-void UVNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
-    if (dataID == "Value")
-        stream >> mValue.x >> mValue.y;
-}
-
 bool UVNode::drawInputArea(const std::string& label) {
     return ImUtils::inputFloatN(&mValue[0], 2, label, -1.0f, 1.0f);
 }
@@ -27,38 +14,12 @@ ColourNode::ColourNode() : NumericNode<glm::vec3>("Colour") {
     mValue = glm::vec3(1.0f);
 }
 
-std::vector<std::pair<std::string, std::string>> ColourNode::generateSerializedData() const {
-    std::stringstream stream;
-    stream << mValue.r << " " << mValue.g << " " << mValue.b;
-    return {
-        {"Value", stream.str()}
-    };
-}
-
-void ColourNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
-    if (dataID == "Value")
-        stream >> mValue.r >> mValue.g >> mValue.b;
-}
-
 bool ColourNode::drawInputArea(const std::string& label) {
     return ImUtils::inputFloatN(&mValue[0], 3, label, 0.0f, 1.0f);
 }
 
 DirectionNode::DirectionNode() : NumericNode<glm::vec3>("Direction") {
     mValue = glm::vec3(0.0f, 1.0f, 0.0f);
-}
-
-std::vector<std::pair<std::string, std::string>> DirectionNode::generateSerializedData() const {
-    std::stringstream stream;
-    stream << mValue.x << " " << mValue.y << " " << mValue.z;
-    return {
-        {"Value", stream.str()}
-    };
-}
-
-void DirectionNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
-    if (dataID == "Value")
-        stream >> mValue.x >> mValue.y >> mValue.z;
 }
 
 bool DirectionNode::drawInputArea(const std::string& label) {
@@ -110,32 +71,27 @@ ModelMatrixNode::ModelMatrixNode() : NumericNode<glm::mat4>("Model") {
     mValue = generateModelMatrix();
 }
 
-std::vector<std::pair<std::string, std::string>> ModelMatrixNode::generateSerializedData() const {
-    std::stringstream positionStream;
-    positionStream << mPosition.x << " " << mPosition.y << " " << mPosition.z;
-    std::stringstream scaleStream;
-    scaleStream    << mScale.x    << " " << mScale.y    << " " << mScale.z;
-    return {
-        {"Position", positionStream.str()},
-        {"Roll",     std::to_string(mRoll)},
-        {"Pitch",    std::to_string(mPitch)},
-        {"Yaw",      std::to_string(mYaw)},
-        {"Scale",    scaleStream.str()   },
-    };
+std::vector<std::pair<std::string, std::string>> ModelMatrixNode::generateSerializedDataExtra() const {
+    std::vector<std::pair<std::string, std::string>> data{};
+    data.emplace_back("Position", SerializationUtils::serializeData(mPosition));
+    data.emplace_back("Roll", SerializationUtils::serializeData(mRoll));
+    data.emplace_back("Pitch", SerializationUtils::serializeData(mPitch));
+    data.emplace_back("Yaw", SerializationUtils::serializeData(mYaw));
+    data.emplace_back("Scale", SerializationUtils::serializeData(mScale));
+    return data;
 }
 
-void ModelMatrixNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
-    if (dataID == "Position") {
-        stream >> mPosition.x >> mPosition.y >> mPosition.z;
-    } else if (dataID == "Roll") {
-        stream >> mRoll;
-    } else if (dataID == "Pitch") {
-        stream >> mPitch;
-    } else if (dataID == "Yaw") {
-        stream >> mYaw;
-    } else if (dataID == "Scale") {
-        stream >> mScale.x    >> mScale.y    >> mScale.z;
-    }
+void ModelMatrixNode::deserializeDataExtra(const std::string& dataID, std::ifstream& stream) {
+    if (dataID == "Position")
+        SerializationUtils::deserializeData(stream, mPosition);
+    else if (dataID == "Roll")
+        SerializationUtils::deserializeData(stream, mRoll);
+    else if (dataID == "Pitch")
+        SerializationUtils::deserializeData(stream, mPitch);
+    else if (dataID == "Yaw")
+        SerializationUtils::deserializeData(stream, mYaw);
+    else if (dataID == "Scale")
+        SerializationUtils::deserializeData(stream, mScale);
 }
 
 bool ModelMatrixNode::drawInputArea(const std::string& label) {
@@ -161,27 +117,24 @@ ViewMatrixNode::ViewMatrixNode() : NumericNode<glm::mat4>("View") {
     mValue = generateViewMatrix();
 }
 
-std::vector<std::pair<std::string, std::string>> ViewMatrixNode::generateSerializedData() const {
-    std::stringstream positionStream;
-    positionStream << mPosition.x << " " << mPosition.y << " " << mPosition.z;
-    return {
-        {"Position", positionStream.str()},
-        {"Roll",     std::to_string(mRoll)},
-        {"Pitch",    std::to_string(mPitch)},
-        {"Yaw",      std::to_string(mYaw)},
-    };
+std::vector<std::pair<std::string, std::string>> ViewMatrixNode::generateSerializedDataExtra() const {
+    std::vector<std::pair<std::string, std::string>> data{};
+    data.emplace_back("Position", SerializationUtils::serializeData(mPosition));
+    data.emplace_back("Roll", SerializationUtils::serializeData(mRoll));
+    data.emplace_back("Pitch", SerializationUtils::serializeData(mPitch));
+    data.emplace_back("Yaw", SerializationUtils::serializeData(mYaw));
+    return data;
 }
 
-void ViewMatrixNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
-    if (dataID == "Position") {
-        stream >> mPosition.x >> mPosition.y >> mPosition.z;
-    } else if (dataID == "Roll") {
-        stream >> mRoll;
-    } else if (dataID == "Pitch") {
-        stream >> mPitch;
-    } else if (dataID == "Yaw") {
-        stream >> mYaw;
-    }
+void ViewMatrixNode::deserializeDataExtra(const std::string& dataID, std::ifstream& stream) {
+    if (dataID == "Position")
+        SerializationUtils::deserializeData(stream, mPosition);
+    else if (dataID == "Roll")
+        SerializationUtils::deserializeData(stream, mRoll);
+    else if (dataID == "Pitch")
+        SerializationUtils::deserializeData(stream, mPitch);
+    else if (dataID == "Yaw")
+        SerializationUtils::deserializeData(stream, mYaw);
 }
 
 bool ViewMatrixNode::drawInputArea(const std::string& label) {
@@ -204,39 +157,30 @@ ProjMatrixNode::ProjMatrixNode() : NumericNode<glm::mat4>("Projection") {
     mValue = generateProjMatrix();
 }
 
-std::vector<std::pair<std::string, std::string>> ProjMatrixNode::generateSerializedData() const {
-    std::stringstream clipXStream;
-    clipXStream << mClipX.x << " " << mClipX.y;
-    std::stringstream clipYStream;
-    clipYStream << mClipY.x << " " << mClipY.y;
-    std::stringstream clipZStream;
-    clipZStream << mClipZ.x << " " << mClipZ.y;
-    return {
-        {"Type",   std::to_string((unsigned int)mType)},
-        {"FoV",    std::to_string(mFoV)               },
-        {"Aspect", std::to_string(mAspect)            },
-        {"ClipX",  clipXStream.str()                  },
-        {"ClipY",  clipYStream.str()                  },
-        {"ClipZ",  clipZStream.str()                  },
-    };
+std::vector<std::pair<std::string, std::string>> ProjMatrixNode::generateSerializedDataExtra() const {
+    std::vector<std::pair<std::string, std::string>> data{};
+    data.emplace_back("Type", SerializationUtils::serializeData((unsigned int)mType));
+    data.emplace_back("FoV", SerializationUtils::serializeData(mFoV));
+    data.emplace_back("Aspect", SerializationUtils::serializeData(mAspect));
+    data.emplace_back("ClipX", SerializationUtils::serializeData(mClipX));
+    data.emplace_back("ClipY", SerializationUtils::serializeData(mClipY));
+    data.emplace_back("ClipZ", SerializationUtils::serializeData(mClipZ));
+    return data;
 }
 
-void ProjMatrixNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
-    if (dataID == "Type") {
-        unsigned int type;
-        stream >> type;
-        mType = (Type)type;
-    } else if (dataID == "FoV") {
-        stream >> mFoV;
-    } else if (dataID == "Aspect") {
-        stream >> mAspect;
-    } else if (dataID == "ClipX") {
-        stream >> mClipX.x >> mClipX.y;
-    } else if (dataID == "ClipY") {
-        stream >> mClipY.x >> mClipY.y;
-    } else if (dataID == "ClipZ") {
-        stream >> mClipZ.x >> mClipZ.y;
-    }
+void ProjMatrixNode::deserializeDataExtra(const std::string& dataID, std::ifstream& stream) {
+    if (dataID == "Type")
+        SerializationUtils::deserializeData(stream, (unsigned int&)mType);
+    else if (dataID == "FoV")
+        SerializationUtils::deserializeData(stream, mFoV);
+    else if (dataID == "Aspect")
+        SerializationUtils::deserializeData(stream, mAspect);
+    else if (dataID == "ClipX")
+        SerializationUtils::deserializeData(stream, mClipX);
+    else if (dataID == "ClipY")
+        SerializationUtils::deserializeData(stream, mClipY);
+    else if (dataID == "ClipZ")
+        SerializationUtils::deserializeData(stream, mClipZ);
 }
 
 bool ProjMatrixNode::drawInputArea(const std::string& label) {

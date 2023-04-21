@@ -2,6 +2,8 @@
 
 #include "../Assets.h"
 
+#include "../../Utils/SerializationUtils.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
@@ -32,14 +34,14 @@ TextureFileNode::TextureFileNode() : Node("Texture") {
 }
 
 std::vector<std::pair<std::string, std::string>> TextureFileNode::generateSerializedData() const {
-    return {
-        {"File", mFilename},
-    };
+    std::vector<std::pair<std::string, std::string>> data{};
+    data.emplace_back("File", mFilename);
+    return data;
 }
 
 void TextureFileNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
     if (dataID == "File")
-        stream >> mFilename;
+        mFilename = SerializationUtils::readLine(stream);
 }
 
 void TextureFileNode::onDeserialize() {

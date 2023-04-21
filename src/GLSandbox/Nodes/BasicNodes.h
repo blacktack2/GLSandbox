@@ -1,9 +1,11 @@
 #pragma once
 #include "../../NodeEditor/Node.h"
 
+#include "../NodeClassifications.h"
+
 #include "../../NodeEditor/Ports.h"
 
-#include "../NodeClassifications.h"
+#include "../../Utils/SerializationUtils.h"
 
 #include <glm/glm.hpp>
 
@@ -24,6 +26,22 @@ protected:
     }
     virtual bool drawInputArea(const std::string& label) = 0;
 protected:
+    void deserializeData(const std::string& dataID, std::ifstream& stream) final {
+        if (dataID == "Value")
+            SerializationUtils::deserializeData(stream, mValue);
+        else
+            deserializeDataExtra(dataID, stream);
+    }
+    virtual void deserializeDataExtra(const std::string& dataID, std::ifstream& stream) {}
+
+    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final {
+        std::vector<std::pair<std::string, std::string>> data = generateSerializedDataExtra();
+        data.emplace_back("Value", SerializationUtils::serializeData(mValue));
+        return data;
+    }
+    [[nodiscard]] virtual std::vector<std::pair<std::string, std::string>> generateSerializedDataExtra() const {
+        return {};
+    }
     T mValue;
 private:
     Port<T> mValueOut = Port<T>(*this, IPort::Direction::Out, "ValueOut", "Value", [&]() { return mValue; });
@@ -38,8 +56,6 @@ public:
         return (unsigned int)NodeType::Integer;
     }
 protected:
-    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
-    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
 
     bool drawInputArea(const std::string& label) final;
 };
@@ -53,9 +69,6 @@ public:
         return (unsigned int)NodeType::Float;
     }
 protected:
-    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
-    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
-
     bool drawInputArea(const std::string& label) final;
 };
 
@@ -68,9 +81,6 @@ public:
         return (unsigned int)NodeType::Vec2;
     }
 protected:
-    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
-    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
-
     bool drawInputArea(const std::string& label) final;
 };
 
@@ -83,9 +93,6 @@ public:
         return (unsigned int)NodeType::Vec3;
     }
 protected:
-    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
-    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
-
     bool drawInputArea(const std::string& label) final;
 };
 
@@ -98,9 +105,6 @@ public:
         return (unsigned int)NodeType::Vec4;
     }
 protected:
-    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
-    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
-
     bool drawInputArea(const std::string& label) final;
 };
 
@@ -113,9 +117,6 @@ public:
         return (unsigned int)NodeType::Mat2;
     }
 protected:
-    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
-    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
-
     bool drawInputArea(const std::string& label) final;
 };
 
@@ -128,9 +129,6 @@ public:
         return (unsigned int)NodeType::Mat3;
     }
 protected:
-    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
-    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
-
     bool drawInputArea(const std::string& label) final;
 };
 
@@ -143,8 +141,5 @@ public:
         return (unsigned int)NodeType::Mat4;
     }
 protected:
-    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
-    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
-
     bool drawInputArea(const std::string& label) final;
 };
