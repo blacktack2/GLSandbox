@@ -187,16 +187,16 @@ RenderPassNode::pipeline_callback RenderPassNode::generateCallback() const {
         else
             RenderConfig::setViewport(mViewport.x, mViewport.y, mViewport.z, mViewport.w);
 
-        if (mDoClear) {
-            RenderConfig::setClearColour(mClearColour.r, mClearColour.g, mClearColour.b, mClearColour.a);
-            RenderConfig::clearBuffers(RenderConfig::ClearBit::Colour | RenderConfig::ClearBit::Depth | RenderConfig::ClearBit::Stencil);
-        }
-
         RenderConfig::setBlend(mEnableBlend, mBlendFuncSrc, mBlendFuncDst);
         RenderConfig::setColourMask(mColourMask.r, mColourMask.g, mColourMask.b, mColourMask.a);
         RenderConfig::setCullFace(mEnableFaceCulling, mCullFaceMode);
         RenderConfig::setDepthTest(mEnableDepthTest, mDepthTestFunc, mDepthTestLimits.x, mDepthTestLimits.y);
         RenderConfig::setDepthMask(mEnableDepthMask);
+
+        if (mDoClear) {
+            RenderConfig::setClearColour(mClearColour.r, mClearColour.g, mClearColour.b, mClearColour.a);
+            RenderConfig::clearBuffers(RenderConfig::ClearBit::Colour | RenderConfig::ClearBit::Depth | RenderConfig::ClearBit::Stencil);
+        }
     });
 
     passCallbacks.emplace_back([mesh]() {
