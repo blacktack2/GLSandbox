@@ -170,7 +170,8 @@ void Window::drawFileMenu() {
 
     ImGui::Separator();
 
-    ImGui::MenuItem("Exit##MainMenu_File");
+    if (ImGui::MenuItem("Exit##MainMenu_File"))
+        mRunning = false;
 
     ImGui::EndMenu();
 }
