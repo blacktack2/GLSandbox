@@ -21,16 +21,17 @@ protected:
     void drawContents() final;
 private:
     void pipelineUpdateEvent();
+    void pipelineResetEvent();
 
-    bool validatePipeline();
+    bool validatePipeline() const;
     void updatePipeline();
 
     IPipelineHandler& mPipelineHandler;
 
     Port<void*> mExecutionOut = Port<void*>(*this, IPort::Direction::Out, "Out", "Out", [&]() { return (void*)nullptr; });
 
-    std::string mMessage;
-    MessageType mMessageType = MessageType::Info;
+    mutable std::string mMessage;
+    mutable MessageType mMessageType = MessageType::Info;
 };
 
 class ExitNode final : public Node {

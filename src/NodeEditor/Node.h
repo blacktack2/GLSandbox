@@ -58,6 +58,12 @@ public:
     [[nodiscard]] IPort* getPortByName(const std::string& uniqueName);
     [[nodiscard]] IPort& getPortByIndex(size_t i);
     [[nodiscard]] IPort* getPort(int portID);
+
+    void lock();
+    void unlock();
+    [[nodiscard]] inline bool isLocked() const {
+        return mIsLocked;
+    }
 protected:
     enum class MessageType {
         Info,
@@ -74,6 +80,9 @@ protected:
     virtual void onDeserialize() {}
 
     virtual void drawContents() = 0;
+
+    virtual void onLock() {}
+    virtual void onUnlock() {}
 
     void addPort(IPort& port);
     void removePort(const IPort& port);
@@ -109,4 +118,6 @@ private:
 
     ImVec2 mPosition = ImVec2(0.0f, 0.0f);
     bool mIsPositionDirty = false;
+
+    bool mIsLocked = false;
 };

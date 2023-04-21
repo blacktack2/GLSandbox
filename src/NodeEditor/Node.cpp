@@ -131,9 +131,10 @@ void Node::draw() {
     }
     mPosition = ed::GetNodePosition(getID());
 
-//    ImNodes::BeginNodeTitleBar();
-    ImGui::Text("%s", mTitle.c_str());
-//    ImNodes::EndNodeTitleBar();
+    if (mIsLocked)
+        ImGui::TextDisabled("%s", mTitle.c_str());
+    else
+        ImGui::TextUnformatted(mTitle.c_str());
 
     for (size_t i = 0; i < std::max(mInPorts.size(), mOutPorts.size()); i++) {
         bool drawIn = mInPorts.size() > i;
@@ -212,4 +213,24 @@ IPort* Node::getPort(int portID) {
         if (port.get().getID() == portID)
             return &port.get();
     return nullptr;
+}
+
+void Node::lock() {
+    if (mIsLocked)
+        return;
+    mIsLocked = true;
+    for (auto port : mPorts)
+        if (port.get().isLinked())
+            port.get().getLinkedParent().lock();
+    onLock();
+}
+
+void Node::unlock() {
+    if (!mIsLocked)
+        return;
+    mIsLocked = false;
+    for (auto port : mPorts)
+        if (port.get().isLinked())
+            port.get().getLinkedParent().unlock();
+    onUnlock();
 }

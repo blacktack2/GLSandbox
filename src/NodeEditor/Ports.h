@@ -113,6 +113,15 @@ public:
      * undefined behaviour.
      */
     [[nodiscard]] virtual const Node& getLinkedParent() const = 0;
+    /**
+     * @return Parent node to this port.
+     */
+    [[nodiscard]] virtual Node& getParent() = 0;
+    /**
+     * @return Parent node to the port this port is connected to. If no connection is present this will result in
+     * undefined behaviour.
+     */
+    [[nodiscard]] virtual Node& getLinkedParent() = 0;
 
     [[nodiscard]] virtual Direction getDirection() const = 0;
 
@@ -238,6 +247,12 @@ public:
         return mParent;
     }
     [[nodiscard]] const Node& getLinkedParent() const final {
+        return mLink->getParent();
+    }
+    [[nodiscard]] Node& getParent() final {
+        return mParent;
+    }
+    [[nodiscard]] Node& getLinkedParent() final {
         return mLink->getParent();
     }
 

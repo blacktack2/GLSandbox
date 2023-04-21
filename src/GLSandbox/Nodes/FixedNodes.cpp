@@ -17,8 +17,12 @@ void EntryNode::deserializeData(const std::string& dataID, std::ifstream& stream
 }
 
 void EntryNode::drawContents() {
-    if (ImUtils::button("Update", generateNodeLabelID("Update")))
-        pipelineUpdateEvent();
+    if (!isLocked())
+        if (ImUtils::button("Update", generateNodeLabelID("Update")))
+            pipelineUpdateEvent();
+    if (isLocked())
+        if (ImUtils::button("Reset", generateNodeLabelID("Reset")))
+            pipelineResetEvent();
 
     if (!mMessage.empty())
         drawMessage(mMessage, getMessageColour(mMessageType));
@@ -31,7 +35,12 @@ void EntryNode::pipelineUpdateEvent() {
         mPipelineHandler.resetPipeline();
 }
 
-bool EntryNode::validatePipeline() {
+void EntryNode::pipelineResetEvent() {
+    unlock();
+    mPipelineHandler.resetPipeline();
+}
+
+bool EntryNode::validatePipeline() const {
     if (!mExecutionOut.isLinked()) {
         mMessage = "Not linked to a render pass";
         mMessageType = MessageType::Error;
@@ -63,7 +72,7 @@ bool EntryNode::validatePipeline() {
 void EntryNode::updatePipeline() {
     mPipelineHandler.clearPipeline();
 
-    const RenderPassNode* current = &dynamic_cast<const RenderPassNode&>(mExecutionOut.getLinkedParent());
+    const RenderPassNode* current = &dynamic_cast<RenderPassNode&>(mExecutionOut.getLinkedParent());
     while (current) {
         mPipelineHandler.appendPipeline(current->generateCallback());
 
@@ -78,6 +87,8 @@ void EntryNode::updatePipeline() {
         RenderConfig::setDepthTest();
         RenderConfig::setDepthMask();
     });
+
+    lock();
 }
 
 ExitNode::ExitNode() : Node("Exit") {

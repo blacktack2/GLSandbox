@@ -147,7 +147,7 @@ void Graph::checkLinkCreated() {
             portB = in;
     }
 
-    if (portA && portB)
+    if (portA && portB && !portA->getParent().isLocked() & !portB->getParent().isLocked())
         portB->link(*portA);
 }
 
@@ -159,7 +159,7 @@ void Graph::checkLinksDeleted() {
     for (auto& node : mNodes) {
         for (size_t i = 0; i < node->numPorts(); i++) {
             IPort& port = node->getPortByIndex(i);
-            if (port.getLinkID() == linkID.Get()) {
+            if (port.isLinked() && port.getLinkID() == linkID.Get() && !port.getParent().isLocked() && !port.getLinkedParent().isLocked()) {
                 port.unlink();
                 return;
             }
@@ -176,7 +176,7 @@ void Graph::checkNodesDeleted() {
         std::remove_if(
             mNodes.begin(), mNodes.end(),
             [nodeId](const auto& node) {
-                return node->getID() == nodeId.Get();
+                return !node->isLocked() && node->getID() == nodeId.Get();
             }
         ),
         mNodes.end()

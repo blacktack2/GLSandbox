@@ -105,6 +105,8 @@ void FramebufferNode::drawContents() {
 void FramebufferNode::drawBufferParameters() {
     bool updatePorts = false;
 
+    ImGui::BeginDisabled(isLocked());
+
     ImGui::Text("Num. Colour Buffers");
     updatePorts |= ImUtils::inputInt((int*)&mNumColourBuffers, generateNodeLabelID("NumBuffers"), 0, INT_MAX);
 
@@ -116,6 +118,8 @@ void FramebufferNode::drawBufferParameters() {
         updatePorts = true;
         mEnableDepthStencilBuffer = !mEnableDepthStencilBuffer;
     }
+
+    ImGui::EndDisabled();
 
     if (updatePorts)
         updateTexturePorts();
