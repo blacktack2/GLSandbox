@@ -67,6 +67,9 @@ public:
 
     static void setDefaultViewport(int x, int y, unsigned int width, unsigned int height);
     static void setViewport(int x = mVPortDefaultX, int y = mVPortDefaultY, unsigned int width = mVPortDefaultW, unsigned int height = mVPortDefaultH);
+    static inline float getScreenAspect() {
+        return ((float)mVPortDefaultW - (float)mVPortDefaultX) / ((float)mVPortDefaultH - (float)mVPortDefaultY);
+    }
 
     static void setClearColour(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f);
     static void clearBuffers(ClearBit mask);

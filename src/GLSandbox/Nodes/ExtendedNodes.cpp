@@ -1,5 +1,7 @@
 #include "ExtendedNodes.h"
 
+#include "../../Rendering/RenderConfig.h"
+
 #include <sstream>
 
 UVNode::UVNode() : NumericNode<glm::vec2>("UV") {
@@ -154,6 +156,7 @@ bool ViewMatrixNode::drawInputArea(const std::string& label) {
 }
 
 ProjMatrixNode::ProjMatrixNode() : NumericNode<glm::mat4>("Projection") {
+    mAspect = RenderConfig::getScreenAspect();
     mValue = generateProjMatrix();
 }
 
@@ -210,6 +213,10 @@ bool ProjMatrixNode::drawPerspective(const std::string& label) {
 
     ImGui::Text("Aspect Ratio");
     valueUpdated |= ImUtils::inputFloat(&mAspect, std::string(label).append("Aspect"), 0.0f, FLT_MAX);
+    if (ImUtils::button("Screen Aspect", std::string(label).append("SetAspect"))) {
+        valueUpdated = true;
+        mAspect = RenderConfig::getScreenAspect();
+    }
 
     ImUtils::multiInputLabel("Near", "Far");
     valueUpdated |= ImUtils::inputFloatN(&mClipZ[0], 2, std::string(label).append("NF"), 0.0f, FLT_MAX);

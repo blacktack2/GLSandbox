@@ -166,7 +166,7 @@ private:
     Type mType = Type::Perspective;
 
     float mFoV = 90.0f;
-    float mAspect = 1.0f;
+    float mAspect;
     glm::vec2 mClipX = glm::vec2(1.0f, 100.0f);
     glm::vec2 mClipY = glm::vec2(1.0f, 100.0f);
     glm::vec2 mClipZ = glm::vec2(1.0f, 100.0f);
