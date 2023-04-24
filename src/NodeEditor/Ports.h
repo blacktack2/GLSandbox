@@ -2,6 +2,7 @@
 #include "Node.h"
 
 #include "../Utils/ImUtils.h"
+#include "../Utils/VariantUtils.h"
 
 #include <imgui_node_editor.h>
 
@@ -150,9 +151,14 @@ public:
      */
     Port(Node& parent, Direction direction, std::string uniqueName, std::string displayName,
          const value_get_callback& getValue = nullptr, bool useDefault = false, bool isDynamic = false) :
-        mID(gGraphIDCounter++), mParent(parent),
-        mDirection(direction), mUniqueName(std::move(uniqueName)), mDisplayName(std::move(displayName)),
-        mGetValue(getValue), mUseDefault(useDefault), mIsDynamic(isDynamic) {
+    mID(gGraphIDCounter++), mParent(parent),
+    mDirection(direction), mUniqueName(std::move(uniqueName)), mDisplayName(std::move(displayName)),
+    mGetValue(getValue), mUseDefault(useDefault), mIsDynamic(isDynamic) {
+        std::variant<Types...> temp;
+        mDrawPin = std::visit(VisitOverload{
+            [](void* arg)->draw_pin_callback { return []() { ImUtils::Pins::circleIcon(5.0f, 2.0f, ImColor(1.0f, 0.0f, 0.0f), ImColor(0.0f, 0.0f, 0.0f)); }; },
+            [](auto arg)->draw_pin_callback { return []() { ImUtils::Pins::circleIcon(5.0f, 2.0f, ImColor(0.0f, 1.0f, 0.0f), ImColor(0.0f, 0.0f, 0.0f)); }; },
+        }, temp);
 
         switch (mDirection) {
             case Direction::In  : mDrawPort = [this]() { drawIn();  }; break;
@@ -300,6 +306,7 @@ public:
     }
 private:
     typedef std::function<void()> draw_port_callback;
+    typedef std::function<void()> draw_pin_callback;
 
     [[nodiscard]] bool isTypeMatch(IPort& other) const {
         const auto thisTypes = getParameterTypes();
@@ -318,7 +325,7 @@ private:
         ed::PinPivotAlignment(ImVec2(0.0f, 0.5f));
         ed::PinPivotSize(ImVec2(0.0f, 0.0f));
 
-        ImUtils::Pins::circleIcon(5.0f, 2.0f, ImColor(1.0f, 0.0f, 0.0f), ImColor(0.0f, 0.0f, 0.0f));
+        mDrawPin();
         ImGui::SameLine();
         ImGui::TextUnformatted(mDisplayName.c_str());
 
@@ -332,13 +339,14 @@ private:
 
         ImGui::TextUnformatted(mDisplayName.c_str());
         ImGui::SameLine();
-        ImUtils::Pins::circleIcon(5.0f, 2.0f, ImColor(1.0f, 0.0f, 0.0f), ImColor(0.0f, 0.0f, 0.0f));
+        mDrawPin();
 
         ed::EndPin();
     }
 
     value_get_callback mGetValue;
     draw_port_callback mDrawPort;
+    draw_pin_callback mDrawPin;
 
     Node& mParent;
 
