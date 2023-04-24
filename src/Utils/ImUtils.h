@@ -77,7 +77,10 @@ namespace ImUtils {
     void image(const Texture& tex, const std::string& labelID, bool& show);
 
     namespace Pins {
-        void circleIcon(float outerRadius, float thickness, ImU32 outerColour, ImU32 innerColour);
+        void circleIcon(float radius, ImU32 outerColour, ImU32 innerColour);
+        void triangleIcon(float size, ImU32 outerColour, ImU32 innerColour);
+        void squareIcon(float size, ImU32 outerColour, ImU32 innerColour);
+        void arrowIcon(float size, ImU32 outerColour, ImU32 innerColour);
     }
 };
 

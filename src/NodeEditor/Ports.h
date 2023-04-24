@@ -156,8 +156,8 @@ public:
     mGetValue(getValue), mUseDefault(useDefault), mIsDynamic(isDynamic) {
         std::variant<Types...> temp;
         mDrawPin = std::visit(VisitOverload{
-            [](void* arg)->draw_pin_callback { return []() { ImUtils::Pins::circleIcon(5.0f, 2.0f, ImColor(1.0f, 0.0f, 0.0f), ImColor(0.0f, 0.0f, 0.0f)); }; },
-            [](auto arg)->draw_pin_callback { return []() { ImUtils::Pins::circleIcon(5.0f, 2.0f, ImColor(0.0f, 1.0f, 0.0f), ImColor(0.0f, 0.0f, 0.0f)); }; },
+            [](void* arg)->draw_pin_callback { return []() { ImUtils::Pins::arrowIcon(5.0f, ImColor(1.0f, 1.0f, 1.0f), ImColor(0.0f, 0.0f, 0.0f)); }; },
+            [](auto arg)->draw_pin_callback { return []() { ImUtils::Pins::circleIcon(5.0f, ImColor(0.0f, 1.0f, 0.0f), ImColor(0.0f, 0.0f, 0.0f)); }; },
         }, temp);
 
         switch (mDirection) {

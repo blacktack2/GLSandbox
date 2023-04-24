@@ -40,6 +40,8 @@ static constexpr float gIMAGE_WIDTH = gNODE_WIDTH;
 static constexpr const char* gFLOAT_FORMAT = "%.2f";
 static constexpr const char* gINT_FORMAT = "%d";
 
+static constexpr float gPIN_ICON_THICKNESS = 2.0f;
+
 std::string formatLabel(std::string display, const std::string& id) {
     return display.append("##").append(id);
 }
@@ -295,27 +297,76 @@ void ImUtils::image(const Texture& tex, const std::string& labelID, bool& show) 
     endHeader();
 }
 
-void ImUtils::Pins::circleIcon(float outerRadius, float thickness, ImU32 outerColour, ImU32 innerColour) {
-    auto drawList = ImGui::GetWindowDrawList();
+struct DummyData {
+    ImVec2 min;
+    ImVec2 max;
+    ImVec2 size;
+    ImVec2 center;
+};
 
+void drawPinDummy(float width, float height, DummyData& data) {
     float lineHeight = ImGui::GetTextLineHeight();
-    float yOffset = (lineHeight - outerRadius * 2.0f);
+    float yOffset = (lineHeight - height * 2.0f);
 
     ImVec2 cursorPos = ImGui::GetCursorScreenPos();
     ImGui::SetCursorScreenPos(cursorPos + ImVec2(0.0f, yOffset));
 
-    ImGui::Dummy(ImVec2(outerRadius, outerRadius) * 2.0f);
+    ImGui::Dummy(ImVec2(width, height) * 2.0f);
 
-    ImGui::SetCursorScreenPos(cursorPos + ImVec2(outerRadius, 0.0f));
+    ImGui::SetCursorScreenPos(cursorPos + ImVec2(width, 0.0f));
 
-    ImVec2 min = ImGui::GetItemRectMin();
-    ImVec2 max = ImGui::GetItemRectMax();
-    ImVec2 size = ImGui::GetItemRectSize();
+    data.min = ImGui::GetItemRectMin() + ImVec2(gPIN_ICON_THICKNESS, gPIN_ICON_THICKNESS) * 0.5f;
+    data.max = ImGui::GetItemRectMax() - ImVec2(gPIN_ICON_THICKNESS, gPIN_ICON_THICKNESS) * 0.5f;
+    data.size = ImGui::GetItemRectSize() + ImVec2(gPIN_ICON_THICKNESS, gPIN_ICON_THICKNESS);
+    data.center = (data.min + data.max) * 0.5f;
+}
 
-    ImVec2 center = (min + max) * 0.5f;
-    float radius = std::min(size.x, size.y) * 0.5f;
+void ImUtils::Pins::circleIcon(float outerRadius, ImU32 outerColour, ImU32 innerColour) {
+    auto drawList = ImGui::GetWindowDrawList();
 
-    drawList->AddCircleFilled(center, radius - thickness * 0.5f, innerColour, 24);
-    drawList->AddCircle(center, radius, outerColour, 24, thickness);
+    DummyData data;
+    drawPinDummy(outerRadius, outerRadius, data);
+    float radius = std::min(data.size.x, data.size.y) * 0.5f;
 
+    drawList->AddCircleFilled(data.center, radius - gPIN_ICON_THICKNESS * 0.5f, innerColour, 24);
+    drawList->AddCircle(data.center, radius, outerColour, 24, gPIN_ICON_THICKNESS);
+}
+
+void ImUtils::Pins::triangleIcon(float size, ImU32 outerColour, ImU32 innerColour) {
+    auto drawList = ImGui::GetWindowDrawList();
+
+    DummyData data;
+    drawPinDummy(size, size, data);
+
+    drawList->AddTriangleFilled(data.min, ImVec2(data.min.x, data.max.y), ImVec2(data.max.x, data.center.y), innerColour);
+    drawList->AddTriangle(data.min, ImVec2(data.min.x, data.max.y), ImVec2(data.max.x, data.center.y), outerColour, gPIN_ICON_THICKNESS);
+}
+
+void ImUtils::Pins::squareIcon(float size, ImU32 outerColour, ImU32 innerColour) {
+    auto drawList = ImGui::GetWindowDrawList();
+
+    DummyData data;
+    drawPinDummy(size, size, data);
+
+    drawList->AddRectFilled(data.min, data.max, innerColour);
+    drawList->AddRect(data.min, data.max, innerColour, 0.0f, ImDrawFlags_None, gPIN_ICON_THICKNESS);
+}
+
+void ImUtils::Pins::arrowIcon(float size, ImU32 outerColour, ImU32 innerColour) {
+    auto drawList = ImGui::GetWindowDrawList();
+
+    DummyData data;
+    drawPinDummy(size, size, data);
+
+    float offsetX = data.min.x + (data.max.x - data.min.x) * 0.3f;
+
+    ImVec2 points[] = {
+        data.min,
+        {offsetX, data.min.y},
+        {data.max.x, data.center.y},
+        {offsetX, data.max.y},
+        {data.min.x, data.max.y},
+    };
+    drawList->AddConvexPolyFilled(points, 5, innerColour);
+    drawList->AddPolyline(points, 5, outerColour, ImDrawFlags_Closed, gPIN_ICON_THICKNESS);
 }
