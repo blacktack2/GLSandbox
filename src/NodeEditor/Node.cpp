@@ -74,9 +74,7 @@ void Node::deserialize(std::ifstream& streamIn, std::streampos end,
 
     std::string dataID;
     while (SerializationUtils::seekNextDataPoint(streamIn, end, gSERIAL_DATA_PREFIX, dataID)) {
-        if (dataID == gSERIAL_DATA_ID) {
-            streamIn >> mID;
-        } else if (dataID == gSERIAL_DATA_NAME) {
+        if (dataID == gSERIAL_DATA_NAME) {
             streamIn >> mName;
         } else if (dataID == gSERIAL_DATA_POSITION) {
             ImVec2 position;
