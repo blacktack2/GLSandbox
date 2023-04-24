@@ -6,6 +6,7 @@
 #include "../../Rendering/Texture.h"
 #include "../NodeClassifications.h"
 
+#include <filesystem>
 #include <memory>
 
 class TextureFileNode final : public Node {
@@ -36,7 +37,7 @@ private:
     std::unique_ptr<Texture> mTexture = std::make_unique<Texture>();
     Port<Texture*> mTextureOut = Port<Texture*>(*this, IPort::Direction::Out, "TextureOut", "Texture", [&]() { return mTexture.get(); });
 
-    std::string mFilename;
+    std::filesystem::path mFilepath;
 
     ValidationState mState = ValidationState::Unloaded;
 

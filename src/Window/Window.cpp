@@ -3,7 +3,11 @@
 #include "../GLSandbox/Assets.h"
 #include "../GLSandbox/GLSandboxRenderer.h"
 #include "../GLSandbox/PipelineGraph.h"
+
 #include "../Rendering/RenderConfig.h"
+
+#include "../Utils/FileUtils.h"
+#include "../Utils/SerializationUtils.h"
 
 #include <glad/glad.h>
 
@@ -11,10 +15,14 @@
 #include <imgui_impl_sdl2.h>
 #include <imgui_stdlib.h>
 
-#include <filesystem>
+#include <utility>
 
-Window::Window(const char *title, int width, int height) :
-mWidth(width), mHeight(height) {
+static constexpr char gCONFIG_FILE[] = "GLSandbox.config";
+
+static constexpr char gSERIAL_GRAPH_FILE[] = "File";
+
+Window::Window(std::string title, int width, int height) :
+mWidth(width), mHeight(height), mTitle(std::move(title)) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
         return;
 
@@ -29,7 +37,7 @@ mWidth(width), mHeight(height) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 
     auto windowFlags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-    mWindow = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mWidth, mHeight, windowFlags);
+    mWindow = SDL_CreateWindow(mTitle.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mWidth, mHeight, windowFlags);
     if (mWindow == nullptr)
         return;
 
@@ -64,27 +72,25 @@ mWidth(width), mHeight(height) {
     ImGui_ImplSDL2_InitForOpenGL(mWindow, mGLContext);
     ImGui_ImplOpenGL3_Init("#version 460 core");
 
-    std::filesystem::create_directory(gMESH_ASSET_DIR);
-    std::filesystem::create_directory(gSHADER_ASSET_DIR);
+    std::filesystem::create_directory(getGraphAssetDirectory());
+    std::filesystem::create_directory(getMeshAssetDirectory());
+    std::filesystem::create_directory(getShaderAssetDirectory());
+    std::filesystem::create_directory(getTextureAssetDirectory());
 
     mRenderer = std::make_unique<GLSandboxRenderer>();
     mGraph = std::make_unique<PipelineGraph>(*mRenderer);
-    {
-        std::ifstream stream("state.graph");
-        if (stream)
-            mGraph->deserialize(stream);
-        else
-            mGraph->initializeDefault();
-    }
+
+    mGraphFilepath = generateFilename();
+    loadConfig();
+    loadGraph();
+    updateTitle();
+
     mInitSuccess = true;
 }
 
 Window::~Window() {
-    {
-        std::ofstream stream("state.graph");
-        if (stream)
-            mGraph->serialize(stream);
-    }
+    writeConfig();
+
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
@@ -148,6 +154,11 @@ void Window::handleEvent(SDL_Event &e) {
         mRunning = false;
 }
 
+void Window::updateTitle() {
+    std::string title = mTitle + " - " + mGraphFilepath.filename().string();
+    SDL_SetWindowTitle(mWindow, title.c_str());
+}
+
 void Window::drawMenu() {
     if (!ImGui::BeginMainMenuBar())
         return;
@@ -161,13 +172,33 @@ void Window::drawFileMenu() {
     if (!ImGui::BeginMenu("File##MainMenu"))
         return;
 
-    if (ImGui::MenuItem("New##MainMenu_File"))
-        mGraph->clearNodes();
+    if (ImGui::MenuItem("New##MainMenu_File")) {
+        mGraphFilepath = generateFilename();
+        loadGraph();
+        updateTitle();
+    }
 
     ImGui::Separator();
 
-    ImGui::MenuItem("Save##MainMenu_File");
-    ImGui::MenuItem("Save As##MainMenu_File");
+    if (ImGui::MenuItem("Open##MainMenu_File")) {
+        if (FileUtils::openFileDialog(mGraphFilepath, getGraphAssetDirectory(), getValidGraphFileExtensions())) {
+            loadGraph();
+            updateTitle();
+        }
+    }
+
+    if (ImGui::MenuItem("Save##MainMenu_File") || (ImGui::IsKeyPressed(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_S)))
+        saveGraph();
+    if (ImGui::MenuItem("Save As##MainMenu_File")) {
+        if (FileUtils::openSaveDialog(mGraphFilepath, getGraphAssetDirectory(), getValidGraphFileExtensions())) {
+            if (mGraphFilepath.extension() != getGraphDefaultExtension()) {
+                mGraphFilepath += ".";
+                mGraphFilepath += getGraphDefaultExtension();
+            }
+            saveGraph();
+            updateTitle();
+        }
+    }
 
     ImGui::Separator();
 
@@ -181,4 +212,45 @@ void Window::drawGraph() {
     mGraph->preDraw();
     mGraph->draw();
     mGraph->postDraw();
+}
+
+void Window::loadConfig() {
+    std::ifstream stream(gCONFIG_FILE);
+    if (!stream)
+        return;
+
+    while (stream.good()) {
+        std::string dataID;
+        stream >> dataID;
+        if (dataID == gSERIAL_GRAPH_FILE)
+            mGraphFilepath = SerializationUtils::readLine(stream);
+        SerializationUtils::skipToNextLine(stream);
+    }
+}
+
+void Window::writeConfig() {
+    std::ofstream stream(gCONFIG_FILE);
+    if (!stream)
+        return;
+
+    stream << gSERIAL_GRAPH_FILE << " " << mGraphFilepath.string() << "\n";
+}
+
+void Window::loadGraph() {
+    mGraph->clearNodes();
+    std::ifstream stream(mGraphFilepath);
+    if (stream)
+        mGraph->deserialize(stream);
+    else
+        mGraph->initializeDefault();
+}
+
+void Window::saveGraph() const {
+    std::ofstream stream(mGraphFilepath);
+    if (stream)
+        mGraph->serialize(stream);
+}
+
+std::filesystem::path Window::generateFilename() {
+    return SerializationUtils::generateFilename(getGraphAssetDirectory(), "Graph", getGraphDefaultExtension());
 }

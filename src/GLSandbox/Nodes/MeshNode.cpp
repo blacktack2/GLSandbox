@@ -12,7 +12,7 @@ MeshNode::MeshNode() : Node("Mesh") {
 
     addPort(mMeshOut);
 
-    mFilename = generateFilename();
+    mFilepath = generateFilename();
 }
 
 std::vector<std::pair<std::string, std::string>> MeshNode::generateSerializedData() const {
@@ -20,22 +20,21 @@ std::vector<std::pair<std::string, std::string>> MeshNode::generateSerializedDat
     if (!mCanWriteToFile)
         return data;
 
-    std::string filename = mFilename;
-    if (filename.empty())
-        filename = generateFilename();
+    std::filesystem::path filepath = mFilepath;
+    if (filepath.empty())
+        filepath = generateFilename();
 
-    std::size_t index = mFilename.find_last_of('.');
-    std::string fileExtension = mFilename.substr(index);
-    if (parseFileExtension(fileExtension.c_str()) == gMESH_DEFAULT_EXTENSION)
-        writeToFile(filename);
-    data.emplace_back("File", filename);
+    std::string fileExtension = mFilepath.extension();
+    if (fileExtension == getMeshDefaultExtension())
+        writeToFile(filepath);
+    data.emplace_back("File", filepath.string());
 
     return data;
 }
 
 void MeshNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
     if (dataID == "File") {
-        mFilename = SerializationUtils::readLine(stream);
+        mFilepath = SerializationUtils::readLine(stream);
         loadFromFile();
     }
 }
@@ -59,21 +58,20 @@ void MeshNode::drawContents() {
 }
 
 void MeshNode::loadFromFile() {
-    if (mFilename.empty())
+    if (mFilepath.empty())
         return;
-    std::size_t index = mFilename.find_last_of('.');
-    std::string fileExtension = mFilename.substr(index);
+    std::string fileExtension = mFilepath.extension();
 
     clearMesh();
 
-    std::ifstream stream(mFilename);
+    std::ifstream stream(mFilepath);
     if (!stream)
         return;
-    switch (parseFileExtension(fileExtension.c_str())) {
-        case MeshFileExtension::MSH: loadFromStreamMSH(stream); break;
-        case MeshFileExtension::OBJ: loadFromStreamOBJ(stream); break;
-        default: break;
-    }
+
+    if (fileExtension == ".msh")
+        loadFromStreamMSH(stream);
+    else if (fileExtension == ".obj")
+        loadFromStreamOBJ(stream);
 }
 
 void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
@@ -260,7 +258,7 @@ void MeshNode::writeToFile(const std::string& filename) const {
 }
 
 void MeshNode::writeToStreamMSH(std::ofstream& stream) const {
-    stream << "# GLSandbox MSH File: " << mFilename << "\n";
+    stream << "# GLSandbox MSH File: " << mFilepath << "\n";
 
     stream << mNumVertices << " " << mNumIndices << " " << (unsigned int)mType << "\n";
 
@@ -306,17 +304,8 @@ void MeshNode::writeToStreamMSH(std::ofstream& stream) const {
     }
 }
 
-std::string MeshNode::generateFilename() {
-    const std::string basePath = std::string(gMESH_ASSET_DIR).append("Mesh");
-    const std::string extension = getFileExtension(gMESH_DEFAULT_EXTENSION);
-    unsigned int index = 0;
-    std::filesystem::path filePath;
-
-    do {
-        filePath = std::string(basePath).append(std::to_string(index++)).append(extension);
-    } while (std::filesystem::exists(filePath));
-
-    return filePath.string();
+std::filesystem::path MeshNode::generateFilename() {
+    return SerializationUtils::generateFilename(getMeshAssetDirectory(), "Mesh", getMeshDefaultExtension());
 }
 
 void MeshNode::uploadMesh() {
@@ -345,7 +334,8 @@ void MeshNode::uploadMesh() {
 }
 
 void MeshNode::drawGlobalParameters() {
-    ImUtils::fileChooseDialog(mFilename, gMESH_ASSET_DIR, generateNodeLabelID("FileChoose"));
+    ImUtils::fileChooseDialog(mFilepath, getMeshAssetDirectory(), generateNodeLabelID("FileChoose"),
+                              getValidMeshFileExtensions());
 
     if (ImUtils::button("Load", generateNodeLabelID("LoadButton")))
         loadFromFile();

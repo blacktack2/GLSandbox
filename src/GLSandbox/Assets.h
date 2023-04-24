@@ -1,38 +1,101 @@
 #pragma once
-#include <cstring>
+#include <filesystem>
 #include <string>
+#include <vector>
 
-enum class MeshFileExtension {
-    MSH = 0,
-    OBJ,
-
-    Max,
-    Undefined,
-};
-
-#ifdef _WIN32
-static const std::string gDIR_DELIMITER = "\\";
-#else
-static const std::string gDIR_DELIMITER = "/";
-#endif // _WIN32
-static const std::string gSHADER_ASSET_DIR  = "Shaders"  + gDIR_DELIMITER;
-static const std::string gMESH_ASSET_DIR    = "Meshes"   + gDIR_DELIMITER;
-static const std::string gTEXTURE_ASSET_DIR = "Textures" + gDIR_DELIMITER;
-
-static constexpr MeshFileExtension gMESH_DEFAULT_EXTENSION = MeshFileExtension::MSH;
-
-static inline constexpr const char* getFileExtension(MeshFileExtension extension) {
-    switch (extension) {
-        case MeshFileExtension::MSH: return ".msh";
-        case MeshFileExtension::OBJ: return ".obj";
-        default: return "UNDEFINED";
-    }
+[[nodiscard]] static std::filesystem::path getGraphAssetDirectory() {
+    static const std::filesystem::path cDIRECTORY = "Graphs";
+    return cDIRECTORY;
 }
-static inline MeshFileExtension parseFileExtension(const char* extension) {
-    for (unsigned int i = 0; i < (unsigned int)MeshFileExtension::Max; i++) {
-        const char* fileExt = getFileExtension((MeshFileExtension)i);
-        if (std::strcmp(fileExt, extension) == 0)
-            return (MeshFileExtension)i;
-    }
-    return MeshFileExtension::Undefined;
+[[nodiscard]] static std::filesystem::path getShaderAssetDirectory() {
+    static const std::filesystem::path cDIRECTORY = "Shaders";
+    return cDIRECTORY;
+}
+[[nodiscard]] static std::filesystem::path getMeshAssetDirectory() {
+    static const std::filesystem::path cDIRECTORY = "Meshes";
+    return cDIRECTORY;
+}
+[[nodiscard]] static std::filesystem::path getTextureAssetDirectory() {
+    static const std::filesystem::path cDIRECTORY = "Textures";
+    return cDIRECTORY;
+}
+
+[[nodiscard]] static const std::vector<std::string>& getValidGraphFileExtensions() {
+    static const std::vector<std::string> cEXTENSIONS = {
+        "graph",
+    };
+    return cEXTENSIONS;
+}
+
+[[nodiscard]] static const std::vector<std::string>& getValidShaderFileExtensions() {
+    static const std::vector<std::string> cEXTENSIONS = {
+        "glsl,vert,vs,glslv,frag,fs,glslf,tesc,tcs,glsltc,tese,tes,glslte,geom,gs,glslg)",
+        "glsl",
+        "vert", "vs", "glslv",
+        "frag", "fs", "glslf",
+        "tesc", "tcs", "glsltc",
+        "tese", "tes", "glslte",
+        "geom", "gs", "glslg",
+    };
+    return cEXTENSIONS;
+}
+static inline const std::vector<std::string>& getValidVertexShaderFileExtensions() {
+    static const std::vector<std::string> cEXTENSIONS = {
+        "glsl,vert,vs,glslv",
+        "glsl", "vert", "vs", "glslv",
+    };
+    return cEXTENSIONS;
+}
+static inline const std::vector<std::string>& getValidFragmentShaderFileExtensions() {
+    static const std::vector<std::string> cEXTENSIONS = {
+        "glsl,frag,fs,glslf",
+        "glsl", "frag", "fs", "glslf",
+    };
+    return cEXTENSIONS;
+}
+static inline const std::vector<std::string>& getValidTessContShaderFileExtensions() {
+    static const std::vector<std::string> cEXTENSIONS = {
+        "glsl,tesc,tcs,glsltc",
+        "glsl", "tesc", "tcs", "glsltc",
+    };
+    return cEXTENSIONS;
+}
+static inline const std::vector<std::string>& getValidTessEvalShaderFileExtensions() {
+    static const std::vector<std::string> cEXTENSIONS = {
+        "glsl,tese,tes,glslte",
+        "glsl", "tese", "tes", "glslte",
+    };
+    return cEXTENSIONS;
+}
+static inline const std::vector<std::string>& getValidGeometryShaderFileExtensions() {
+    static const std::vector<std::string> cEXTENSIONS = {
+        "glsl,geom,gs,glslg",
+        "glsl", "geom", "gs", "glslg",
+        };
+    return cEXTENSIONS;
+}
+
+[[nodiscard]] static const std::vector<std::string>& getValidMeshFileExtensions() {
+    static const std::vector<std::string> cEXTENSIONS = {
+        "msh,obj",
+        "msh", "obj",
+    };
+    return cEXTENSIONS;
+}
+
+[[nodiscard]] static const std::vector<std::string>& getValidTextureFileExtensions() {
+    static const std::vector<std::string> cEXTENSIONS = {
+        "png,PNG,jpg,JPG,jpeg,JPEG",
+        "png", "PNG", "jpg", "JPG", "jpeg", "JPEG",
+    };
+    return cEXTENSIONS;
+}
+
+[[nodiscard]] static const std::string& getGraphDefaultExtension() {
+    static const std::string cEXTENSION = getValidGraphFileExtensions()[0];
+    return cEXTENSION;
+}
+[[nodiscard]] static const std::string& getMeshDefaultExtension() {
+    static const std::string cEXTENSION = getValidMeshFileExtensions()[1];
+    return cEXTENSION;
 }

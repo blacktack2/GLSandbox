@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 
+#include <filesystem>
 #include <functional>
 #include <iostream>
 #include <sstream>
@@ -78,7 +79,7 @@ public:
      * @brief Find the eof position of the stream.
      * @brief Stream position will be kept at it's original position by return.
      */
-    static std::streampos findEnd(std::istream& stream);
+    [[nodiscard]] static std::streampos findEnd(std::istream& stream);
     /**
      * @brief Move the stream to the beginning of the next line (as marked by newline '\n' character).
      * @brief If there is no next line the stream will be moved to the end of the file and the eof bit will be set.
@@ -90,12 +91,15 @@ public:
      */
     static std::string readLine(std::istream& stream, char delimiter = '\n');
 
+    [[nodiscard]] static std::filesystem::path generateFilename(const std::filesystem::path& directory,
+                                                                const std::string& name, const std::string& extension);
+
     template <typename T, typename std::enable_if<std::is_fundamental<T>{}, bool>::type = true>
-    static std::string serializeData(T value) {
+    [[nodiscard]] static std::string serializeData(T value) {
         return std::to_string(value);
     }
     template<glm::length_t L, typename T, glm::qualifier Q>
-    static std::string serializeData(glm::vec<L, T, Q> value) {
+    [[nodiscard]] static std::string serializeData(glm::vec<L, T, Q> value) {
         std::stringstream stream;
         stream << value[0];
         for (int i = 1; i < L; i++)
@@ -103,7 +107,7 @@ public:
         return stream.str();
     }
     template<glm::length_t C, glm::length_t R, typename T, glm::qualifier Q>
-    static std::string serializeData(glm::mat<C, R, T, Q> value) {
+    [[nodiscard]] static std::string serializeData(glm::mat<C, R, T, Q> value) {
         std::stringstream stream;
         stream << serializeData(value[0]);
         for (int i = 1; i < C; i++)

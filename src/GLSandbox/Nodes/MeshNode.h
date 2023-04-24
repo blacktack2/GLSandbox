@@ -59,7 +59,7 @@ private:
     void writeToFile(const std::string& filename) const;
     void writeToStreamMSH(std::ofstream& stream) const;
 
-    [[nodiscard]] static std::string generateFilename() ;
+    [[nodiscard]] static std::filesystem::path generateFilename() ;
 
     void uploadMesh();
 
@@ -181,7 +181,7 @@ private:
     std::vector<Attribute> mAttributes;
     std::vector<unsigned int> mIndices{};
 
-    std::string mFilename;
+    std::filesystem::path mFilepath;
     bool mCanWriteToFile = true;
 
     bool mShowAttributes = false;

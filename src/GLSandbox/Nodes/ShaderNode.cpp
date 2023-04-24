@@ -5,7 +5,6 @@
 #include "../Assets.h"
 
 #include <algorithm>
-#include <filesystem>
 
 ShaderNode::ShaderNode() : Node("Shader") {
     addPort(mShaderOut);
@@ -15,65 +14,50 @@ bool ShaderNode::isValid() const {
     return mShader->getState() == Shader::ErrorState::VALID;
 }
 
-void ShaderNode::findVertexFiles() {
-    findFiles(getVertexFiles(), getValidVertexFileExtensions());
-}
-
-void ShaderNode::findFragmentFiles() {
-    findFiles(getFragmentFiles(), getValidFragmentFileExtensions());
-}
-
-void ShaderNode::findTessContFiles() {
-    findFiles(getTessContFiles(), getValidTessContFileExtensions());
-}
-
-void ShaderNode::findTessEvalFiles() {
-    findFiles(getTessEvalFiles(), getValidTessEvalFileExtensions());
-}
-
-void ShaderNode::findGeometryFiles() {
-    findFiles(getGeometryFiles(), getValidGeometryFileExtensions());
-}
-
 std::vector<std::pair<std::string, std::string>> ShaderNode::generateSerializedData() const {
     std::vector<std::pair<std::string, std::string>> data;
 
-    if (!mVertFile.empty())
-        data.emplace_back("Vertex", mVertFile);
-    if (!mFragFile.empty())
-        data.emplace_back("Fragment", mFragFile);
-    if (!mTescFile.empty())
-        data.emplace_back("TessCont", mTescFile);
-    if (!mTeseFile.empty())
-        data.emplace_back("TessEval", mTeseFile);
-    if (!mGeomFile.empty())
-        data.emplace_back("Geometry", mGeomFile);
+    if (!mVertFilepath.empty())
+        data.emplace_back("Vertex", mVertFilepath.string());
+    if (!mFragFilepath.empty())
+        data.emplace_back("Fragment", mFragFilepath.string());
+    if (!mTescFilepath.empty())
+        data.emplace_back("TessCont", mTescFilepath.string());
+    if (!mTeseFilepath.empty())
+        data.emplace_back("TessEval", mTeseFilepath.string());
+    if (!mGeomFilepath.empty())
+        data.emplace_back("Geometry", mGeomFilepath.string());
 
     return data;
 }
 
 void ShaderNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
     if (dataID == "Vertex")
-        mVertFile = SerializationUtils::readLine(stream);
+        mVertFilepath = SerializationUtils::readLine(stream);
     else if (dataID == "Fragment")
-        mFragFile = SerializationUtils::readLine(stream);
+        mFragFilepath = SerializationUtils::readLine(stream);
     else if (dataID == "TessCont")
-        mTescFile = SerializationUtils::readLine(stream);
+        mTescFilepath = SerializationUtils::readLine(stream);
     else if (dataID == "TessEval")
-        mTeseFile = SerializationUtils::readLine(stream);
+        mTeseFilepath = SerializationUtils::readLine(stream);
     else if (dataID == "Geometry")
-        mGeomFile = SerializationUtils::readLine(stream);
+        mGeomFilepath = SerializationUtils::readLine(stream);
 }
 void ShaderNode::onDeserialize() {
     uploadShader();
 }
 
 void ShaderNode::drawContents() {
-    ImUtils::fileChooseDialog(mVertFile, gSHADER_ASSET_DIR, generateNodeLabelID("VertexFile"));
-    ImUtils::fileChooseDialog(mFragFile, gSHADER_ASSET_DIR, generateNodeLabelID("FragmentFile"));
-    ImUtils::fileChooseDialog(mTescFile, gSHADER_ASSET_DIR, generateNodeLabelID("Tess-ContFile"));
-    ImUtils::fileChooseDialog(mTeseFile, gSHADER_ASSET_DIR, generateNodeLabelID("Tess-EvalFile"));
-    ImUtils::fileChooseDialog(mGeomFile, gSHADER_ASSET_DIR, generateNodeLabelID("GeometryFile"));
+    ImUtils::fileChooseDialog(mVertFilepath, getShaderAssetDirectory(), generateNodeLabelID("VertexFile"),
+                              getValidVertexShaderFileExtensions());
+    ImUtils::fileChooseDialog(mFragFilepath, getShaderAssetDirectory(), generateNodeLabelID("FragmentFile"),
+                              getValidFragmentShaderFileExtensions());
+    ImUtils::fileChooseDialog(mTescFilepath, getShaderAssetDirectory(), generateNodeLabelID("Tess-ContFile"),
+                              getValidTessContShaderFileExtensions());
+    ImUtils::fileChooseDialog(mTeseFilepath, getShaderAssetDirectory(), generateNodeLabelID("Tess-EvalFile"),
+                              getValidTessEvalShaderFileExtensions());
+    ImUtils::fileChooseDialog(mGeomFilepath, getShaderAssetDirectory(), generateNodeLabelID("GeometryFile"),
+                              getValidGeometryShaderFileExtensions());
 
     if (ImUtils::button("Upload", generateNodeLabelID("Upload"))) {
         uploadShader();
@@ -89,13 +73,13 @@ void ShaderNode::drawShaderStatus() {
 
     switch (mShader->getState()) {
         case Shader::ErrorState::INVALID:
-            if (mVertFile.empty())
+            if (mVertFilepath.empty())
                 text = "No vertex shader selected";
-            else if (mFragFile.empty())
+            else if (mFragFilepath.empty())
                 text = "No fragment shader selected";
-            else if (!mTescFile.empty() && mTeseFile.empty())
+            else if (!mTescFilepath.empty() && mTeseFilepath.empty())
                 text = "Tesselation Control selected, but no Tesselation Evaluation";
-            else if (mTescFile.empty() && !mTeseFile.empty())
+            else if (mTescFilepath.empty() && !mTeseFilepath.empty())
                 text = "Tesselation Evaluation selected, but no Tesselation Control";
             else
                 text = mShader->getErrorMessage();
@@ -115,22 +99,9 @@ void ShaderNode::drawShaderStatus() {
 }
 
 void ShaderNode::uploadShader() {
-    if (mVertFile.empty() || mFragFile.empty() || (mTescFile.empty() != mTeseFile.empty())) {
+    if (mVertFilepath.empty() || mFragFilepath.empty() || (mTescFilepath.empty() != mTeseFilepath.empty())) {
         mShader = std::make_unique<Shader>();
         return;
     }
-    mShader = std::make_unique<Shader>(mVertFile, mFragFile, mTescFile, mTeseFile, mGeomFile);
+    mShader = std::make_unique<Shader>(mVertFilepath, mFragFilepath, mTescFilepath, mTeseFilepath, mGeomFilepath);
 }
-
-void ShaderNode::findFiles(std::vector<std::string>& files, const std::vector<std::string>& extensions) {
-    files.clear();
-    for (const auto& file : std::filesystem::directory_iterator(gSHADER_ASSET_DIR)) {
-        if (!file.is_regular_file())
-            continue;
-
-        const std::string extension = file.path().extension().string();
-        if (std::find(extensions.begin(), extensions.end(), extension) != extensions.end())
-            files.push_back(file.path().filename().string());
-    }
-}
-

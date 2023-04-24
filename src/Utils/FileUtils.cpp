@@ -2,19 +2,50 @@
 
 #include <nfd.h>
 
-bool FileUtils::openFileDialog(std::string& filePath, const std::string& location) {
-    nfdchar_t* outPath = nullptr;
-    nfdresult_t result = NFD_OpenDialog(nullptr, location.c_str(), &outPath);
-
-    if (result == NFD_CANCEL) {
-        return false;
-    } else if (result != NFD_OKAY) {
-        std::string error = NFD_GetError();
-        std::string adsf;
-        return false;
+std::string parseFilterList(const std::vector<std::string>& filters) {
+    std::string filterList;
+    for (const std::string& filter : filters) {
+        if (!filterList.empty())
+            filterList.append(";");
+        filterList.append(filter);
     }
+    return filterList;
+}
 
-    filePath = outPath;
+bool FileUtils::openFileDialog(std::filesystem::path& filepath, const std::filesystem::path& defaultLocation,
+                               const std::vector<std::string>& filters) {
+    nfdchar_t* outPath = nullptr;
+    std::string filterList = parseFilterList(filters);
+
+    nfdresult_t result = NFD_OpenDialog(
+        filterList.empty() ? nullptr : filterList.c_str(),
+        filepath.empty() ? defaultLocation.c_str() : filepath.parent_path().c_str(),
+        &outPath
+    );
+
+    if (result == NFD_CANCEL || result != NFD_OKAY)
+        return false;
+
+    filepath = outPath;
+    free(outPath);
+    return true;
+}
+
+bool FileUtils::openSaveDialog(std::filesystem::path& filepath, const std::filesystem::path& defaultLocation,
+                               const std::vector<std::string>& filters) {
+    nfdchar_t* outPath = nullptr;
+    std::string filterList = parseFilterList(filters);
+
+    nfdresult_t result = NFD_SaveDialog(
+        filterList.empty() ? nullptr : filterList.c_str(),
+        filepath.empty() ? defaultLocation.c_str() : filepath.parent_path().c_str(),
+        &outPath
+    );
+
+    if (result == NFD_CANCEL || result != NFD_OKAY)
+        return false;
+
+    filepath = outPath;
     free(outPath);
     return true;
 }

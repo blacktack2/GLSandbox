@@ -7,14 +7,16 @@
 #include <SDL2/SDL.h>
 #endif
 
+#include <filesystem>
 #include <memory>
+#include <string>
 
 class Graph;
 class Renderer;
 
 class Window {
 public:
-    Window(const char* title, int width, int height);
+    Window(std::string title, int width, int height);
     ~Window();
 
     void mainloop();
@@ -24,11 +26,20 @@ public:
     }
 private:
     void handleEvent(SDL_Event& e);
+    void updateTitle();
 
     void drawMenu();
     void drawFileMenu();
 
     void drawGraph();
+
+    void loadConfig();
+    void writeConfig();
+
+    void loadGraph();
+    void saveGraph() const;
+
+    [[nodiscard]] static std::filesystem::path generateFilename();
 
     SDL_Window* mWindow = nullptr;
     SDL_GLContext mGLContext;
@@ -38,6 +49,11 @@ private:
 
     int mWidth, mHeight;
 
+    std::string mTitle;
+
     bool mRunning = false;
     bool mInitSuccess = false;
+
+    std::filesystem::path mGraphFilepath;
+    bool mIsGraphFileWrittenTo = false;
 };

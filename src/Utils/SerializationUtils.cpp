@@ -1,6 +1,5 @@
 #include "SerializationUtils.h"
 
-
 static constexpr char gMARK_PREFIX = '$';
 static constexpr char gMARK_BEGIN_SUFFIX[] = "Begin";
 static constexpr char gMARK_END_SUFFIX[] = "End";
@@ -107,4 +106,20 @@ std::string SerializationUtils::readLine(std::istream& stream, char delimiter) {
     stream >> std::ws;
     std::getline(stream, result, delimiter);
     return result;
+}
+
+std::filesystem::path SerializationUtils::generateFilename(const std::filesystem::path& directory,
+                                                           const std::string& name, const std::string& extension) {
+    const std::filesystem::path basePath = directory / name;
+    std::filesystem::path filePath;
+
+    size_t index = 0;
+    do {
+        filePath = basePath;
+        filePath += std::to_string(index++);
+        filePath += ".";
+        filePath += extension;
+    } while (std::filesystem::exists(filePath));
+
+    return filePath.string();
 }

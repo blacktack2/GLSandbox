@@ -35,23 +35,24 @@ TextureFileNode::TextureFileNode() : Node("Texture") {
 
 std::vector<std::pair<std::string, std::string>> TextureFileNode::generateSerializedData() const {
     std::vector<std::pair<std::string, std::string>> data{};
-    data.emplace_back("File", mFilename);
+    data.emplace_back("File", mFilepath.string());
     return data;
 }
 
 void TextureFileNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
     if (dataID == "File")
-        mFilename = SerializationUtils::readLine(stream);
+        mFilepath = SerializationUtils::readLine(stream);
 }
 
 void TextureFileNode::onDeserialize() {
-    if (!mFilename.empty())
+    if (!mFilepath.empty())
         loadFromFile();
 }
 
 void TextureFileNode::drawContents() {
     ImGui::Text("File");
-    if (ImUtils::fileChooseDialog(mFilename, gTEXTURE_ASSET_DIR, generateNodeLabelID("FileChoose")))
+    if (ImUtils::fileChooseDialog(mFilepath, getTextureAssetDirectory(), generateNodeLabelID("FileChoose"),
+                                  getValidTextureFileExtensions()))
         loadFromFile();
 
     std::string message;
@@ -65,7 +66,7 @@ void TextureFileNode::drawContents() {
 
 void TextureFileNode::loadFromFile() {
     int width, height, channels;
-    unsigned char* data = stbi_load(mFilename.c_str(), &width, &height, &channels, 0);
+    unsigned char* data = stbi_load(mFilepath.c_str(), &width, &height, &channels, 0);
     if (!data) {
         mState = ValidationState::InvalidFile;
         stbi_image_free(data);
