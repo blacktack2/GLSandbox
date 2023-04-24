@@ -29,6 +29,7 @@ namespace ImUtils {
     }
 
     void nodeDummy();
+    bool inputNodeName(std::string& name, const std::string& labelID, bool isDirty);
 
     void message(const char* format...);
 

@@ -51,6 +51,22 @@ void ImUtils::nodeDummy() {
     ImGui::Dummy(ImVec2(gNODE_WIDTH, 0.0f));
 }
 
+bool ImUtils::inputNodeName(std::string& name, const std::string& labelID, bool isDirty) {
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+
+    ImGui::SetNextItemWidth(ImGui::CalcTextSize(name.c_str()).x + ImGui::GetStyle().FramePadding.x * 2.0f);
+    bool changed = ImGui::InputText(formatLabel(labelID).c_str(), &name);
+
+    if (isDirty) {
+        ImGui::SameLine();
+        ImGui::TextUnformatted("*");
+    }
+
+    ImGui::PopStyleColor();
+
+    return changed;
+}
+
 void ImUtils::message(const char* format...) {
     va_list args;
     va_start(args, format);

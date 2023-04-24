@@ -121,7 +121,7 @@ private:
 
     int mID;
 
-    std::string mTitle;
+    std::string mName;
 
     std::vector<std::reference_wrapper<IPort>> mPorts;
     std::vector<std::reference_wrapper<IPort>> mInPorts;

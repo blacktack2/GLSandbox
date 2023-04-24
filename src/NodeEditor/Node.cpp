@@ -6,6 +6,7 @@
 
 #include <imgui.h>
 #include <imgui_node_editor.h>
+#include <imgui_stdlib.h>
 
 #include <utility>
 
@@ -18,6 +19,7 @@ static constexpr char gSERIAL_MARK_DATA[] = "Data";
 
 static constexpr char gSERIAL_DATA_PREFIX = '-';
 static constexpr char gSERIAL_DATA_ID[] = "NodeID";
+static constexpr char gSERIAL_DATA_NAME[] = "NodeName";
 static constexpr char gSERIAL_DATA_POSITION[] = "NodePosition";
 static constexpr char gSERIAL_DATA_INPORT[] = "InPort";
 static constexpr char gSERIAL_DATA_OUTPORT[] = "OutPort";
@@ -32,7 +34,7 @@ void writeDataPoints(std::ofstream& streamOut, char prefix,
         SerializationUtils::writeDataPoint(streamOut, prefix, dataPair.first, dataPair.second);
 }
 
-Node::Node(std::string title) : mTitle(std::move(title)), mID{gGraphIDCounter++} {
+Node::Node(std::string title) : mName(std::move(title)), mID{gGraphIDCounter++} {
     setAbsolutePosition(ImVec2(0.0f, 0.0f));
 }
 
@@ -48,6 +50,7 @@ void Node::serialize(std::ofstream& streamOut) const {
     std::vector<std::pair<std::string, std::string>> data{};
 
     data.emplace_back(gSERIAL_DATA_ID, serializedID);
+    data.emplace_back(gSERIAL_DATA_NAME, mName);
     data.emplace_back(gSERIAL_DATA_POSITION, serializedPosition);
 
     for (const IPort& port : mInPorts)
@@ -72,7 +75,9 @@ void Node::deserialize(std::ifstream& streamIn, std::streampos end,
     std::string dataID;
     while (SerializationUtils::seekNextDataPoint(streamIn, end, gSERIAL_DATA_PREFIX, dataID)) {
         if (dataID == gSERIAL_DATA_ID) {
-            streamIn >> dataID;
+            streamIn >> mID;
+        } else if (dataID == gSERIAL_DATA_NAME) {
+            streamIn >> mName;
         } else if (dataID == gSERIAL_DATA_POSITION) {
             ImVec2 position;
             streamIn >> position.x;
@@ -136,11 +141,11 @@ void Node::draw() {
     }
     mPosition = ed::GetNodePosition(getID());
 
-    std::string title = mTitle + (mIsDirty ? " *" : "");
-    if (mIsLocked)
-        ImGui::TextDisabled("%s", title.c_str());
-    else
-        ImGui::TextUnformatted(title.c_str());
+    ImGui::BeginDisabled(mIsLocked);
+
+    ImUtils::inputNodeName(mName, generateNodeLabelID("NodeName"), mIsDirty);
+
+    ImGui::EndDisabled();
 
     for (size_t i = 0; i < std::max(mInPorts.size(), mOutPorts.size()); i++) {
         bool drawIn = mInPorts.size() > i;
