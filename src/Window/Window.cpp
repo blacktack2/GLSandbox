@@ -237,6 +237,7 @@ void Window::writeConfig() {
 }
 
 void Window::loadGraph() {
+    mRenderer->resetPipeline();
     mGraph->clearNodes();
     std::ifstream stream(mGraphFilepath);
     if (stream)
