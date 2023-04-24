@@ -306,12 +306,12 @@ struct DummyData {
 
 void drawPinDummy(float width, float height, DummyData& data) {
     float lineHeight = ImGui::GetTextLineHeight();
-    float yOffset = (lineHeight - height * 2.0f);
+    float yOffset = (lineHeight - height);
 
     ImVec2 cursorPos = ImGui::GetCursorScreenPos();
     ImGui::SetCursorScreenPos(cursorPos + ImVec2(0.0f, yOffset));
 
-    ImGui::Dummy(ImVec2(width, height) * 2.0f);
+    ImGui::Dummy(ImVec2(width, height));
 
     ImGui::SetCursorScreenPos(cursorPos + ImVec2(width, 0.0f));
 

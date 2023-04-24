@@ -156,8 +156,14 @@ public:
     mGetValue(getValue), mUseDefault(useDefault), mIsDynamic(isDynamic) {
         std::variant<Types...> temp;
         mDrawPin = std::visit(VisitOverload{
-            [](void* arg)->draw_pin_callback { return []() { ImUtils::Pins::arrowIcon(5.0f, ImColor(1.0f, 1.0f, 1.0f), ImColor(0.0f, 0.0f, 0.0f)); }; },
-            [](auto arg)->draw_pin_callback { return []() { ImUtils::Pins::circleIcon(5.0f, ImColor(0.0f, 1.0f, 0.0f), ImColor(0.0f, 0.0f, 0.0f)); }; },
+            [this](void* arg)->draw_pin_callback {
+                mPinSize = 14.0f;
+                return [this]() { ImUtils::Pins::arrowIcon(mPinSize, ImColor(1.0f, 1.0f, 1.0f), ImColor(0.0f, 0.0f, 0.0f)); };
+            },
+            [this](auto arg)->draw_pin_callback {
+                mPinSize = 10.0f;
+                return [this]() { ImUtils::Pins::circleIcon(mPinSize, ImColor(0.0f, 1.0f, 0.0f), ImColor(0.0f, 0.0f, 0.0f)); };
+            },
         }, temp);
 
         switch (mDirection) {
@@ -332,7 +338,7 @@ private:
         ed::EndPin();
     }
     void drawOut() {
-        ImGui::SameLine(mParent.getSize().x - ImGui::CalcTextSize((mDisplayName + " ->").c_str()).x - ed::GetStyle().NodePadding.x - ed::GetStyle().NodePadding.z);
+        ImGui::SameLine(mParent.getSize().x - ImGui::CalcTextSize(mDisplayName.c_str()).x - ImGui::GetStyle().FramePadding.x * 2.0f - ed::GetStyle().NodePadding.x - ed::GetStyle().NodePadding.z - mPinSize);
         ed::BeginPin(mID, ed::PinKind::Output);
         ed::PinPivotAlignment(ImVec2(1.0f, 0.5f));
         ed::PinPivotSize(ImVec2(0.0f, 0.0f));
@@ -368,4 +374,6 @@ private:
     std::vector<on_link_callback> mOnLinks;
     std::vector<on_value_update_callback> mOnUpdates;
     std::vector<on_unlink_callback> mOnUnlinks;
+
+    float mPinSize = 0.0f;
 };
