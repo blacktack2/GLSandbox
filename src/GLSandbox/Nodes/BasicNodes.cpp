@@ -10,6 +10,30 @@ bool IntegerNode::drawInputArea(const std::string& label) {
     return ImUtils::inputIntN(&mValue, 1, label);
 }
 
+IVec2Node::IVec2Node() : NumericNode<glm::ivec2>("IVec2") {
+    mValue = glm::ivec2(0);
+}
+
+bool IVec2Node::drawInputArea(const std::string& label) {
+    return ImUtils::inputIntN(&mValue[0], 2, label);
+}
+
+IVec3Node::IVec3Node() : NumericNode<glm::ivec3>("IVec3") {
+    mValue = glm::ivec3(0);
+}
+
+bool IVec3Node::drawInputArea(const std::string& label) {
+    return ImUtils::inputIntN(&mValue[0], 3, label);
+}
+
+IVec4Node::IVec4Node() : NumericNode<glm::ivec4>("IVec4") {
+    mValue = glm::ivec4(0);
+}
+
+bool IVec4Node::drawInputArea(const std::string& label) {
+    return ImUtils::inputIntN(&mValue[0], 4, label);
+}
+
 FloatNode::FloatNode() : NumericNode<float>("Float") {
     mValue = 0.0f;
 }

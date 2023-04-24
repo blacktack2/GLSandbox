@@ -59,7 +59,7 @@ static NodeGroup getNodeGroup(NodeType type) {
         case NodeType::Entry: case NodeType::RenderPass:
             return NodeGroup::Execution;
 
-        case NodeType::Integer:
+        case NodeType::Integer: case NodeType::IVec2: case NodeType::IVec3: case NodeType::IVec4:
         case NodeType::Float: case NodeType::Vec2: case NodeType::Vec3: case NodeType::Vec4:
         case NodeType::Mat2: case NodeType::Mat3: case NodeType::Mat4:
             return NodeGroup::Numerics;

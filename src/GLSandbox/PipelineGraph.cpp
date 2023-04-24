@@ -65,9 +65,9 @@ std::unique_ptr<Node> PipelineGraph::generateNode(NodeType type) const {
         case NodeType::Arithmetic  : return std::make_unique<ArithmeticNode>();
 
         case NodeType::Integer     : return std::make_unique<IntegerNode>();
-        case NodeType::IVec2       : // Not implemented
-        case NodeType::IVec3       :
-        case NodeType::IVec4       : return nullptr;
+        case NodeType::IVec2       : return std::make_unique<IVec2Node>();
+        case NodeType::IVec3       : return std::make_unique<IVec3Node>();
+        case NodeType::IVec4       : return std::make_unique<IVec4Node>();
 
         case NodeType::Float       : return std::make_unique<FloatNode>();
         case NodeType::Vec2        : return std::make_unique<Vec2Node>();
@@ -106,6 +106,9 @@ std::string PipelineGraph::getNodeName(NodeType type) {
         case NodeType::Arithmetic: return "Arithmetic";
 
         case NodeType::Integer     : return "Integer";
+        case NodeType::IVec2       : return "IVec2";
+        case NodeType::IVec3       : return "IVec3";
+        case NodeType::IVec4       : return "IVec4";
         case NodeType::Float       : return "Float";
         case NodeType::Vec2        : return "Vec2";
         case NodeType::Vec3        : return "Vec3";

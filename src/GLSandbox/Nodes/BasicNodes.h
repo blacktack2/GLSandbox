@@ -56,7 +56,42 @@ public:
         return (unsigned int)NodeType::Integer;
     }
 protected:
+    bool drawInputArea(const std::string& label) final;
+};
 
+class IVec2Node final : public NumericNode<glm::ivec2> {
+public:
+    IVec2Node();
+    ~IVec2Node() final = default;
+
+    [[nodiscard]] unsigned int getTypeID() final {
+        return (unsigned int)NodeType::Integer;
+    }
+protected:
+    bool drawInputArea(const std::string& label) final;
+};
+
+class IVec3Node final : public NumericNode<glm::ivec3> {
+public:
+    IVec3Node();
+    ~IVec3Node() final = default;
+
+    [[nodiscard]] unsigned int getTypeID() final {
+        return (unsigned int)NodeType::Integer;
+    }
+protected:
+    bool drawInputArea(const std::string& label) final;
+};
+
+class IVec4Node final : public NumericNode<glm::ivec4> {
+public:
+    IVec4Node();
+    ~IVec4Node() final = default;
+
+    [[nodiscard]] unsigned int getTypeID() final {
+        return (unsigned int)NodeType::Integer;
+    }
+protected:
     bool drawInputArea(const std::string& label) final;
 };
 

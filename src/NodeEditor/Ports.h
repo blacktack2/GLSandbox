@@ -408,13 +408,13 @@ private:
             generatePinCallback(PinShape::Circle, ImColor(1.0f, 1.0f, 0.0f));
         } else if (hash == typeHash<glm::ivec2>()) {
             mPinSize = 10.0f;
-            generatePinCallback(PinShape::Circle, ImColor(0.8f, 0.8f, 0.0f));
+            generatePinCallback(PinShape::Triangle, ImColor(0.8f, 0.8f, 0.0f));
         } else if (hash == typeHash<glm::ivec3>()) {
             mPinSize = 10.0f;
-            generatePinCallback(PinShape::Circle, ImColor(0.6f, 0.6f, 0.0f));
+            generatePinCallback(PinShape::Triangle, ImColor(0.6f, 0.6f, 0.0f));
         } else if (hash == typeHash<glm::ivec4>()) {
             mPinSize = 10.0f;
-            generatePinCallback(PinShape::Circle, ImColor(0.4f, 0.4f, 0.0f));
+            generatePinCallback(PinShape::Triangle, ImColor(0.4f, 0.4f, 0.0f));
         } else if (hash == typeHash<float>()) {
             mPinSize = 10.0f;
             generatePinCallback(PinShape::Circle, ImColor(0.0f, 1.0f, 1.0f));
