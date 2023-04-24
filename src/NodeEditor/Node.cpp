@@ -1,5 +1,6 @@
 #include "Node.h"
 
+#include "Graph.h"
 #include "Ports.h"
 #include "../Utils/SerializationUtils.h"
 
@@ -33,6 +34,10 @@ void writeDataPoints(std::ofstream& streamOut, char prefix,
 
 Node::Node(std::string title) : mTitle(std::move(title)), mID{gGraphIDCounter++} {
     setAbsolutePosition(ImVec2(0.0f, 0.0f));
+}
+
+void Node::setParent(Graph* parent) {
+    mParent = parent;
 }
 
 void Node::serialize(std::ofstream& streamOut) const {
@@ -131,10 +136,11 @@ void Node::draw() {
     }
     mPosition = ed::GetNodePosition(getID());
 
+    std::string title = mTitle + (mIsDirty ? " *" : "");
     if (mIsLocked)
-        ImGui::TextDisabled("%s", mTitle.c_str());
+        ImGui::TextDisabled("%s", title.c_str());
     else
-        ImGui::TextUnformatted(mTitle.c_str());
+        ImGui::TextUnformatted(title.c_str());
 
     for (size_t i = 0; i < std::max(mInPorts.size(), mOutPorts.size()); i++) {
         bool drawIn = mInPorts.size() > i;
@@ -213,6 +219,15 @@ IPort* Node::getPort(int portID) {
         if (port.get().getID() == portID)
             return &port.get();
     return nullptr;
+}
+
+void Node::markDirty() {
+    mIsDirty = true;
+    mParent->markDirty();
+}
+
+void Node::markClean() {
+    mIsDirty = false;
 }
 
 void Node::lock() {

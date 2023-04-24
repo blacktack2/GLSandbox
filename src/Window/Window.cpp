@@ -79,6 +79,8 @@ mWidth(width), mHeight(height), mTitle(std::move(title)) {
 
     mRenderer = std::make_unique<GLSandboxRenderer>();
     mGraph = std::make_unique<PipelineGraph>(*mRenderer);
+    mGraph->addOnCleanEvent([this]() { updateTitle(); });
+    mGraph->addOnDirtyEvent([this]() { updateTitle(); });
 
     mGraphFilepath = generateFilename();
     loadConfig();
@@ -155,7 +157,7 @@ void Window::handleEvent(SDL_Event &e) {
 }
 
 void Window::updateTitle() {
-    std::string title = mTitle + " - " + mGraphFilepath.filename().string();
+    std::string title = mTitle + " - " + mGraphFilepath.filename().string() + (mGraph->isDirty() ? " *" : "");
     SDL_SetWindowTitle(mWindow, title.c_str());
 }
 
@@ -175,7 +177,6 @@ void Window::drawFileMenu() {
     if (ImGui::MenuItem("New##MainMenu_File")) {
         mGraphFilepath = generateFilename();
         loadGraph();
-        updateTitle();
     }
 
     ImGui::Separator();
@@ -183,7 +184,6 @@ void Window::drawFileMenu() {
     if (ImGui::MenuItem("Open##MainMenu_File")) {
         if (FileUtils::openFileDialog(mGraphFilepath, getGraphAssetDirectory(), getValidGraphFileExtensions())) {
             loadGraph();
-            updateTitle();
         }
     }
 
@@ -196,7 +196,6 @@ void Window::drawFileMenu() {
                 mGraphFilepath += getGraphDefaultExtension();
             }
             saveGraph();
-            updateTitle();
         }
     }
 
@@ -244,12 +243,14 @@ void Window::loadGraph() {
         mGraph->deserialize(stream);
     else
         mGraph->initializeDefault();
+    mGraph->markClean();
 }
 
 void Window::saveGraph() const {
     std::ofstream stream(mGraphFilepath);
     if (stream)
         mGraph->serialize(stream);
+    mGraph->markClean();
 }
 
 std::filesystem::path Window::generateFilename() {

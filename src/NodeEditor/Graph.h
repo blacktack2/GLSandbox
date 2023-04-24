@@ -1,6 +1,7 @@
 #pragma once
 #include "Node.h"
 
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -31,14 +32,30 @@ public:
     [[nodiscard]] inline size_t getNumNodes() const {
         return mNodes.size();
     }
+
+    void markDirty();
+    void markClean();
+    [[nodiscard]] inline bool isDirty() const {
+        return mIsDirty;
+    };
+
+    inline void addOnDirtyEvent(std::function<void()> event) {
+        mOnDirtyEvents.push_back(std::move(event));
+    }
+    inline void addOnCleanEvent(std::function<void()> event) {
+        mOnCleanEvents.push_back(std::move(event));
+    }
 protected:
     virtual std::unique_ptr<Node> deserializeNodeType(unsigned int nodeType) = 0;
 
     virtual void drawNodeCreation() = 0;
 
     inline void addNode(std::unique_ptr<Node> node) {
-        if (node)
+        if (node) {
+            node->setParent(this);
             mNodes.push_back(std::move(node));
+            markDirty();
+        }
     }
 private:
     void drawEditor();
@@ -53,5 +70,9 @@ private:
     std::vector<std::unique_ptr<Node>> mNodes{};
 
     bool mConfigPanelOpen = true;
+
+    bool mIsDirty = false;
+    std::vector<std::function<void()>> mOnDirtyEvents{};
+    std::vector<std::function<void()>> mOnCleanEvents{};
 };
 

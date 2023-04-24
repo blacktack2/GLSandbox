@@ -97,6 +97,20 @@ void Graph::postDraw() {
 
 }
 
+void Graph::markDirty() {
+    mIsDirty = true;
+    for (const auto& event : mOnDirtyEvents)
+        event();
+}
+
+void Graph::markClean() {
+    mIsDirty = false;
+    for (const auto& event : mOnCleanEvents)
+        event();
+    for (const auto& node : mNodes)
+        node->markClean();
+}
+
 void Graph::drawEditor() {
     ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoCollapse);
     ed::SetCurrentEditor(mContext);
@@ -147,8 +161,10 @@ void Graph::checkLinkCreated() {
             portB = in;
     }
 
-    if (portA && portB && !portA->getParent().isLocked() & !portB->getParent().isLocked())
+    if (portA && portB && !portA->getParent().isLocked() & !portB->getParent().isLocked()) {
         portB->link(*portA);
+        markDirty();
+    }
 }
 
 void Graph::checkLinksDeleted() {
@@ -161,6 +177,7 @@ void Graph::checkLinksDeleted() {
             IPort& port = node->getPortByIndex(i);
             if (port.isLinked() && port.getLinkID() == linkID.Get() && !port.getParent().isLocked() && !port.getLinkedParent().isLocked()) {
                 port.unlink();
+                markDirty();
                 return;
             }
         }
@@ -172,6 +189,7 @@ void Graph::checkNodesDeleted() {
     if (!ed::QueryDeletedNode(&nodeId))
         return;
 
+    size_t initial = mNodes.size();
     mNodes.erase(
         std::remove_if(
             mNodes.begin(), mNodes.end(),
@@ -181,4 +199,6 @@ void Graph::checkNodesDeleted() {
         ),
         mNodes.end()
     );
+    if (mNodes.size() != initial)
+        markDirty();
 }

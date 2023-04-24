@@ -16,6 +16,7 @@
 
 extern int gGraphIDCounter;
 
+class Graph;
 class IPort;
 
 namespace ax::NodeEditor {
@@ -28,6 +29,8 @@ public:
     typedef std::unordered_map<Node*, std::vector<std::pair<std::string, int>>> link_data_t;
 
     virtual ~Node() = default;
+
+    void setParent(Graph* parent);
 
     [[nodiscard]] virtual unsigned int getTypeID() = 0;
 
@@ -58,6 +61,12 @@ public:
     [[nodiscard]] IPort* getPortByName(const std::string& uniqueName);
     [[nodiscard]] IPort& getPortByIndex(size_t i);
     [[nodiscard]] IPort* getPort(int portID);
+
+    void markDirty();
+    void markClean();
+    [[nodiscard]] inline bool isDirty() const {
+        return mIsDirty;
+    }
 
     void lock();
     void unlock();
@@ -108,6 +117,8 @@ protected:
         ImGui::PopStyleColor();
     }
 private:
+    Graph* mParent = nullptr;
+
     int mID;
 
     std::string mTitle;
@@ -115,6 +126,8 @@ private:
     std::vector<std::reference_wrapper<IPort>> mPorts;
     std::vector<std::reference_wrapper<IPort>> mInPorts;
     std::vector<std::reference_wrapper<IPort>> mOutPorts;
+
+    bool mIsDirty = true;
 
     ImVec2 mPosition = ImVec2(0.0f, 0.0f);
     bool mIsPositionDirty = false;
