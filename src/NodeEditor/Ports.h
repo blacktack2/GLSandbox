@@ -1,8 +1,15 @@
 #pragma once
 #include "Node.h"
 
+#include "../Rendering/Framebuffer.h"
+#include "../Rendering/Mesh.h"
+#include "../Rendering/Shader.h"
+#include "../Rendering/Texture.h"
+
 #include "../Utils/ImUtils.h"
 #include "../Utils/VariantUtils.h"
+
+#include <glm/glm.hpp>
 
 #include <imgui_node_editor.h>
 
@@ -11,6 +18,7 @@
 #include <memory>
 #include <set>
 #include <typeindex>
+#include <unordered_set>
 #include <variant>
 
 namespace ed = ax::NodeEditor;
@@ -135,6 +143,17 @@ public:
     [[nodiscard]] virtual std::set<std::type_index> getParameterTypes() const = 0;
 };
 
+template<typename... Ts>
+std::size_t typeHash() {
+    size_t result = 0;
+    std::unordered_set<std::type_index> typeSet = { std::type_index(typeid(Ts))... };
+
+    for (const auto& type : typeSet)
+        result ^= type.hash_code();
+
+    return result;
+}
+
 template<typename... Types>
 class Port final : public IPort {
 public:
@@ -154,18 +173,7 @@ public:
     mID(gGraphIDCounter++), mParent(parent),
     mDirection(direction), mUniqueName(std::move(uniqueName)), mDisplayName(std::move(displayName)),
     mGetValue(getValue), mUseDefault(useDefault), mIsDynamic(isDynamic) {
-        std::variant<Types...> temp;
-        mDrawPin = std::visit(VisitOverload{
-            [this](void* arg)->draw_pin_callback {
-                mPinSize = 14.0f;
-                return [this]() { ImUtils::Pins::arrowIcon(mPinSize, ImColor(1.0f, 1.0f, 1.0f), ImColor(0.0f, 0.0f, 0.0f)); };
-            },
-            [this](auto arg)->draw_pin_callback {
-                mPinSize = 10.0f;
-                return [this]() { ImUtils::Pins::circleIcon(mPinSize, ImColor(0.0f, 1.0f, 0.0f), ImColor(0.0f, 0.0f, 0.0f)); };
-            },
-        }, temp);
-
+        generatePinData();
         switch (mDirection) {
             case Direction::In  : mDrawPort = [this]() { drawIn();  }; break;
             case Direction::Out : mDrawPort = [this]() { drawOut(); }; break;
@@ -314,6 +322,14 @@ private:
     typedef std::function<void()> draw_port_callback;
     typedef std::function<void()> draw_pin_callback;
 
+    enum class PinShape {
+        Circle,
+        FlatSquare,
+        Square,
+        Triangle,
+        Arrow,
+    };
+
     [[nodiscard]] bool isTypeMatch(IPort& other) const {
         const auto thisTypes = getParameterTypes();
         const auto otherTypes = other.getParameterTypes();
@@ -348,6 +364,97 @@ private:
         mDrawPin();
 
         ed::EndPin();
+    }
+
+    void generatePinCallback(PinShape shape, ImU32 colour) {
+        float pinSize = mPinSize;
+        switch (shape) {
+            default:
+            case PinShape::Circle:
+                mDrawPin = [pinSize, colour]() {
+                    ImUtils::Pins::circleIcon(pinSize, colour, ImColor(0.0f, 0.0f, 0.0f));
+                };
+                break;
+            case PinShape::FlatSquare:
+                mDrawPin = [pinSize, colour]() {
+                    ImUtils::Pins::squareIcon(pinSize, colour, ImColor(0.0f, 0.0f, 0.0f));
+                };
+                break;
+            case PinShape::Square:
+                mDrawPin = [pinSize, colour]() {
+                    ImUtils::Pins::nGonIcon(pinSize, 4, colour, ImColor(0.0f, 0.0f, 0.0f));
+                };
+                break;
+            case PinShape::Triangle:
+                mDrawPin = [pinSize, colour]() {
+                    ImUtils::Pins::nGonIcon(pinSize, 3, colour, ImColor(0.0f, 0.0f, 0.0f));
+                };
+                break;
+            case PinShape::Arrow:
+                mDrawPin = [pinSize, colour]() {
+                    ImUtils::Pins::arrowIcon(pinSize, colour, ImColor(0.0f, 0.0f, 0.0f));
+                };
+                break;
+        }
+    }
+
+    void generatePinData() {
+        size_t hash = typeHash<Types...>();
+        if (hash == typeHash<void*>()) {
+            mPinSize = 14.0f;
+            generatePinCallback(PinShape::Arrow, ImColor(1.0f, 1.0f, 1.0f));
+        } else if (hash == typeHash<int>()) {
+            mPinSize = 10.0f;
+            generatePinCallback(PinShape::Circle, ImColor(1.0f, 1.0f, 0.0f));
+        } else if (hash == typeHash<glm::ivec2>()) {
+            mPinSize = 10.0f;
+            generatePinCallback(PinShape::Circle, ImColor(0.8f, 0.8f, 0.0f));
+        } else if (hash == typeHash<glm::ivec3>()) {
+            mPinSize = 10.0f;
+            generatePinCallback(PinShape::Circle, ImColor(0.6f, 0.6f, 0.0f));
+        } else if (hash == typeHash<glm::ivec4>()) {
+            mPinSize = 10.0f;
+            generatePinCallback(PinShape::Circle, ImColor(0.4f, 0.4f, 0.0f));
+        } else if (hash == typeHash<float>()) {
+            mPinSize = 10.0f;
+            generatePinCallback(PinShape::Circle, ImColor(0.0f, 1.0f, 1.0f));
+        } else if (hash == typeHash<glm::vec2>()) {
+            mPinSize = 10.0f;
+            generatePinCallback(PinShape::Triangle, ImColor(0.0f, 1.0f, 0.7f));
+        } else if (hash == typeHash<glm::vec3>()) {
+            mPinSize = 10.0f;
+            generatePinCallback(PinShape::Triangle, ImColor(0.0f, 1.0f, 0.4f));
+        } else if (hash == typeHash<glm::vec4>()) {
+            mPinSize = 10.0f;
+            generatePinCallback(PinShape::Triangle, ImColor(0.0f, 1.0f, 0.0f));
+        } else if (hash == typeHash<glm::mat2>()) {
+            mPinSize = 8.0f;
+            generatePinCallback(PinShape::Square, ImColor(0.0f, 1.0f, 0.7f));
+        } else if (hash == typeHash<glm::mat3>()) {
+            mPinSize = 8.0f;
+            generatePinCallback(PinShape::Square, ImColor(0.0f, 1.0f, 0.4f));
+        } else if (hash == typeHash<glm::mat4>()) {
+            mPinSize = 8.0f;
+            generatePinCallback(PinShape::Square, ImColor(0.0f, 1.0f, 0.0f));
+        } else if (hash == typeHash<Framebuffer*>()) {
+            mPinSize = 10.0f;
+            generatePinCallback(PinShape::FlatSquare, ImColor(1.0f, 1.0f, 1.0f));
+        } else if (hash == typeHash<Mesh*>()) {
+            mPinSize = 10.0f;
+            generatePinCallback(PinShape::FlatSquare, ImColor(0.0f, 0.8f, 1.0f));
+        } else if (hash == typeHash<Shader*>()) {
+            mPinSize = 10.0f;
+            generatePinCallback(PinShape::FlatSquare, ImColor(1.0f, 0.4f, 0.0f));
+        } else if (hash == typeHash<Texture*>()) {
+            mPinSize = 10.0f;
+            generatePinCallback(PinShape::FlatSquare, ImColor(0.0f, 1.0f, 0.0f));
+        } else if (hash == typeHash<float, int>()) {
+            mPinSize = 10.0f;
+            generatePinCallback(PinShape::Circle, ImColor(1.0f, 1.0f, 0.0f));
+        } else {
+            mPinSize = 8.0f;
+            generatePinCallback(PinShape::Circle, ImColor(1.0f, 1.0f, 1.0f));
+        }
     }
 
     value_get_callback mGetValue;

@@ -332,14 +332,14 @@ void ImUtils::Pins::circleIcon(float outerRadius, ImU32 outerColour, ImU32 inner
     drawList->AddCircle(data.center, radius, outerColour, 24, gPIN_ICON_THICKNESS);
 }
 
-void ImUtils::Pins::triangleIcon(float size, ImU32 outerColour, ImU32 innerColour) {
+void ImUtils::Pins::nGonIcon(float size, int numSegments, ImU32 outerColour, ImU32 innerColour) {
     auto drawList = ImGui::GetWindowDrawList();
 
     DummyData data;
     drawPinDummy(size, size, data);
 
-    drawList->AddTriangleFilled(data.min, ImVec2(data.min.x, data.max.y), ImVec2(data.max.x, data.center.y), innerColour);
-    drawList->AddTriangle(data.min, ImVec2(data.min.x, data.max.y), ImVec2(data.max.x, data.center.y), outerColour, gPIN_ICON_THICKNESS);
+    drawList->AddNgonFilled(data.center, size * 0.5f, innerColour, numSegments);
+    drawList->AddNgon(data.center, size * 0.5f, outerColour, numSegments, gPIN_ICON_THICKNESS);
 }
 
 void ImUtils::Pins::squareIcon(float size, ImU32 outerColour, ImU32 innerColour) {
@@ -349,7 +349,7 @@ void ImUtils::Pins::squareIcon(float size, ImU32 outerColour, ImU32 innerColour)
     drawPinDummy(size, size, data);
 
     drawList->AddRectFilled(data.min, data.max, innerColour);
-    drawList->AddRect(data.min, data.max, innerColour, 0.0f, ImDrawFlags_None, gPIN_ICON_THICKNESS);
+    drawList->AddRect(data.min, data.max, outerColour, 0.0f, ImDrawFlags_None, gPIN_ICON_THICKNESS);
 }
 
 void ImUtils::Pins::arrowIcon(float size, ImU32 outerColour, ImU32 innerColour) {

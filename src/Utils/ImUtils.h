@@ -78,7 +78,7 @@ namespace ImUtils {
 
     namespace Pins {
         void circleIcon(float radius, ImU32 outerColour, ImU32 innerColour);
-        void triangleIcon(float size, ImU32 outerColour, ImU32 innerColour);
+        void nGonIcon(float size, int numSegments, ImU32 outerColour, ImU32 innerColour);
         void squareIcon(float size, ImU32 outerColour, ImU32 innerColour);
         void arrowIcon(float size, ImU32 outerColour, ImU32 innerColour);
     }
