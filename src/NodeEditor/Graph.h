@@ -46,7 +46,8 @@ public:
         mOnCleanEvents.push_back(std::move(event));
     }
 protected:
-    virtual std::unique_ptr<Node> deserializeNodeType(unsigned int nodeType) = 0;
+    virtual std::unique_ptr<Node> deserializeNodeType(const std::string& nodeType) = 0;
+    virtual std::string getNodeSerialName(const Node& node) const = 0;
 
     virtual void drawNodeCreation() = 0;
 

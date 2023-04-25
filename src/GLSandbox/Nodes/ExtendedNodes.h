@@ -15,7 +15,7 @@ public:
     UVNode();
     ~UVNode() final = default;
 
-    [[nodiscard]] unsigned int getTypeID() final {
+    [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::UV;
     }
 protected:
@@ -27,7 +27,7 @@ public:
     ColourNode();
     ~ColourNode() final = default;
 
-    [[nodiscard]] unsigned int getTypeID() final {
+    [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::Colour;
     }
 protected:
@@ -39,7 +39,7 @@ public:
     DirectionNode();
     ~DirectionNode() final = default;
 
-    [[nodiscard]] unsigned int getTypeID() final {
+    [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::Direction;
     }
 protected:
@@ -51,7 +51,7 @@ public:
     ModelMatrixNode();
     ~ModelMatrixNode() final = default;
 
-    [[nodiscard]] unsigned int getTypeID() final {
+    [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::ModelMatrix;
     }
 protected:
@@ -91,7 +91,7 @@ public:
     ViewMatrixNode();
     ~ViewMatrixNode() final = default;
 
-    [[nodiscard]] unsigned int getTypeID() final {
+    [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::ViewMatrix;
     }
 protected:
@@ -129,7 +129,7 @@ public:
     ProjMatrixNode();
     ~ProjMatrixNode() final = default;
 
-    [[nodiscard]] unsigned int getTypeID() final {
+    [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::ProjMatrix;
     }
 protected:

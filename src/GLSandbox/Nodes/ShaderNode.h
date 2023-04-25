@@ -17,7 +17,7 @@ public:
     ShaderNode();
     ~ShaderNode() final = default;
 
-    [[nodiscard]] unsigned int getTypeID() final {
+    [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::Shader;
     }
 

@@ -19,13 +19,13 @@ public:
 
     void initializeDefault() final;
 protected:
-    std::unique_ptr<Node> deserializeNodeType(unsigned int nodeType) final;
+    std::unique_ptr<Node> deserializeNodeType(const std::string& nodeType) final;
+    std::string getNodeSerialName(const Node& node) const final;
 
     void drawNodeCreation() final;
 private:
     [[nodiscard]] std::unique_ptr<Node> generateNode(NodeType type) const;
 
-    [[nodiscard]] static std::string getNodeName(NodeType type);
     [[nodiscard]] static std::string getGroupName(NodeGroup group);
 
     IPipelineHandler& mPipelineHandler;

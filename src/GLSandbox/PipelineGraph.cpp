@@ -32,8 +32,12 @@ void PipelineGraph::initializeDefault() {
     addNode(std::move(defaultPass));
 }
 
-std::unique_ptr<Node> PipelineGraph::deserializeNodeType(unsigned int nodeType) {
-    return generateNode((NodeType)nodeType);
+std::unique_ptr<Node> PipelineGraph::deserializeNodeType(const std::string& nodeType) {
+    return generateNode(gNODE_SERIALS.find(nodeType)->second);
+}
+
+std::string PipelineGraph::getNodeSerialName(const Node& node) const {
+    return getNodeData((NodeType)node.getTypeID()).serializedName;
 }
 
 void PipelineGraph::drawNodeCreation() {
@@ -44,7 +48,7 @@ void PipelineGraph::drawNodeCreation() {
             continue;
 
         for (const auto& nodeType : gNODE_GROUPS.find(group)->second) {
-            const std::string NODE_LABEL = getNodeName(nodeType).append("##GraphButton");
+            const std::string NODE_LABEL = std::string(getNodeData(nodeType).displayName).append("##GraphButton");
             if (ImGui::Selectable(NODE_LABEL.c_str()))
                 addNode(generateNode(nodeType));
         }
@@ -89,45 +93,6 @@ std::unique_ptr<Node> PipelineGraph::generateNode(NodeType type) const {
         case NodeType::ProjMatrix  : return std::make_unique<ProjMatrixNode>();
 
         default: return nullptr;
-    }
-}
-
-std::string PipelineGraph::getNodeName(NodeType type) {
-    switch (type) {
-        case NodeType::Entry: return "Entry";
-        case NodeType::RenderPass: return "Render Pass";
-
-        case NodeType::Arithmetic: return "Arithmetic";
-
-        case NodeType::Integer     : return "Integer";
-        case NodeType::IVec2       : return "IVec2";
-        case NodeType::IVec3       : return "IVec3";
-        case NodeType::IVec4       : return "IVec4";
-        case NodeType::Float       : return "Float";
-        case NodeType::Vec2        : return "Vec2";
-        case NodeType::Vec3        : return "Vec3";
-        case NodeType::Vec4        : return "Vec4";
-
-        case NodeType::Mat2        : return "Mat2";
-        case NodeType::Mat3        : return "Mat3";
-        case NodeType::Mat4        : return "Mat4";
-
-        case NodeType::Mesh        : return "Mesh";
-        case NodeType::Shader      : return "Shader";
-        case NodeType::Texture     : return "Texture";
-        case NodeType::Framebuffer : return "Framebuffer";
-        case NodeType::TextureFile : return "File-Texture";
-
-        case NodeType::UV          : return "UV";
-
-        case NodeType::Colour      : return "Colour";
-        case NodeType::Direction   : return "Direction";
-
-        case NodeType::ModelMatrix : return "Model Matrix";
-        case NodeType::ViewMatrix  : return "View Matrix";
-        case NodeType::ProjMatrix  : return "Projection Matrix";
-
-        default: return "Undefined";
     }
 }
 

@@ -1,43 +1,43 @@
 #pragma once
+#include <string>
 
 // Warning - Changing the ID of a NodeType may invalidate existing serialized graphs with that type.
 enum class NodeType {
     Entry = 0,
-    RenderPass = 100,
+    RenderPass,
 
-    Arithmetic = 200,
+    Arithmetic,
 
-    Integer = 300,
-    IVec2   = 301,
-    IVec3   = 302,
-    IVec4   = 303,
+    Integer,
+    IVec2,
+    IVec3,
+    IVec4,
 
-    Float = 320,
-    Vec2  = 321,
-    Vec3  = 322,
-    Vec4  = 323,
+    Float,
+    Vec2,
+    Vec3,
+    Vec4,
 
-    Mat2 = 330,
-    Mat3 = 331,
-    Mat4 = 332,
+    Mat2,
+    Mat3,
+    Mat4,
 
-    Mesh        = 400,
-    Shader      = 401,
-    Texture     = 402,
-    Framebuffer = 403,
-    TextureFile = 404,
+    Mesh,
+    Shader,
+    Texture,
+    TextureFile,
+    Framebuffer,
 
-    UV = 1000,
+    UV,
 
-    Colour = 1010,
-    Direction = 1011,
+    Colour,
+    Direction,
 
-    ModelMatrix = 1100,
-    ViewMatrix = 1101,
-    ProjMatrix = 1102,
+    ModelMatrix,
+    ViewMatrix,
+    ProjMatrix,
 
     Max,
-
     Undefined = -1
 };
 
@@ -49,44 +49,64 @@ enum class NodeGroup {
     Graphics,
 
     Max,
-
     Undefined = -1
 };
 
-static NodeGroup getNodeGroup(NodeType type) {
-    switch (type) {
-        case NodeType::Entry: case NodeType::RenderPass:
-            return NodeGroup::Execution;
+struct NodeData {
+    NodeType type;
+    NodeGroup group;
+    std::string displayName;
+    std::string serializedName;
+};
 
-        case NodeType::Integer: case NodeType::IVec2: case NodeType::IVec3: case NodeType::IVec4:
-        case NodeType::Float: case NodeType::Vec2: case NodeType::Vec3: case NodeType::Vec4:
-        case NodeType::Mat2: case NodeType::Mat3: case NodeType::Mat4:
-            return NodeGroup::Numerics;
+static const NodeData& getNodeData(NodeType type) {
+    // Must be in the same order as NodeType enum
+    static const NodeData cNODE_DATA[] = {
+        {NodeType::Entry,       NodeGroup::Execution, "Entry",             "Entry"},
+        {NodeType::RenderPass,  NodeGroup::Execution, "Render Pass",       "RenderPass"},
 
-        case NodeType::Arithmetic:
-            return NodeGroup::Maths;
+        {NodeType::Arithmetic,  NodeGroup::Maths,     "Arithmetic",        "Arithmetic"},
 
-        case NodeType::UV:
-        case NodeType::Colour: case NodeType::Direction:
-        case NodeType::ModelMatrix: case NodeType::ViewMatrix: case NodeType::ProjMatrix:
-            return NodeGroup::Data;
+        {NodeType::Integer,     NodeGroup::Numerics,  "Integer",           "Integer"},
+        {NodeType::IVec2,       NodeGroup::Numerics,  "IVec2",             "IVec2"},
+        {NodeType::IVec3,       NodeGroup::Numerics,  "IVec3",             "IVec3"},
+        {NodeType::IVec4,       NodeGroup::Numerics,  "IVec4",             "IVec4"},
 
-        case NodeType::Mesh: case NodeType::Shader: case NodeType::Texture: case NodeType::Framebuffer:
-        case NodeType::TextureFile:
-            return NodeGroup::Graphics;
+        {NodeType::Float,       NodeGroup::Numerics,  "Float",             "Float"},
+        {NodeType::Vec2,        NodeGroup::Numerics,  "Vec2",              "Vec2"},
+        {NodeType::Vec3,        NodeGroup::Numerics,  "Vec3",              "Vec3"},
+        {NodeType::Vec4,        NodeGroup::Numerics,  "Vec4",              "Vec4"},
 
-        default:
-            return NodeGroup::Undefined;
-    }
+        {NodeType::Mat2,        NodeGroup::Numerics,  "Mat2",              "Mat2"},
+        {NodeType::Mat3,        NodeGroup::Numerics,  "Mat3",              "Mat3"},
+        {NodeType::Mat4,        NodeGroup::Numerics,  "Mat4",              "Mat4"},
+
+        {NodeType::Mesh,        NodeGroup::Graphics,  "Mesh",              "Mesh"},
+        {NodeType::Shader,      NodeGroup::Graphics,  "Shader",            "Shader"},
+        {NodeType::Texture,     NodeGroup::Graphics,  "Texture",           "Texture"},
+        {NodeType::TextureFile, NodeGroup::Graphics,  "TextureFile",       "TextureFile"},
+        {NodeType::Framebuffer, NodeGroup::Graphics,  "Framebuffer",       "Framebuffer"},
+
+        {NodeType::UV,          NodeGroup::Data,      "UV",                "UV"},
+
+        {NodeType::Colour,      NodeGroup::Data,      "Colour",            "Colour"},
+        {NodeType::Direction,   NodeGroup::Data,      "Direction",         "Direction"},
+
+        {NodeType::ModelMatrix, NodeGroup::Data,      "Model Matrix",      "ModelMatrix"},
+        {NodeType::ViewMatrix,  NodeGroup::Data,      "View Matrix",       "ViewMatrix"},
+        {NodeType::ProjMatrix,  NodeGroup::Data,      "Projection Matrix", "ProjMatrix"},
+    };
+
+    return cNODE_DATA[(size_t)type];
 }
 
 static const std::unordered_map<NodeGroup, const std::vector<NodeType>> gNODE_GROUPS = []() {
-    std::unordered_map<NodeGroup, std::vector<NodeType>> groups;
+    std::unordered_map<NodeGroup, std::vector<NodeType>> groups{};
     for (int i = 0; i < (int)NodeGroup::Max; i++)
         groups.emplace((NodeGroup)i, std::vector<NodeType>());
 
     for (int i = 0; i < (int)NodeType::Max; i++) {
-        NodeGroup group = getNodeGroup((NodeType)i);
+        NodeGroup group = getNodeData((NodeType)i).group;
         if (group != NodeGroup::Undefined)
             groups.find(group)->second.emplace_back((NodeType)i);
     }
@@ -95,4 +115,15 @@ static const std::unordered_map<NodeGroup, const std::vector<NodeType>> gNODE_GR
     for (const auto& group : groups)
         constGroups.emplace(group.first, group.second);
     return constGroups;
+}();
+
+static const std::unordered_map<std::string, NodeType> gNODE_SERIALS = []() {
+    std::unordered_map<std::string, NodeType> serials{};
+
+    for (int i = 0; i < (int)NodeType::Max; i++) {
+        NodeType type = (NodeType)i;
+        serials.emplace(getNodeData(type).serializedName, type);
+    }
+
+    return serials;
 }();

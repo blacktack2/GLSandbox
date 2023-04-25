@@ -197,7 +197,7 @@ void Window::drawFileMenu() {
         saveGraph();
     if (ImGui::MenuItem("Save As##MainMenu_File")) {
         if (FileUtils::openSaveDialog(mGraphFilepath, getGraphAssetDirectory(), getValidGraphFileExtensions())) {
-            if (mGraphFilepath.extension() != getGraphDefaultExtension()) {
+            if (mGraphFilepath.extension() != std::string(".").append(getGraphDefaultExtension())) {
                 mGraphFilepath += ".";
                 mGraphFilepath += getGraphDefaultExtension();
             }

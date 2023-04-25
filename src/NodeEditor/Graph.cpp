@@ -8,7 +8,7 @@
 static constexpr char gSERIAL_MARK_NODE[] = "Node";
 
 static constexpr char gSERIAL_DATA_PREFIX = '^';
-static constexpr char gSERIAL_DATA_NODE_TYPE[] = "Direction";
+static constexpr char gSERIAL_DATA_NODE_TYPE[] = "NodeType";
 
 void deserializeLinks(Node::port_data_t& portData, Node::link_data_t& linkData) {
     for (auto& dynamicLinkPair : linkData) {
@@ -38,7 +38,7 @@ void Graph::serialize(std::ofstream& streamOut) const {
     for (const auto& node : mNodes) {
         SerializationUtils::writeBeginMark(streamOut, gSERIAL_MARK_NODE);
         SerializationUtils::writeDataPoint(streamOut, gSERIAL_DATA_PREFIX, gSERIAL_DATA_NODE_TYPE,
-                                           std::to_string(node->getTypeID()));
+                                           getNodeSerialName(*node));
         node->serialize(streamOut);
         SerializationUtils::writeEndMark(streamOut, gSERIAL_MARK_NODE);
     }
@@ -56,7 +56,7 @@ void Graph::deserialize(std::ifstream& streamIn) {
     while (SerializationUtils::findNextMarkPair(streamIn, end, gSERIAL_MARK_NODE, markBegin, markEnd)) {
         streamIn.seekg(markBegin);
 
-        unsigned int nodeType = -1;
+        std::string nodeType;
 
         std::string dataID;
         while (SerializationUtils::seekNextDataPoint(streamIn, markEnd, gSERIAL_DATA_PREFIX, dataID)) {

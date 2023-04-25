@@ -32,7 +32,7 @@ public:
 
     void setParent(Graph* parent);
 
-    [[nodiscard]] virtual unsigned int getTypeID() = 0;
+    [[nodiscard]] virtual unsigned int getTypeID() const = 0;
 
     [[nodiscard]] virtual bool validate() const {
         return true;

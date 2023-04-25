@@ -52,7 +52,7 @@ public:
     IntegerNode();
     ~IntegerNode() final = default;
 
-    [[nodiscard]] unsigned int getTypeID() final {
+    [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::Integer;
     }
 protected:
@@ -64,7 +64,7 @@ public:
     IVec2Node();
     ~IVec2Node() final = default;
 
-    [[nodiscard]] unsigned int getTypeID() final {
+    [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::Integer;
     }
 protected:
@@ -76,7 +76,7 @@ public:
     IVec3Node();
     ~IVec3Node() final = default;
 
-    [[nodiscard]] unsigned int getTypeID() final {
+    [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::Integer;
     }
 protected:
@@ -88,7 +88,7 @@ public:
     IVec4Node();
     ~IVec4Node() final = default;
 
-    [[nodiscard]] unsigned int getTypeID() final {
+    [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::Integer;
     }
 protected:
@@ -100,7 +100,7 @@ public:
     FloatNode();
     ~FloatNode() final = default;
 
-    [[nodiscard]] unsigned int getTypeID() final {
+    [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::Float;
     }
 protected:
@@ -112,7 +112,7 @@ public:
     Vec2Node();
     ~Vec2Node() final = default;
 
-    [[nodiscard]] unsigned int getTypeID() final {
+    [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::Vec2;
     }
 protected:
@@ -124,7 +124,7 @@ public:
     Vec3Node();
     ~Vec3Node() final = default;
 
-    [[nodiscard]] unsigned int getTypeID() final {
+    [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::Vec3;
     }
 protected:
@@ -136,7 +136,7 @@ public:
     Vec4Node();
     ~Vec4Node() final = default;
 
-    [[nodiscard]] unsigned int getTypeID() final {
+    [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::Vec4;
     }
 protected:
@@ -148,7 +148,7 @@ public:
     Mat2Node();
     ~Mat2Node() final = default;
 
-    [[nodiscard]] unsigned int getTypeID() final {
+    [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::Mat2;
     }
 protected:
@@ -160,7 +160,7 @@ public:
     Mat3Node();
     ~Mat3Node() final = default;
 
-    [[nodiscard]] unsigned int getTypeID() final {
+    [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::Mat3;
     }
 protected:
@@ -172,7 +172,7 @@ public:
     Mat4Node();
     ~Mat4Node() final = default;
 
-    [[nodiscard]] unsigned int getTypeID() final {
+    [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::Mat4;
     }
 protected:
