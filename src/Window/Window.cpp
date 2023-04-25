@@ -112,6 +112,8 @@ void Window::mainloop() {
         while (SDL_PollEvent(&e))
             handleEvent(e);
 
+        ImUtils::begin();
+
         mRenderer->update();
         mRenderer->drawScene();
 
@@ -125,6 +127,8 @@ void Window::mainloop() {
         drawGraph();
 
         mRenderer->drawDebug();
+
+        ImUtils::end();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

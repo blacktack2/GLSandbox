@@ -7,7 +7,14 @@
 #include <imgui_stdlib.h>
 #include <imgui_node_editor.h>
 
+#include <utility>
+
 namespace ed = ax::NodeEditor;
+
+struct TooltipData {
+    ImVec2 position;
+    std::function<void()> contentsCallback;
+};
 
 static constexpr float gNODE_WIDTH = 200.0f;
 
@@ -42,11 +49,31 @@ static constexpr const char* gINT_FORMAT = "%d";
 
 static constexpr float gPIN_ICON_THICKNESS = 2.0f;
 
+static std::vector<TooltipData> gTooltips{};
+
 std::string formatLabel(std::string display, const std::string& id) {
     return display.append("##").append(id);
 }
 std::string formatLabel(const std::string& id) {
     return std::string("##").append(id);
+}
+
+void ImUtils::begin() {
+    gTooltips.clear();
+}
+
+void ImUtils::end() {
+    for (const auto& tooltip : gTooltips) {
+        if (tooltip.position.x != 0.0f || tooltip.position.y != 0.0f)
+            ImGui::SetNextWindowPos(tooltip.position);
+        ImGui::BeginTooltip();
+        tooltip.contentsCallback();
+        ImGui::EndTooltip();
+    }
+}
+
+void ImUtils::postTooltip(std::function<void()> contentsCallback, const ImVec2& position) {
+    gTooltips.push_back({position, std::move(contentsCallback)});
 }
 
 void ImUtils::nodeDummy() {
@@ -232,11 +259,16 @@ bool ImUtils::cycleButton(const std::string& labelID, size_t& index,
         newIndex = (index == 0) ? max - 1 : index - 1;
         valueChanged = true;
     }
+    if (ImGui::IsItemHovered()) {
+        postTooltip([contents, index, max]() {
+            ImGui::TextUnformatted(contents((index == 0) ? max - 1 : index - 1).c_str());
+        });
+    }
 
     ImGui::SameLine();
 
     ImGui::SetNextItemWidth(gCYCLE_BUTTON_WIDTH);
-    ImGui::Text("%s", contents(index).c_str());
+    ImGui::TextUnformatted(contents(index).c_str());
 
     ImGui::SameLine();
 
@@ -244,6 +276,12 @@ bool ImUtils::cycleButton(const std::string& labelID, size_t& index,
         newIndex = (index >= max - 1) ? 0 : index + 1;
         valueChanged = true;
     }
+    if (ImGui::IsItemHovered()) {
+        postTooltip([contents, index, max]() {
+            ImGui::TextUnformatted(contents((index >= max - 1) ? 0 : index + 1).c_str());
+        });
+    }
+
     index = newIndex;
     return valueChanged;
 }

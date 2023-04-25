@@ -28,6 +28,11 @@ namespace ImUtils {
         return stream.str();
     }
 
+    void begin();
+    void end();
+
+    void postTooltip(std::function<void()> contentsCallback, const ImVec2& position = ImVec2(0.0f, 0.0f));
+
     void nodeDummy();
     bool inputNodeName(std::string& name, const std::string& labelID, bool isDirty);
 
