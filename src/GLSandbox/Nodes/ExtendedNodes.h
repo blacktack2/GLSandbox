@@ -82,6 +82,8 @@ private:
         float mRotations[3] = { 0.0f, 0.0f, 0.0f };
     };
     glm::vec3 mScale = glm::vec3(1.0f);
+
+    bool mShowData = false;
 };
 
 class ViewMatrixNode final : public NumericNode<glm::mat4> {
@@ -118,6 +120,8 @@ private:
         };
         float mRotations[3] = { 0.0f, 0.0f, 0.0f };
     };
+
+    bool mShowData = false;
 };
 
 class ProjMatrixNode final : public NumericNode<glm::mat4> {
@@ -167,7 +171,9 @@ private:
 
     float mFoV = 90.0f;
     float mAspect;
-    glm::vec2 mClipX = glm::vec2(1.0f, 100.0f);
-    glm::vec2 mClipY = glm::vec2(1.0f, 100.0f);
+    glm::vec2 mClipX = glm::vec2(-100.0f, 100.0f);
+    glm::vec2 mClipY = glm::vec2(-100.0f, 100.0f);
     glm::vec2 mClipZ = glm::vec2(1.0f, 100.0f);
+
+    bool mShowData = false;
 };

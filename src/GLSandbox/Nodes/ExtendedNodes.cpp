@@ -108,11 +108,17 @@ bool ModelMatrixNode::drawInputArea(const std::string& label) {
     ImGui::Text("Scale");
     valueUpdated |= ImUtils::inputFloatN(&mScale[0], 3, std::string(label).append("Scale"), 0.0f, FLT_MAX);
 
-    if (valueUpdated) {
+    if (valueUpdated)
         mValue = generateModelMatrix();
-        return true;
+
+    if (ImUtils::beginHeader("Data", generateNodeLabelID("DataHeader"), mShowData)) {
+        ImGui::BeginDisabled();
+        ImUtils::inputFloatNxN(&mValue[0][0], 4, generateNodeLabelID("MatrixData"));
+        ImGui::EndDisabled();
+        ImUtils::endHeader();
     }
-    return false;
+
+    return valueUpdated;
 }
 
 ViewMatrixNode::ViewMatrixNode() : NumericNode<glm::mat4>("View") {
@@ -148,11 +154,17 @@ bool ViewMatrixNode::drawInputArea(const std::string& label) {
     ImUtils::multiInputLabel("Roll", "Pitch", "Yaw");
     valueUpdated |= ImUtils::inputFloatN(&mRotations[0], 3, std::string(label).append("Rotation"), 0.0f, 360.0f);
 
-    if (valueUpdated) {
+    if (valueUpdated)
         mValue = generateViewMatrix();
-        return true;
+
+    if (ImUtils::beginHeader("Data", generateNodeLabelID("DataHeader"), mShowData)) {
+        ImGui::BeginDisabled();
+        ImUtils::inputFloatNxN(&mValue[0][0], 4, generateNodeLabelID("MatrixData"));
+        ImGui::EndDisabled();
+        ImUtils::endHeader();
     }
-    return false;
+
+    return valueUpdated;
 }
 
 ProjMatrixNode::ProjMatrixNode() : NumericNode<glm::mat4>("Projection") {
@@ -198,11 +210,17 @@ bool ProjMatrixNode::drawInputArea(const std::string& label) {
         case Type::Orthogonal  : valueUpdated = drawOrthogonal(label)  || valueUpdated; break;
     }
 
-    if (valueUpdated) {
+    if (valueUpdated)
         mValue = generateProjMatrix();
-        return true;
+
+    if (ImUtils::beginHeader("Data", generateNodeLabelID("DataHeader"), mShowData)) {
+        ImGui::BeginDisabled();
+        ImUtils::inputFloatNxN(&mValue[0][0], 4, generateNodeLabelID("MatrixData"));
+        ImGui::EndDisabled();
+        ImUtils::endHeader();
     }
-    return false;
+
+    return valueUpdated;
 }
 
 bool ProjMatrixNode::drawPerspective(const std::string& label) {
