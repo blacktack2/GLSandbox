@@ -35,7 +35,7 @@ namespace ImUtils {
     bool beginHeader(const std::string& displayText, const std::string& labelID, bool& show, unsigned int depth = 0);
     void endHeader();
 
-    void setDataPanel(const Node& node, std::function<void()> panelCallback);
+    void setDataPanel(const std::string& labelID, const Node& node, std::function<void()> panelCallback);
     void softUnsetDataPanel(const Node& node);
     void drawDataPanel();
 

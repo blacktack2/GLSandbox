@@ -20,6 +20,7 @@ struct TooltipData {
 };
 
 struct DataPanelData {
+    std::string labelID;
     std::function<void()> contentsCallback = nullptr;
     const Node* node = nullptr;
 };
@@ -102,7 +103,8 @@ void ImUtils::endHeader() {
 
 }
 
-void ImUtils::setDataPanel(const Node& node, std::function<void()> panelCallback) {
+void ImUtils::setDataPanel(const std::string& labelID, const Node& node, std::function<void()> panelCallback) {
+    gDataPanel.labelID = labelID;
     gDataPanel.contentsCallback = std::move(panelCallback);
     gDataPanel.node = &node;
 }
@@ -164,10 +166,10 @@ bool ImUtils::button(const std::string& displayText, const std::string& labelID)
 void ImUtils::dataPanelButton(const std::string& displayText, const std::string& labelID,
                               const Node& node, std::function<void()> panelCallback) {
     ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(gNODE_WIDTH - gDATA_PANEL_BUTTON_BOUNDS.x, 0.0f) * 0.5f);
-    ImGui::PushStyleColor(ImGuiCol_Button, &node == gDataPanel.node ?
+    ImGui::PushStyleColor(ImGuiCol_Button, labelID == gDataPanel.labelID ?
                           gDATA_PANEL_BUTTON_COLOUR_SELECTED : gDATA_PANEL_BUTTON_COLOUR);
     if (ImGui::Button(formatLabel(displayText, labelID).c_str(), gDATA_PANEL_BUTTON_BOUNDS))
-        setDataPanel(node, std::move(panelCallback));
+        setDataPanel(labelID, node, std::move(panelCallback));
     ImGui::PopStyleColor();
 }
 
