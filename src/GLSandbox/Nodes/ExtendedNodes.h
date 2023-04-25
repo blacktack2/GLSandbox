@@ -138,8 +138,8 @@ protected:
 
     bool drawInputArea(const std::string& label) final;
 private:
-    enum class Type {
-        Perspective,
+    enum class Type : std::size_t {
+        Perspective = 0,
         Orthogonal,
         Max,
     };
