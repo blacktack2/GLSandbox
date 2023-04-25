@@ -48,9 +48,16 @@ void PipelineGraph::drawNodeCreation() {
             continue;
 
         for (const auto& nodeType : gNODE_GROUPS.find(group)->second) {
-            const std::string NODE_LABEL = std::string(getNodeData(nodeType).displayName).append("##GraphButton");
+            const NodeData& nodeData = getNodeData(nodeType);
+            const std::string NODE_LABEL = std::string(nodeData.displayName).append("##GraphButton");
             if (ImGui::Selectable(NODE_LABEL.c_str()))
                 addNode(generateNode(nodeType));
+
+            if (ImGui::IsItemHovered() && !nodeData.tooltip.empty()) {
+                ImGui::BeginTooltip();
+                ImGui::TextUnformatted(nodeData.tooltip.c_str());
+                ImGui::EndTooltip();
+            }
         }
     }
 }

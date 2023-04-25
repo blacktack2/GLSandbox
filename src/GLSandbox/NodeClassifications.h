@@ -57,44 +57,45 @@ struct NodeData {
     NodeGroup group;
     std::string displayName;
     std::string serializedName;
+    std::string tooltip;
 };
 
 static const NodeData& getNodeData(NodeType type) {
     // Must be in the same order as NodeType enum
     static const NodeData cNODE_DATA[] = {
-        {NodeType::Entry,       NodeGroup::Execution, "Entry",             "Entry"},
-        {NodeType::RenderPass,  NodeGroup::Execution, "Render Pass",       "RenderPass"},
+        {NodeType::Entry,       NodeGroup::Execution, "Entry",             "Entry",       "Entry point of the graph."},
+        {NodeType::RenderPass,  NodeGroup::Execution, "Render Pass",       "RenderPass",  "Single draw call."},
 
-        {NodeType::Arithmetic,  NodeGroup::Maths,     "Arithmetic",        "Arithmetic"},
+        {NodeType::Arithmetic,  NodeGroup::Maths,     "Arithmetic",        "Arithmetic",  "Arithmetic operations on numeric types."},
 
-        {NodeType::Integer,     NodeGroup::Numerics,  "Integer",           "Integer"},
-        {NodeType::IVec2,       NodeGroup::Numerics,  "IVec2",             "IVec2"},
-        {NodeType::IVec3,       NodeGroup::Numerics,  "IVec3",             "IVec3"},
-        {NodeType::IVec4,       NodeGroup::Numerics,  "IVec4",             "IVec4"},
+        {NodeType::Integer,     NodeGroup::Numerics,  "Integer",           "Integer",     "Whole number."},
+        {NodeType::IVec2,       NodeGroup::Numerics,  "I-Vector-2",        "IVec2",       "Two-component integer."},
+        {NodeType::IVec3,       NodeGroup::Numerics,  "I-Vector-3",        "IVec3",       "Three-component integer."},
+        {NodeType::IVec4,       NodeGroup::Numerics,  "I-Vector-4",        "IVec4",       "Four-component integer."},
 
-        {NodeType::Float,       NodeGroup::Numerics,  "Float",             "Float"},
-        {NodeType::Vec2,        NodeGroup::Numerics,  "Vec2",              "Vec2"},
-        {NodeType::Vec3,        NodeGroup::Numerics,  "Vec3",              "Vec3"},
-        {NodeType::Vec4,        NodeGroup::Numerics,  "Vec4",              "Vec4"},
+        {NodeType::Float,       NodeGroup::Numerics,  "Float",             "Float",       "Continuous number."},
+        {NodeType::Vec2,        NodeGroup::Numerics,  "Vector-2",          "Vec2",        "Two-component float."},
+        {NodeType::Vec3,        NodeGroup::Numerics,  "Vector-3",          "Vec3",        "Three-component float."},
+        {NodeType::Vec4,        NodeGroup::Numerics,  "Vector-4",          "Vec4",        "Four-component float."},
 
-        {NodeType::Mat2,        NodeGroup::Numerics,  "Mat2",              "Mat2"},
-        {NodeType::Mat3,        NodeGroup::Numerics,  "Mat3",              "Mat3"},
-        {NodeType::Mat4,        NodeGroup::Numerics,  "Mat4",              "Mat4"},
+        {NodeType::Mat2,        NodeGroup::Numerics,  "Matrix-2x2",        "Mat2",        "2x2 float matrix."},
+        {NodeType::Mat3,        NodeGroup::Numerics,  "Matrix-3x3",        "Mat3",        "3x3 float matrix."},
+        {NodeType::Mat4,        NodeGroup::Numerics,  "Matrix-4x4",        "Mat4",        "4x4 float matrix."},
 
-        {NodeType::Mesh,        NodeGroup::Graphics,  "Mesh",              "Mesh"},
-        {NodeType::Shader,      NodeGroup::Graphics,  "Shader",            "Shader"},
-        {NodeType::Texture,     NodeGroup::Graphics,  "Texture",           "Texture"},
-        {NodeType::TextureFile, NodeGroup::Graphics,  "TextureFile",       "TextureFile"},
-        {NodeType::Framebuffer, NodeGroup::Graphics,  "Framebuffer",       "Framebuffer"},
+        {NodeType::Mesh,        NodeGroup::Graphics,  "Mesh",              "Mesh",        ""},
+        {NodeType::Shader,      NodeGroup::Graphics,  "Shader",            "Shader",      ""},
+        {NodeType::Texture,     NodeGroup::Graphics,  "Texture",           "Texture",     "Custom format texture (for writing)."},
+        {NodeType::TextureFile, NodeGroup::Graphics,  "File Texture",      "TextureFile", "Texture from a file."},
+        {NodeType::Framebuffer, NodeGroup::Graphics,  "Framebuffer",       "Framebuffer", ""},
 
-        {NodeType::UV,          NodeGroup::Data,      "UV",                "UV"},
+        {NodeType::UV,          NodeGroup::Data,      "UV",                "UV",          "Texture coords (clamped 0-1)"},
 
-        {NodeType::Colour,      NodeGroup::Data,      "Colour",            "Colour"},
-        {NodeType::Direction,   NodeGroup::Data,      "Direction",         "Direction"},
+        {NodeType::Colour,      NodeGroup::Data,      "Colour",            "Colour",      "RGB Colour (Vec3 clamped 0-1)"},
+        {NodeType::Direction,   NodeGroup::Data,      "Direction",         "Direction",   "Normalized direction Vec3"},
 
-        {NodeType::ModelMatrix, NodeGroup::Data,      "Model Matrix",      "ModelMatrix"},
-        {NodeType::ViewMatrix,  NodeGroup::Data,      "View Matrix",       "ViewMatrix"},
-        {NodeType::ProjMatrix,  NodeGroup::Data,      "Projection Matrix", "ProjMatrix"},
+        {NodeType::ModelMatrix, NodeGroup::Data,      "Model Matrix",      "ModelMatrix", ""},
+        {NodeType::ViewMatrix,  NodeGroup::Data,      "View Matrix",       "ViewMatrix",  ""},
+        {NodeType::ProjMatrix,  NodeGroup::Data,      "Projection Matrix", "ProjMatrix",  ""},
     };
 
     return cNODE_DATA[(size_t)type];
