@@ -3,7 +3,6 @@
 // Warning - Changing the ID of a NodeType may invalidate existing serialized graphs with that type.
 enum class NodeType {
     Entry = 0,
-    Exit  = 1,
     RenderPass = 100,
 
     Arithmetic = 200,

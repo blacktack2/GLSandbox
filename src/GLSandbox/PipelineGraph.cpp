@@ -22,18 +22,14 @@ void PipelineGraph::initializeDefault() {
 
     std::unique_ptr<EntryNode> defaultEntry = std::make_unique<EntryNode>(mPipelineHandler);
     std::unique_ptr<RenderPassNode> defaultPass = std::make_unique<RenderPassNode>();
-    std::unique_ptr<ExitNode> defaultExit = std::make_unique<ExitNode>();
 
     defaultEntry->getPortByIndex(0).link(defaultPass->getPortByIndex(0));
-    defaultPass->getPortByIndex(1).link(defaultExit->getPortByIndex(0));
 
     defaultEntry->setAbsolutePosition({0, 100});
     defaultPass->setAbsolutePosition({100, 100});
-    defaultExit->setAbsolutePosition({300, 100});
 
     addNode(std::move(defaultEntry));
     addNode(std::move(defaultPass));
-    addNode(std::move(defaultExit));
 }
 
 std::unique_ptr<Node> PipelineGraph::deserializeNodeType(unsigned int nodeType) {
@@ -58,7 +54,6 @@ void PipelineGraph::drawNodeCreation() {
 std::unique_ptr<Node> PipelineGraph::generateNode(NodeType type) const {
     switch (type) {
         case NodeType::Entry       : return std::make_unique<EntryNode>(mPipelineHandler);
-        case NodeType::Exit        : return std::make_unique<ExitNode>();
 
         case NodeType::RenderPass  : return std::make_unique<RenderPassNode>();
 
@@ -100,7 +95,6 @@ std::unique_ptr<Node> PipelineGraph::generateNode(NodeType type) const {
 std::string PipelineGraph::getNodeName(NodeType type) {
     switch (type) {
         case NodeType::Entry: return "Entry";
-        case NodeType::Exit : return "Exit";
         case NodeType::RenderPass: return "Render Pass";
 
         case NodeType::Arithmetic: return "Arithmetic";

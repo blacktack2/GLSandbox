@@ -90,19 +90,3 @@ void EntryNode::updatePipeline() {
 
     lock();
 }
-
-ExitNode::ExitNode() : Node("Exit") {
-    addPort(mExecutionIn);
-}
-
-std::vector<std::pair<std::string, std::string>> ExitNode::generateSerializedData() const {
-    return {};
-}
-
-void ExitNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
-
-}
-
-void ExitNode::drawContents() {
-
-}
