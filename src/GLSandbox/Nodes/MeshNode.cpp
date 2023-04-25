@@ -116,25 +116,25 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
             std::vector<unsigned int> tempVis, tempTis, tempNis;
             while (std::getline(indexSetStream, indexSet, ' ')) {
                 std::stringstream indexStream(indexSet);
-                unsigned int vi, ti, ni;
+                int vi, ti, ni;
                 char sep1, sep2;
                 indexStream >> vi;
 
-                tempVis.push_back(vi - 1);
+                tempVis.push_back(vi < 0 ? positions.size() + vi : vi - 1);
                 if (indexStream.peek() != '/')
                     continue;
 
                 indexStream >> sep1;
                 if (indexStream.peek() != '/') {
                     indexStream >> ti;
-                    tempTis.push_back(ti - 1);
+                    tempTis.push_back(ti < 0 ? uvsSoft.size() + ti : ti - 1);
                 }
 
                 if (indexStream.peek() != '/')
                     continue;
                 indexStream >> sep2;
                 indexStream >> ni;
-                tempNis.push_back(ni - 1);
+                tempNis.push_back(ni < 0 ? normalsSoft.size() + ni : ni - 1);
             }
             if (tempVis.size() <= 3) {
                 for (unsigned int index : tempVis)
