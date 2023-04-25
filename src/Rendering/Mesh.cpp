@@ -48,10 +48,13 @@ void Mesh::draw(int instanceCount) const {
 
 void Mesh::bind() const {
     glBindVertexArray(mArrayObject);
+    if (!mIndices.empty())
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexVBO);
 }
 
 void Mesh::unbind() {
     glBindVertexArray(0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void Mesh::addAttribute(const void* data, GLint attribSize, size_t dataSize, const std::string& debugName) {
@@ -85,6 +88,7 @@ void Mesh::bufferData() {
     bind();
     for (VertexAttribute& attrib : mAttributes)
         uploadAttribute(attrib);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     if (!mIndices.empty())
         uploadIndices();
 
@@ -107,6 +111,8 @@ void Mesh::uploadIndices() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndices.size() * sizeof(GLuint), mIndices.data(), GL_STATIC_DRAW);
 
     glObjectLabel(GL_BUFFER, mIndexVBO, -1, "Indices");
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void Mesh::setType(Mesh::Type type) {
