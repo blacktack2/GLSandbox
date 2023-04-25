@@ -140,6 +140,8 @@ public:
     virtual void drawPort() = 0;
     virtual void drawLink() = 0;
 
+    virtual void setTooltip(const std::string& tooltip) = 0;
+
     [[nodiscard]] virtual std::set<std::type_index> getParameterTypes() const = 0;
 };
 
@@ -295,6 +297,10 @@ public:
             ed::Link(mLinkID, mLink->getID(), getID());
     }
 
+    void setTooltip(const std::string& tooltip) final {
+        mPinTooltip = tooltip;
+    }
+
     [[nodiscard]] std::set<std::type_index> getParameterTypes() const final {
         return { typeid(Types)... };
     };
@@ -348,6 +354,8 @@ private:
         ed::PinPivotSize(ImVec2(0.0f, 0.0f));
 
         mDrawPin();
+        if (ImGui::IsItemHovered())
+            ImUtils::postTooltip([this]() { ImGui::TextUnformatted(mPinTooltip.c_str()); });
         ImGui::SameLine();
         ImGui::TextUnformatted(mDisplayName.c_str());
 
@@ -362,6 +370,8 @@ private:
         ImGui::TextUnformatted(mDisplayName.c_str());
         ImGui::SameLine();
         mDrawPin();
+        if (ImGui::IsItemHovered())
+            ImUtils::postTooltip([this]() { ImGui::TextUnformatted(mPinTooltip.c_str()); });
 
         ed::EndPin();
     }
@@ -403,57 +413,75 @@ private:
         if (hash == typeHash<void*>()) {
             mPinSize = 14.0f;
             generatePinCallback(PinShape::Arrow, ImColor(1.0f, 1.0f, 1.0f));
+            mPinTooltip = "Execution";
         } else if (hash == typeHash<int>()) {
             mPinSize = 10.0f;
             generatePinCallback(PinShape::Circle, ImColor(1.0f, 1.0f, 0.0f));
+            mPinTooltip = "Integer";
         } else if (hash == typeHash<glm::ivec2>()) {
             mPinSize = 10.0f;
             generatePinCallback(PinShape::Triangle, ImColor(0.8f, 0.8f, 0.0f));
+            mPinTooltip = "IVec2";
         } else if (hash == typeHash<glm::ivec3>()) {
             mPinSize = 10.0f;
             generatePinCallback(PinShape::Triangle, ImColor(0.6f, 0.6f, 0.0f));
+            mPinTooltip = "IVec3";
         } else if (hash == typeHash<glm::ivec4>()) {
             mPinSize = 10.0f;
             generatePinCallback(PinShape::Triangle, ImColor(0.4f, 0.4f, 0.0f));
+            mPinTooltip = "IVec4";
         } else if (hash == typeHash<float>()) {
             mPinSize = 10.0f;
             generatePinCallback(PinShape::Circle, ImColor(0.0f, 1.0f, 1.0f));
+            mPinTooltip = "Float";
         } else if (hash == typeHash<glm::vec2>()) {
             mPinSize = 10.0f;
             generatePinCallback(PinShape::Triangle, ImColor(0.0f, 1.0f, 0.7f));
+            mPinTooltip = "Vec2";
         } else if (hash == typeHash<glm::vec3>()) {
             mPinSize = 10.0f;
             generatePinCallback(PinShape::Triangle, ImColor(0.0f, 1.0f, 0.4f));
+            mPinTooltip = "Vec3";
         } else if (hash == typeHash<glm::vec4>()) {
             mPinSize = 10.0f;
             generatePinCallback(PinShape::Triangle, ImColor(0.0f, 1.0f, 0.0f));
+            mPinTooltip = "Vec4";
         } else if (hash == typeHash<glm::mat2>()) {
             mPinSize = 8.0f;
             generatePinCallback(PinShape::Square, ImColor(0.0f, 1.0f, 0.7f));
+            mPinTooltip = "Matrix2x2";
         } else if (hash == typeHash<glm::mat3>()) {
             mPinSize = 8.0f;
             generatePinCallback(PinShape::Square, ImColor(0.0f, 1.0f, 0.4f));
+            mPinTooltip = "Matrix3x3";
         } else if (hash == typeHash<glm::mat4>()) {
             mPinSize = 8.0f;
             generatePinCallback(PinShape::Square, ImColor(0.0f, 1.0f, 0.0f));
+            mPinTooltip = "Matrix4x4";
         } else if (hash == typeHash<Framebuffer*>()) {
             mPinSize = 10.0f;
             generatePinCallback(PinShape::FlatSquare, ImColor(1.0f, 1.0f, 1.0f));
+            mPinTooltip = "Framebuffer";
         } else if (hash == typeHash<Mesh*>()) {
             mPinSize = 10.0f;
             generatePinCallback(PinShape::FlatSquare, ImColor(0.0f, 0.8f, 1.0f));
+            mPinTooltip = "Mesh";
         } else if (hash == typeHash<Shader*>()) {
             mPinSize = 10.0f;
             generatePinCallback(PinShape::FlatSquare, ImColor(1.0f, 0.4f, 0.0f));
+            mPinTooltip = "Shader";
         } else if (hash == typeHash<Texture*>()) {
             mPinSize = 10.0f;
             generatePinCallback(PinShape::FlatSquare, ImColor(0.0f, 1.0f, 0.0f));
+            mPinTooltip = "Texture";
         } else if (hash == typeHash<float, int>()) {
             mPinSize = 10.0f;
             generatePinCallback(PinShape::Circle, ImColor(1.0f, 1.0f, 0.0f));
+            mPinTooltip = "Number";
         } else {
             mPinSize = 8.0f;
             generatePinCallback(PinShape::Circle, ImColor(1.0f, 1.0f, 1.0f));
+            mPinTooltip = "";
         }
     }
 
@@ -483,4 +511,5 @@ private:
     std::vector<on_unlink_callback> mOnUnlinks;
 
     float mPinSize = 0.0f;
+    std::string mPinTooltip;
 };
