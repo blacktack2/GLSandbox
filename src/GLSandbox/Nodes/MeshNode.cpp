@@ -4,7 +4,6 @@
 #include "../../Utils/SerializationUtils.h"
 
 #include <filesystem>
-#include <regex>
 #include <unordered_set>
 
 MeshNode::MeshNode() : Node("Mesh") {
@@ -44,6 +43,8 @@ void MeshNode::onDeserialize() {
 }
 
 void MeshNode::drawContents() {
+    ImGui::BeginDisabled(isLocked());
+
     drawGlobalParameters();
 
     if (ImUtils::beginHeader("Attributes", generateNodeLabelID("AttributesHeader"), mShowAttributes)) {
@@ -53,6 +54,8 @@ void MeshNode::drawContents() {
     drawAddAttributePopup();
     if (ImUtils::button("Upload", generateNodeLabelID("Upload")))
         uploadMesh();
+
+    ImGui::EndDisabled();
 
     drawMeshStatus();
 }
