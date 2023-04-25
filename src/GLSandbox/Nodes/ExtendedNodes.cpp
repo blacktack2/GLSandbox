@@ -24,46 +24,30 @@ DirectionNode::DirectionNode() : NumericNode<glm::vec3>("Direction") {
     mValue = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
+void fixedNormalize(float fixed, float& a, float& b) {
+    glm::vec3 normalVec = glm::normalize(glm::vec3(fixed, a, b));
+
+    float squareSum = (normalVec.y * normalVec.y) + (normalVec.z * normalVec.z);
+    if (squareSum == 0) {
+        float delta = 1 - fixed;
+        a = delta * 0.5f * (normalVec.y < 0.0f ? -1.0f : 1.0f);
+        b = delta * 0.5f * (normalVec.z < 0.0f ? -1.0f : 1.0f);
+    } else {
+        float scale = std::sqrt((1.0f - fixed * fixed) / squareSum);
+        a = normalVec.y * scale;
+        b = normalVec.z * scale;
+    }
+}
+
 bool DirectionNode::drawInputArea(const std::string& label) {
-    glm::vec3 tempValue = mValue;
+    glm::vec3 oldValue = mValue;
     if (ImUtils::inputFloatN(&mValue[0], 3, label, -1.0f, 1.0f)) {
-        if (tempValue.x != mValue.x) {
-            float x = tempValue.x;
-            tempValue = glm::normalize(tempValue);
-
-            float squareSum = (tempValue.y * tempValue.y + tempValue.z * tempValue.z);
-            if (squareSum != 0) {
-                float scale = std::sqrt((1.0f - x * x) / squareSum);
-                mValue = glm::vec3(x, tempValue.y * scale, tempValue.z * scale);
-            } else {
-                float delta = 1 - x;
-                mValue = glm::vec3(x, delta * 0.5f * (tempValue.y < 0.0f ? -1.0f : 1.0f), delta * 0.5f * (tempValue.z < 0.0f ? -1.0f : 1.0f));
-            }
-        } else if (tempValue.y != mValue.y) {
-            float y = tempValue.y;
-            tempValue = glm::normalize(tempValue);
-
-            float squareSum = (tempValue.x * tempValue.x + tempValue.z * tempValue.z);
-            if (squareSum != 0) {
-                float scale = std::sqrt((1.0f - y * y) / squareSum);
-                mValue = glm::vec3(tempValue.x * scale, y, tempValue.z * scale);
-            } else {
-                float delta = 1 - y;
-                mValue = glm::vec3(delta * 0.5f * (tempValue.x < 0.0f ? -1.0f : 1.0f), y, delta * 0.5f * (tempValue.z < 0.0f ? -1.0f : 1.0f));
-            }
-        } else if (tempValue.z != mValue.z) {
-            float z = tempValue.z;
-            tempValue = glm::normalize(tempValue);
-
-            float squareSum = (tempValue.x * tempValue.x + tempValue.y * tempValue.y);
-            if (squareSum != 0) {
-                float scale = std::sqrt((1.0f - z * z) / squareSum);
-                mValue = glm::vec3(tempValue.x * scale, tempValue.y * scale, z);
-            } else {
-                float delta = 1 - z;
-                mValue = glm::vec3(delta * 0.5f * (tempValue.x < 0.0f ? -1.0f : 1.0f), delta * 0.5f * (tempValue.y < 0.0f ? -1.0f : 1.0f), z);
-            }
-        }
+        if (oldValue.x != mValue.x)
+            fixedNormalize(mValue.x, mValue.y, mValue.z);
+        else if (oldValue.y != mValue.y)
+            fixedNormalize(mValue.y, mValue.x, mValue.z);
+        else if (oldValue.z != mValue.z)
+            fixedNormalize(mValue.z, mValue.x, mValue.y);
         return true;
     }
     return false;
