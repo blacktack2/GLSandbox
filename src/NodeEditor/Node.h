@@ -47,8 +47,10 @@ public:
     void drawLinks();
 
     void setAbsolutePosition(const ImVec2& pos);
-
     [[nodiscard]] ImVec2 getAbsolutePosition() const;
+
+    [[nodiscard]] ImVec2 getRelativePosition() const;
+    void setRelativePosition(const ImVec2& pos);
 
     [[nodiscard]] ImVec2 getSize() const;
 
@@ -131,6 +133,7 @@ private:
 
     ImVec2 mPosition = ImVec2(0.0f, 0.0f);
     bool mIsPositionDirty = false;
+    bool mIsPositionRelative = false;
 
     bool mIsLocked = false;
 };

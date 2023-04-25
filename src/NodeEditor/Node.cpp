@@ -35,7 +35,7 @@ void writeDataPoints(std::ofstream& streamOut, char prefix,
 }
 
 Node::Node(std::string title) : mName(std::move(title)), mID{gGraphIDCounter++} {
-    setAbsolutePosition(ImVec2(0.0f, 0.0f));
+    setRelativePosition(ImVec2(50.0f, 50.0f));
 }
 
 void Node::setParent(Graph* parent) {
@@ -134,7 +134,7 @@ void Node::draw() {
     ImUtils::nodeDummy();
 
     if (mIsPositionDirty) {
-        ed::SetNodePosition(getID(), mPosition);
+        ed::SetNodePosition(getID(), mIsPositionRelative ? ed::ScreenToCanvas(mPosition) : mPosition);
         mIsPositionDirty = false;
     }
     mPosition = ed::GetNodePosition(getID());
@@ -169,13 +169,24 @@ void Node::drawLinks() {
         port.get().drawLink();
 }
 
+ImVec2 Node::getAbsolutePosition() const {
+    return mPosition;
+}
+
 void Node::setAbsolutePosition(const ImVec2& pos) {
     mPosition = pos;
     mIsPositionDirty = true;
+    mIsPositionRelative = false;
 }
 
-ImVec2 Node::getAbsolutePosition() const {
+ImVec2 Node::getRelativePosition() const {
     return mPosition;
+}
+
+void Node::setRelativePosition(const ImVec2& pos) {
+    mPosition = pos;
+    mIsPositionDirty = true;
+    mIsPositionRelative = true;
 }
 
 ImVec2 Node::getSize() const {
