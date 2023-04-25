@@ -128,6 +128,8 @@ void Window::mainloop() {
 
         mRenderer->drawDebug();
 
+        ImUtils::drawDataPanel();
+
         ImUtils::end();
 
         ImGui::Render();

@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+class Node;
 class Texture;
 
 namespace ImUtils {
@@ -31,6 +32,13 @@ namespace ImUtils {
     void begin();
     void end();
 
+    bool beginHeader(const std::string& displayText, const std::string& labelID, bool& show, unsigned int depth = 0);
+    void endHeader();
+
+    void setDataPanel(const Node& node, std::function<void()> panelCallback);
+    void softUnsetDataPanel(const Node& node);
+    void drawDataPanel();
+
     void postTooltip(std::function<void()> contentsCallback, const ImVec2& position = ImVec2(0.0f, 0.0f));
 
     void nodeDummy();
@@ -39,6 +47,9 @@ namespace ImUtils {
     void message(const char* format...);
 
     bool button(const std::string& displayText, const std::string& labelID);
+
+    void dataPanelButton(const std::string& displayText, const std::string& labelID,
+                         const Node& node, std::function<void()> panelCallback);
 
     bool inputText(std::string& text, const std::string& labelID);
 
@@ -61,9 +72,6 @@ namespace ImUtils {
                                 const std::string& label2);
     void multiInputLabel(const std::string& label0, const std::string& label1,
                                 const std::string& label2, const std::string& label3);
-
-    bool beginHeader(const std::string& displayText, const std::string& labelID, bool& show, unsigned int depth = 0);
-    void endHeader();
 
     bool toggleButton(bool& value, const std::string& displayOnEnable, const std::string& displayOnDisable,
                       const std::string& labelID);

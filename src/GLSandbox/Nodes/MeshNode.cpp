@@ -363,57 +363,49 @@ void MeshNode::drawAttributes() {
 }
 
 void MeshNode::drawAttribute(Attribute& attribute) {
-    const std::string headerDisplayText = std::string(attribute.name).append(" (")
-        .append(getDataTypeName(attribute.data)).append(")");
-    if (!ImUtils::beginHeader(headerDisplayText, generateAttributeLabelID(attribute, "Header"), attribute.show, 1))
-        return;
+    ImUtils::dataPanelButton(attribute.name, generateAttributeLabelID(attribute, "DataPanel"), *this,
+                             [this, &attribute]() {
+        if (ImUtils::button("Remove", generateAttributeLabelID(attribute, "Remove"))) {
+            attribute.isMarkedDelete = true;
+            return;
+        }
 
-    if (ImUtils::button("Remove", generateAttributeLabelID(attribute, "Remove"))) {
-        attribute.isMarkedDelete = true;
-        return;
-    }
+        ImUtils::inputText(attribute.name, generateAttributeLabelID(attribute, "Name"));
+        if (ImGui::IsItemHovered())
+            ImUtils::postTooltip([]() { ImGui::TextUnformatted("Attribute Name"); });
 
-    ImGui::Text("Name");
-    ImUtils::inputText(attribute.name, generateAttributeLabelID(attribute, "Name"));
-
-    const std::string attributeAreaLabel = generateAttributeLabelID(attribute, "ChildWindow");
-    ImGui::BeginChild(attributeAreaLabel.c_str(), ImVec2(100, 100), true);
-
-    for (unsigned int i = 0; i < mNumVertices; i++) {
-        const std::string valueInputLabel = generateAttributeLabelID(attribute, "Value", std::to_string(i));
-        std::visit(VisitOverload{
-            [valueInputLabel, i](std::vector<int>& data) {
-                ImUtils::inputIntN(&data[i], 1, valueInputLabel);
-            },
-            [valueInputLabel, i](std::vector<glm::ivec2>& data) {
-                ImUtils::inputIntN(&data[i][0], 2, valueInputLabel);
-            },
-            [valueInputLabel, i](std::vector<glm::ivec3>& data) {
-                ImUtils::inputIntN(&data[i][0], 3, valueInputLabel);
-            },
-            [valueInputLabel, i](std::vector<glm::ivec4>& data) {
-                ImUtils::inputIntN(&data[i][0], 4, valueInputLabel);
-            },
-
-            [valueInputLabel, i](std::vector<float>& data) {
-                ImUtils::inputFloatN(&data[i], 1, valueInputLabel);
-            },
-            [valueInputLabel, i](std::vector<glm::vec2>& data) {
-                ImUtils::inputFloatN(&data[i][0], 2, valueInputLabel);
-            },
-            [valueInputLabel, i](std::vector<glm::vec3>& data) {
-                ImUtils::inputFloatN(&data[i][0], 3, valueInputLabel);
-            },
-            [valueInputLabel, i](std::vector<glm::vec4>& data) {
-                ImUtils::inputFloatN(&data[i][0], 4, valueInputLabel);
-            },
-
-            [](auto arg) { ImGui::Text("Undefined"); },
-        }, attribute.data);
-    }
-
-    ImGui::EndChild();
-    ImUtils::endHeader();
+        ImGui::TextUnformatted("Data:");
+        for (unsigned int i = 0; i < mNumVertices; i++) {
+            const std::string valueInputLabel = generateAttributeLabelID(attribute, "Value", std::to_string(i));
+            std::visit(VisitOverload{
+                [valueInputLabel, i](std::vector<int>& data) {
+                    ImUtils::inputIntN(&data[i], 1, valueInputLabel);
+                },
+                [valueInputLabel, i](std::vector<glm::ivec2>& data) {
+                    ImUtils::inputIntN(&data[i][0], 2, valueInputLabel);
+                },
+                [valueInputLabel, i](std::vector<glm::ivec3>& data) {
+                    ImUtils::inputIntN(&data[i][0], 3, valueInputLabel);
+                },
+                [valueInputLabel, i](std::vector<glm::ivec4>& data) {
+                    ImUtils::inputIntN(&data[i][0], 4, valueInputLabel);
+                },
+                [valueInputLabel, i](std::vector<float>& data) {
+                    ImUtils::inputFloatN(&data[i], 1, valueInputLabel);
+                },
+                [valueInputLabel, i](std::vector<glm::vec2>& data) {
+                    ImUtils::inputFloatN(&data[i][0], 2, valueInputLabel);
+                },
+                [valueInputLabel, i](std::vector<glm::vec3>& data) {
+                    ImUtils::inputFloatN(&data[i][0], 3, valueInputLabel);
+                },
+                [valueInputLabel, i](std::vector<glm::vec4>& data) {
+                    ImUtils::inputFloatN(&data[i][0], 4, valueInputLabel);
+                },
+                [](auto arg) { ImGui::Text("Undefined"); },
+            }, attribute.data);
+        }
+    });
 }
 
 void MeshNode::drawAddAttributePopup() {

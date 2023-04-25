@@ -1,9 +1,12 @@
 #include "ImUtils.h"
 
+#include "../NodeEditor/Node.h"
+
 #include "../Rendering/Texture.h"
 
 #include "FileUtils.h"
 
+#include <imgui_internal.h>
 #include <imgui_stdlib.h>
 #include <imgui_node_editor.h>
 
@@ -16,9 +19,18 @@ struct TooltipData {
     std::function<void()> contentsCallback;
 };
 
+struct DataPanelData {
+    std::function<void()> contentsCallback = nullptr;
+    const Node* node = nullptr;
+};
+
 static constexpr float gNODE_WIDTH = 200.0f;
 
 static constexpr ImVec2 gBUTTON_BOUNDS = ImVec2(gNODE_WIDTH * 0.75f, 0.0f);
+
+static constexpr ImVec2 gDATA_PANEL_BUTTON_BOUNDS = ImVec2(gNODE_WIDTH * 0.5f, 0.0f);
+static constexpr ImVec4 gDATA_PANEL_BUTTON_COLOUR = ImVec4(0.8f, 0.5f, 0.5f, 1.0f);
+static constexpr ImVec4 gDATA_PANEL_BUTTON_COLOUR_SELECTED = ImVec4(1.0f, 0.3f, 0.7f, 1.0f);
 
 static constexpr ImVec2 gHEADER_BOUNDS = ImVec2(gNODE_WIDTH * 0.75f, 0.0f);
 static constexpr ImVec4 gHEADER_COLOURS[] = {
@@ -26,7 +38,7 @@ static constexpr ImVec4 gHEADER_COLOURS[] = {
     ImVec4(0.5f, 0.5f, 0.5f, 1.0f),
 };
 
-static constexpr ImVec2 gCHILD_PANEL_BOUNDS = ImVec2(gNODE_WIDTH * 0.75f, 0.0f);
+static constexpr ImVec2 gCHILD_PANEL_BOUNDS = ImVec2(gNODE_WIDTH, 0.0f);
 
 static constexpr float gTEXT_INPUT_WIDTH = gNODE_WIDTH * 0.5f;
 
@@ -50,6 +62,17 @@ static constexpr const char* gINT_FORMAT = "%d";
 static constexpr float gPIN_ICON_THICKNESS = 2.0f;
 
 static std::vector<TooltipData> gTooltips{};
+static DataPanelData gDataPanel;
+
+void drawTooltips() {
+    for (const auto& tooltip : gTooltips) {
+        if (tooltip.position.x != 0.0f || tooltip.position.y != 0.0f)
+            ImGui::SetNextWindowPos(tooltip.position);
+        ImGui::BeginTooltip();
+        tooltip.contentsCallback();
+        ImGui::EndTooltip();
+    }
+}
 
 std::string formatLabel(std::string display, const std::string& id) {
     return display.append("##").append(id);
@@ -63,13 +86,42 @@ void ImUtils::begin() {
 }
 
 void ImUtils::end() {
-    for (const auto& tooltip : gTooltips) {
-        if (tooltip.position.x != 0.0f || tooltip.position.y != 0.0f)
-            ImGui::SetNextWindowPos(tooltip.position);
-        ImGui::BeginTooltip();
-        tooltip.contentsCallback();
-        ImGui::EndTooltip();
-    }
+    drawTooltips();
+}
+
+bool ImUtils::beginHeader(const std::string& displayText, const std::string& labelID, bool& show, unsigned int depth) {
+    ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(gNODE_WIDTH - gHEADER_BOUNDS.x, 0.0f) * 0.5f);
+    ImGui::PushStyleColor(ImGuiCol_Button, gHEADER_COLOURS[depth]);
+    if (ImGui::Button(formatLabel(displayText, labelID).c_str(), gHEADER_BOUNDS))
+        show = !show;
+    ImGui::PopStyleColor();
+    return show;
+}
+
+void ImUtils::endHeader() {
+
+}
+
+void ImUtils::setDataPanel(const Node& node, std::function<void()> panelCallback) {
+    gDataPanel.contentsCallback = std::move(panelCallback);
+    gDataPanel.node = &node;
+}
+
+void ImUtils::softUnsetDataPanel(const Node& node) {
+    if (&node == gDataPanel.node)
+        gDataPanel = DataPanelData();
+}
+
+void ImUtils::drawDataPanel() {
+    ImGui::SetNextWindowSizeConstraints(ImVec2(50.0f, 50.0f), ImVec2(FLT_MAX, FLT_MAX));
+    ImGui::Begin(gDataPanel.node ?
+        std::string("Data - [").append(gDataPanel.node->getName()).append("]##DataPanel").c_str() :
+        std::string("Data - <none>##DataPanel").c_str());
+
+    if (gDataPanel.contentsCallback)
+        gDataPanel.contentsCallback();
+
+    ImGui::End();
 }
 
 void ImUtils::postTooltip(std::function<void()> contentsCallback, const ImVec2& position) {
@@ -107,6 +159,16 @@ void ImUtils::message(const char* format...) {
 
 bool ImUtils::button(const std::string& displayText, const std::string& labelID) {
     return ImGui::Button(formatLabel(displayText, labelID).c_str(), gBUTTON_BOUNDS);
+}
+
+void ImUtils::dataPanelButton(const std::string& displayText, const std::string& labelID,
+                              const Node& node, std::function<void()> panelCallback) {
+    ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(gNODE_WIDTH - gDATA_PANEL_BUTTON_BOUNDS.x, 0.0f) * 0.5f);
+    ImGui::PushStyleColor(ImGuiCol_Button, &node == gDataPanel.node ?
+                          gDATA_PANEL_BUTTON_COLOUR_SELECTED : gDATA_PANEL_BUTTON_COLOUR);
+    if (ImGui::Button(formatLabel(displayText, labelID).c_str(), gDATA_PANEL_BUTTON_BOUNDS))
+        setDataPanel(node, std::move(panelCallback));
+    ImGui::PopStyleColor();
 }
 
 bool ImUtils::inputText(std::string& text, const std::string& labelID) {
@@ -207,19 +269,6 @@ void ImUtils::multiInputLabel(const std::string& label0, const std::string& labe
     ImGui::Text("%s", label2.c_str());
     ImGui::SameLine(gMULTI_NUMERIC_INPUT_WIDTH * 3.0f);
     ImGui::Text("%s", label3.c_str());
-}
-
-bool ImUtils::beginHeader(const std::string& displayText, const std::string& labelID, bool& show, unsigned int depth) {
-    ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(gNODE_WIDTH - gHEADER_BOUNDS.x, 0.0f) * 0.5f);
-    ImGui::PushStyleColor(ImGuiCol_Button, gHEADER_COLOURS[depth]);
-    if (ImGui::Button(formatLabel(displayText, labelID).c_str(), gHEADER_BOUNDS))
-        show = !show;
-    ImGui::PopStyleColor();
-    return show;
-}
-
-void ImUtils::endHeader() {
-
 }
 
 bool ImUtils::toggleButton(bool& value, const std::string& displayOnEnable, const std::string& displayOnDisable,

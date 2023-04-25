@@ -28,7 +28,7 @@ public:
     typedef std::unordered_map<int, std::pair<Node*, std::string>> port_data_t;
     typedef std::unordered_map<Node*, std::vector<std::pair<std::string, int>>> link_data_t;
 
-    virtual ~Node() = default;
+    virtual ~Node();
 
     void setParent(Graph* parent);
 
@@ -56,6 +56,10 @@ public:
 
     [[nodiscard]] inline int getID() const {
         return mID;
+    }
+
+    [[nodiscard]] inline const std::string& getName() const {
+        return mName;
     }
 
     [[nodiscard]] size_t numPorts() const;

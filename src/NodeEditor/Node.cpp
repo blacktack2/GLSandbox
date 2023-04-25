@@ -38,6 +38,10 @@ Node::Node(std::string title) : mName(std::move(title)), mID{gGraphIDCounter++} 
     setRelativePosition(ImVec2(50.0f, 50.0f));
 }
 
+Node::~Node() {
+    ImUtils::softUnsetDataPanel(*this);
+}
+
 void Node::setParent(Graph* parent) {
     mParent = parent;
 }
