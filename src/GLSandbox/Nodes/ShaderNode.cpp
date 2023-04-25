@@ -107,5 +107,7 @@ void ShaderNode::uploadShader() {
         mShader = std::make_unique<Shader>();
         return;
     }
-    mShader = std::make_unique<Shader>(mVertFilepath, mFragFilepath, mTescFilepath, mTeseFilepath, mGeomFilepath);
+    mShader = std::make_unique<Shader>(
+        mVertFilepath.string(), mFragFilepath.string(), mTescFilepath.string(), mTeseFilepath.string(), mGeomFilepath.string()
+    );
 }

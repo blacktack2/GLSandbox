@@ -22,7 +22,7 @@ void SerializationUtils::writeEndMark(std::ostream& stream, const std::string& i
 }
 
 bool SerializationUtils::seekNextDataPoint(std::istream& stream, std::streampos end, char dataPrefix, std::string& dataID) {
-    while (stream.tellg() < end) {
+    while (stream.tellg() < end && !stream.eof()) {
         char prefix;
         stream >> prefix;
         if (prefix == dataPrefix) {
@@ -105,6 +105,8 @@ std::string SerializationUtils::readLine(std::istream& stream, char delimiter) {
     std::string result;
     stream >> std::ws;
     std::getline(stream, result, delimiter);
+    if (!result.empty() && result.back() == '\r')
+        result.pop_back();
     return result;
 }
 

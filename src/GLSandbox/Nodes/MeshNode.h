@@ -56,7 +56,7 @@ private:
     void loadFromFile();
     void loadFromStreamOBJ(std::ifstream& stream);
     void loadFromStreamMSH(std::ifstream& stream);
-    void writeToFile(const std::string& filename) const;
+    void writeToFile(const std::filesystem::path& filename) const;
     void writeToStreamMSH(std::ofstream& stream) const;
 
     [[nodiscard]] static std::filesystem::path generateFilename() ;

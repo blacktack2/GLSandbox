@@ -23,7 +23,7 @@ std::vector<std::pair<std::string, std::string>> MeshNode::generateSerializedDat
     if (filepath.empty())
         filepath = generateFilename();
 
-    std::string fileExtension = mFilepath.extension();
+    std::filesystem::path fileExtension = mFilepath.extension();
     if (fileExtension == getMeshDefaultExtension())
         writeToFile(filepath);
     data.emplace_back("File", filepath.string());
@@ -63,7 +63,7 @@ void MeshNode::drawContents() {
 void MeshNode::loadFromFile() {
     if (mFilepath.empty())
         return;
-    std::string fileExtension = mFilepath.extension();
+    std::filesystem::path fileExtension = mFilepath.extension();
 
     clearMesh();
 
@@ -109,8 +109,7 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
             normalsSoft.emplace_back(normal);
             SerializationUtils::skipToNextLine(stream);
         } else if (type == "f") {
-            std::string indexData;
-            std::getline(stream, indexData);
+            std::string indexData = SerializationUtils::readLine(stream);
 
             std::stringstream indexSetStream(indexData);
             indexSetStream >> std::ws;
@@ -255,7 +254,7 @@ void MeshNode::loadFromStreamMSH(std::ifstream& stream) {
     }
 }
 
-void MeshNode::writeToFile(const std::string& filename) const {
+void MeshNode::writeToFile(const std::filesystem::path& filename) const {
     std::ofstream stream(filename);
     writeToStreamMSH(stream);
 }

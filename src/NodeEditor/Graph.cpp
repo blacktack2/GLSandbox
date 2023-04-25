@@ -66,6 +66,10 @@ void Graph::deserialize(std::ifstream& streamIn) {
             }
             SerializationUtils::skipToNextLine(streamIn);
         }
+        if (dataID.empty()) {
+            streamIn.seekg(markEnd);
+            continue;
+        }
 
         std::unique_ptr<Node> node = deserializeNodeType(nodeType);
 

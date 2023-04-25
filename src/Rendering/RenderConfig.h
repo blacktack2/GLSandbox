@@ -1,5 +1,5 @@
 #pragma once
-#include <climits>
+#include <cstddef>
 
 class RenderConfig {
 public:

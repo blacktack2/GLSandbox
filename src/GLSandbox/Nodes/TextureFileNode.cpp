@@ -66,7 +66,7 @@ void TextureFileNode::drawContents() {
 
 void TextureFileNode::loadFromFile() {
     int width, height, channels;
-    unsigned char* data = stbi_load(mFilepath.c_str(), &width, &height, &channels, 0);
+    unsigned char* data = stbi_load(mFilepath.string().c_str(), &width, &height, &channels, 0);
     if (!data) {
         mState = ValidationState::InvalidFile;
         stbi_image_free(data);

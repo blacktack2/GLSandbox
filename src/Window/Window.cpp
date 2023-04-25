@@ -244,7 +244,7 @@ void Window::writeConfig() {
 void Window::loadGraph() {
     mRenderer->resetPipeline();
     mGraph->clearNodes();
-    std::ifstream stream(mGraphFilepath);
+    std::ifstream stream(mGraphFilepath, std::ios::in | std::ios::binary);
     if (stream)
         mGraph->deserialize(stream);
     else
