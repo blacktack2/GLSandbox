@@ -48,6 +48,8 @@ void ShaderNode::onDeserialize() {
 }
 
 void ShaderNode::drawContents() {
+    ImGui::BeginDisabled(isLocked());
+
     ImUtils::fileChooseDialog(mVertFilepath, getShaderAssetDirectory(), generateNodeLabelID("VertexFile"),
                               getValidVertexShaderFileExtensions());
     ImUtils::fileChooseDialog(mFragFilepath, getShaderAssetDirectory(), generateNodeLabelID("FragmentFile"),
@@ -63,6 +65,8 @@ void ShaderNode::drawContents() {
         uploadShader();
         mShaderOut.valueUpdated();
     }
+
+    ImGui::EndDisabled();
 
     drawShaderStatus();
 }
