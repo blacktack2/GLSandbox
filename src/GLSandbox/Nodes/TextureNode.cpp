@@ -45,7 +45,7 @@ std::string getInternalFormatLabel(Texture::InternalFormat format) {
     switch (format) {
         default: return "Unsupported Format";
         case Texture::InternalFormat::DepthComponent             : return "DEPTH_COMPONENT";
-        case Texture::InternalFormat::DepthStencil               : return "DEPTH_STENCIL";
+        case Texture::InternalFormat::DepthStencil               : return "DEPTH_STENCIL(Not Implemented)";
         case Texture::InternalFormat::R                          : return "RED";
         case Texture::InternalFormat::RG                         : return "RG";
         case Texture::InternalFormat::RGB                        : return "RGB";
@@ -175,6 +175,23 @@ std::string getEdgeWrapLabel(Texture::EdgeWrap mode) {
     }
 }
 
+std::string getCompareModeLabel(Texture::CompareMode mode) {
+    switch (mode) {
+        default: return "Undefined";
+        case Texture::CompareMode::None                : return "None";
+        case Texture::CompareMode::CompareRefToTexture : return "Compare-Ref";
+    }
+}
+
+std::string getTextureTypeLabel(TextureNode::TextureType type) {
+    switch (type) {
+        default: return "Undefined";
+        case TextureNode::TextureType::Colour  : return "Colour";
+        case TextureNode::TextureType::Depth   : return "Depth";
+        case TextureNode::TextureType::Stencil : return "Stencil";
+    }
+}
+
 void getTextureStatus(Texture::ErrorState state, std::string& message, ImVec4& messageColour) {
     switch (state) {
         case Texture::ErrorState::INVALID:
@@ -243,7 +260,10 @@ void TextureNode::onDeserialize() {
 }
 
 void TextureNode::drawContents() {
-    if (drawTextureSettings() || drawTextureFormat())
+    bool changed = false;
+    changed |= ImUtils::cycleButton(generateNodeLabelID("TextureType"), (size_t&)mTextureType, (size_t)TextureType::Max,
+        [](size_t index) { return getTextureTypeLabel((TextureType)index); });
+    if (drawTextureSettings() || drawTextureFormat() || changed)
         updateTexture();
 
     std::string message;
@@ -274,13 +294,17 @@ bool TextureNode::drawTextureSettings() {
     updateSettings |= ImUtils::cycleButton(generateNodeLabelID("EdgeWrap"), (size_t&)mEdgeWrap, (size_t)Texture::EdgeWrap::Max,
                              [](size_t index) { return getEdgeWrapLabel((Texture::EdgeWrap)index); });
 
+    ImGui::Text("Compare Mode");
+    updateSettings |= ImUtils::cycleButton(generateNodeLabelID("CompareMode"), (size_t&)mCompareMode, (size_t)Texture::CompareMode::Max,
+                             [](size_t index) { return getCompareModeLabel((Texture::CompareMode)index); });
+
     ImUtils::endHeader();
 
     return updateSettings;
 }
 
 bool TextureNode::drawTextureFormat() {
-    if (!ImUtils::beginHeader("Internal Format", generateNodeLabelID("InternalFormat"), mShowInternalFormat))
+    if (mTextureType != TextureType::Colour || !ImUtils::beginHeader("Internal Format", generateNodeLabelID("InternalFormat"), mShowInternalFormat))
         return false;
 
     bool updateFormat = false;
@@ -315,11 +339,21 @@ bool TextureNode::drawTextureFormat() {
 }
 
 void TextureNode::updateTexture() {
-    mInternalFormat = parseInternalFormat(mNumChannels, mDataType, mPrecision, mIsSigned, mIsSRGB, mIsCompressed);
-
+    switch (mTextureType) {
+        case TextureType::Colour:
+            mInternalFormat = parseInternalFormat(mNumChannels, mDataType, mPrecision, mIsSigned, mIsSRGB, mIsCompressed);
+            break;
+        case TextureType::Depth:
+            mInternalFormat = Texture::InternalFormat::DepthComponent;
+            break;
+        case TextureType::Stencil:
+            mInternalFormat = Texture::InternalFormat::DepthStencil;
+            return;
+    }
     mTexture->bind();
     mTexture->setInternalFormat(mInternalFormat);
     mTexture->setFilters(mMinFilter, mMagFilter);
     mTexture->setEdgeWrap(mEdgeWrap);
+    mTexture->setCompareMode(mCompareMode);
     mTexture->resize(mTexBounds.x, mTexBounds.y);
 }

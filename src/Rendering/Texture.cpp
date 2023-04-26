@@ -166,6 +166,14 @@ GLfloat parseEdgeWrap(Texture::EdgeWrap mode) {
     }
 }
 
+GLint parseCompareMode(Texture::CompareMode mode) {
+    switch (mode) {
+        default:
+        case Texture::CompareMode::None                : return GL_NONE;
+        case Texture::CompareMode::CompareRefToTexture : return GL_COMPARE_REF_TO_TEXTURE;
+    }
+}
+
 void generateDummyTypes(Texture::InternalFormat internalFormat,
                         Texture::DataFormat& dummyFormat, Texture::DataType& dummyType) {
     switch (internalFormat) {
@@ -175,8 +183,8 @@ void generateDummyTypes(Texture::InternalFormat internalFormat,
             dummyType   = Texture::DataType::Float;
             break;
         case Texture::InternalFormat::DepthStencil:
-            dummyFormat = Texture::DataFormat::StencilIndex;
-            dummyType   = Texture::DataType::UnsignedByte;
+            dummyFormat = Texture::DataFormat::DepthStencil;
+            dummyType   = Texture::DataType::Int;
             break;
         case Texture::InternalFormat::R:
         case Texture::InternalFormat::R8:
@@ -366,4 +374,9 @@ void Texture::setEdgeWrap(Texture::EdgeWrap mode) {
     GLfloat edgeWrap = parseEdgeWrap(mode);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, edgeWrap);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, edgeWrap);
+}
+
+void Texture::setCompareMode(CompareMode mode) {
+    GLint compareMode = parseCompareMode(mode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, compareMode);
 }

@@ -120,7 +120,7 @@ public:
         CompressedRGBA_BPTC_UNorm  = gCOMPR_BIT | gRGBA_BIT | gP8_BIT | gBPTC_BIT,
         CompressedSRGBA_BPTC_UNorm = gCOMPR_BIT | gRGBA_BIT | gP8_BIT | gBPTC_BIT | gSIGN_BIT,
     };
-    enum class DataFormat : size_t {
+    enum class DataFormat : std::size_t {
         R,
         RG,
         RGB,
@@ -162,7 +162,7 @@ public:
         UnsignedInt_2_10_10_10_R,
     };
 
-    enum class MinFilter : size_t {
+    enum class MinFilter : std::size_t {
         Nearest,
         Linear,
         NearestMipmapNearest,
@@ -172,18 +172,25 @@ public:
 
         Max,
     };
-    enum class MagFilter : size_t {
+    enum class MagFilter : std::size_t {
         Nearest,
         Linear,
 
         Max,
     };
 
-    enum class EdgeWrap : size_t {
+    enum class EdgeWrap : std::size_t {
         Repeat,
         MirroredRepeat,
         ClampToEdge,
         ClampToBorder,
+
+        Max,
+    };
+
+    enum class CompareMode : std::size_t {
+        None,
+        CompareRefToTexture,
 
         Max,
     };
@@ -227,6 +234,7 @@ public:
 
     static void setFilters(MinFilter min, MagFilter mag);
     static void setEdgeWrap(EdgeWrap mode);
+    static void setCompareMode(CompareMode mode);
 private:
     unsigned int mTexID = 0;
 

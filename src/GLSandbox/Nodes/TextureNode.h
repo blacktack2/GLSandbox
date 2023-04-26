@@ -24,6 +24,13 @@ public:
 
         Max,
     };
+    enum class TextureType : std::size_t {
+        Colour = 0,
+        Depth,
+        Stencil,
+
+        Max,
+    };
 
     TextureNode();
     ~TextureNode() final = default;
@@ -49,11 +56,14 @@ private:
     std::unique_ptr<Texture> mTexture;
     Port<Texture*> mTextureOut = Port<Texture*>(*this, IPort::Direction::Out, "TextureOut", "Texture", [&]() { return mTexture.get(); });
 
-    glm::ivec2 mTexBounds = glm::ivec2(1, 1);
+    glm::ivec2 mTexBounds = glm::ivec2(512, 512);
 
-    Texture::MagFilter mMagFilter = Texture::MagFilter::Linear;
-    Texture::MinFilter mMinFilter = Texture::MinFilter::Linear;
-    Texture::EdgeWrap mEdgeWrap = Texture::EdgeWrap::ClampToEdge;
+    TextureType mTextureType = TextureType::Colour;
+
+    Texture::MagFilter   mMagFilter   = Texture::MagFilter::Linear;
+    Texture::MinFilter   mMinFilter   = Texture::MinFilter::Linear;
+    Texture::EdgeWrap    mEdgeWrap    = Texture::EdgeWrap::ClampToEdge;
+    Texture::CompareMode mCompareMode = Texture::CompareMode::None;
 
     Texture::InternalFormat mInternalFormat = Texture::InternalFormat::RGBA32F;
 
