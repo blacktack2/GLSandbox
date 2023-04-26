@@ -47,6 +47,8 @@ private:
 
         std::string name = "unnamed";
 
+        unsigned int binding = 0;
+
         VectorVariant<Mesh::attribute_t> data;
 
         bool isMarkedDelete = false;

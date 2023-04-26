@@ -73,7 +73,7 @@ public:
      * @param dataSize Size of the data type (e.g. vec3 is sizeof(vec3)).
      * @param debugName Label for printing debug information about this attribute.
      */
-    void addAttribute(const void* data, int attribSize, size_t dataSize, const std::string& debugName);
+    void addAttribute(const void* data, int attribSize, size_t dataSize, unsigned int binding, const std::string& debugName);
     void bufferData();
 
     static void makeScreenQuad(Mesh& mesh);

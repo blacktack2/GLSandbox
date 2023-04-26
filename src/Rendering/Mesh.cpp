@@ -57,9 +57,9 @@ void Mesh::unbind() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void Mesh::addAttribute(const void* data, GLint attribSize, size_t dataSize, const std::string& debugName) {
+void Mesh::addAttribute(const void* data, GLint attribSize, size_t dataSize, unsigned int binding, const std::string& debugName) {
     VertexAttribute& attribute = mAttributes.emplace_back();
-    attribute.index = mAttributes.size() - 1;
+    attribute.index = binding;
     attribute.data = data;
     attribute.attribSize = attribSize;
     attribute.dataSize = dataSize;
@@ -78,7 +78,7 @@ void Mesh::makeScreenQuad(Mesh& mesh) {
 
     mesh.setType(Type::TriangleStrip);
     mesh.setNumVertices(4);
-    mesh.addAttribute(positions, 2, sizeof(glm::vec2), "Position");
+    mesh.addAttribute(positions, 2, sizeof(glm::vec2), 0, "Position");
     mesh.bind();
     mesh.bufferData();
     unbind();

@@ -197,14 +197,17 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
     mIndices = indices;
 
     Attribute& posAttr = mAttributes.emplace_back();
+    posAttr.binding = 0;
     posAttr.data = positions;
     posAttr.name = "position";
 
     Attribute& uvAttr = mAttributes.emplace_back();
+    uvAttr.binding = 1;
     uvAttr.data = uvs;
     uvAttr.name = "uv";
 
     Attribute& normAttr = mAttributes.emplace_back();
+    normAttr.binding = 2;
     normAttr.data = normals;
     normAttr.name = "normal";
 }
@@ -228,10 +231,13 @@ void MeshNode::loadFromStreamMSH(std::ifstream& stream) {
 
         unsigned int length;
         char dataType;
+        unsigned int binding;
         stream >> length;
         stream >> dataType;
+        stream >> binding;
 
         Attribute& attribute = mAttributes.emplace_back();
+        attribute.binding = binding;
         attribute.data = createAttributeDataset(length, dataType);
         attribute.name = name;
         std::visit([this](auto& arg) { arg.resize(mNumVertices); }, attribute.data);
@@ -280,7 +286,7 @@ void MeshNode::writeToStreamMSH(std::ofstream& stream) const {
 
             [&stream](const auto&                  arg) { stream << 1 << " " << "i"; },
         }, attribute.data);
-        stream << "\n";
+        stream << " " << attribute.binding << "\n";
 
         std::visit(VisitOverload{
             [&stream, this](const std::vector<int>& data) {
@@ -319,15 +325,15 @@ void MeshNode::uploadMesh() {
         std::visit(VisitOverload{
             [&attr, this](const std::vector<int>& data) {
                 using type = std::decay_t<decltype(data)>;
-                mMesh->addAttribute(data.data(), 1, sizeof(int), attr.name);
+                mMesh->addAttribute(data.data(), 1, sizeof(int), attr.binding, attr.name);
             },
             [&attr, this](const std::vector<float>& data) {
                 using type = std::decay_t<decltype(data)>;
-                mMesh->addAttribute(data.data(), 1, sizeof(float), attr.name);
+                mMesh->addAttribute(data.data(), 1, sizeof(float), attr.binding, attr.name);
             },
             [&attr, this](const auto& data) {
                 using type = std::decay_t<decltype(data)>;
-                mMesh->addAttribute(data.data(), type::value_type::length(), sizeof(typename type::value_type), attr.name);
+                mMesh->addAttribute(data.data(), type::value_type::length(), sizeof(typename type::value_type), attr.binding, attr.name);
             },
         }, attr.data);
     }
@@ -369,12 +375,16 @@ void MeshNode::drawAttribute(Attribute& attribute) {
                              [this, &attribute]() {
         if (ImUtils::button("Remove", generateAttributeLabelID(attribute, "Remove"))) {
             attribute.isMarkedDelete = true;
+            ImUtils::softUnsetDataPanel(*this);
             return;
         }
 
         ImUtils::inputText(attribute.name, generateAttributeLabelID(attribute, "Name"));
         if (ImGui::IsItemHovered())
             ImUtils::postTooltip([]() { ImGui::TextUnformatted("Attribute Name"); });
+
+        ImGui::TextUnformatted("Binding");
+        ImUtils::inputInt((int*)&attribute.binding, generateAttributeLabelID(attribute, "Binding"), 0, INT_MAX);
 
         ImGui::TextUnformatted("Data:");
         for (unsigned int i = 0; i < mNumVertices; i++) {
@@ -420,6 +430,7 @@ void MeshNode::drawAddAttributePopup() {
             continue;
 
         Attribute& attribute = mAttributes.emplace_back();
+        attribute.binding = mAttributes.size();
         attribute.data = generateAttributeDataset(type);
         std::visit([this](auto& data) { data.resize(mNumVertices); }, attribute.data);
     }
