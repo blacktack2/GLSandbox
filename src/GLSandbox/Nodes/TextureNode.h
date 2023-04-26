@@ -56,6 +56,7 @@ private:
     std::unique_ptr<Texture> mTexture;
     Port<Texture*> mTextureOut = Port<Texture*>(*this, IPort::Direction::Out, "TextureOut", "Texture", [&]() { return mTexture.get(); });
 
+    bool mIsScreenLocked = false;
     glm::ivec2 mTexBounds = glm::ivec2(512, 512);
 
     TextureType mTextureType = TextureType::Colour;

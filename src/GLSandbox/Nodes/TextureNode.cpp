@@ -1,6 +1,7 @@
 #include "TextureNode.h"
 
 #include "../../Utils/SerializationUtils.h"
+#include "../../Rendering/RenderConfig.h"
 
 #include <sstream>
 
@@ -220,6 +221,7 @@ bool TextureNode::isValid() const {
 std::vector<std::pair<std::string, std::string>> TextureNode::generateSerializedData() const {
     std::vector<std::pair<std::string, std::string>> data{};
     data.emplace_back("Type", SerializationUtils::serializeData((int)mTextureType));
+    data.emplace_back("ScreenLock", SerializationUtils::serializeData(mIsScreenLocked));
     data.emplace_back("Bounds", SerializationUtils::serializeData(mTexBounds));
     data.emplace_back("Min", SerializationUtils::serializeData((int)mMinFilter));
     data.emplace_back("Mag", SerializationUtils::serializeData((int)mMagFilter));
@@ -236,6 +238,8 @@ std::vector<std::pair<std::string, std::string>> TextureNode::generateSerialized
 void TextureNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
     if (dataID == "Type")
         SerializationUtils::deserializeData(stream, (int&)mTextureType);
+    else if (dataID == "ScreenLock")
+        SerializationUtils::deserializeData(stream, mIsScreenLocked);
     else if (dataID == "Bounds")
         SerializationUtils::deserializeData(stream, mTexBounds);
     else if (dataID == "Min")
@@ -286,7 +290,13 @@ bool TextureNode::drawTextureSettings() {
     bool updateSettings = false;
 
     ImGui::Text("Bounds:");
+    if (ImUtils::button(mIsScreenLocked ? "Unlock from Screen" : "Lock to Screen", generateNodeLabelID("ScreenLock"))) {
+        mIsScreenLocked = !mIsScreenLocked;
+        updateSettings = true;
+    }
+    ImGui::BeginDisabled(mIsScreenLocked);
     updateSettings |= ImUtils::inputIntN(&mTexBounds[0], 2, generateNodeLabelID("TextureBounds"), 1, 4096);
+    ImGui::EndDisabled();
 
     ImGui::Text("Min-Filter");
     updateSettings |= ImUtils::cycleButton(generateNodeLabelID("MinFilter"), (size_t&)mMinFilter, (size_t)Texture::MinFilter::Max,
@@ -356,6 +366,8 @@ void TextureNode::updateTexture() {
             mInternalFormat = Texture::InternalFormat::DepthStencil;
             return;
     }
+    if (mIsScreenLocked)
+        mTexBounds = RenderConfig::getDefaultViewportBounds();
     mTexture->bind();
     mTexture->setInternalFormat(mInternalFormat);
     mTexture->setFilters(mMinFilter, mMagFilter);
