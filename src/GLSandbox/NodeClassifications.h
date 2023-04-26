@@ -37,6 +37,8 @@ enum class NodeType {
     ViewMatrix,
     ProjMatrix,
 
+    ScreenWidth,
+
     Max,
     Undefined = -1
 };
@@ -47,6 +49,7 @@ enum class NodeGroup {
     Numerics,
     Data,
     Graphics,
+    System,
 
     Max,
     Undefined = -1
@@ -88,14 +91,16 @@ static const NodeData& getNodeData(NodeType type) {
         {NodeType::TextureFile, NodeGroup::Graphics,  "File Texture",      "TextureFile", "Texture from a file."},
         {NodeType::Framebuffer, NodeGroup::Graphics,  "Framebuffer",       "Framebuffer", ""},
 
-        {NodeType::UV,          NodeGroup::Data,      "UV",                "UV",          "Texture coords (clamped 0-1)"},
+        {NodeType::UV,          NodeGroup::Data,      "UV",                "UV",          "Texture coords (clamped 0-1)."},
 
-        {NodeType::Colour,      NodeGroup::Data,      "Colour",            "Colour",      "RGB Colour (Vec3 clamped 0-1)"},
-        {NodeType::Direction,   NodeGroup::Data,      "Direction",         "Direction",   "Normalized direction Vec3"},
+        {NodeType::Colour,      NodeGroup::Data,      "Colour",            "Colour",      "RGB Colour (Vec3 clamped 0-1)."},
+        {NodeType::Direction,   NodeGroup::Data,      "Direction",         "Direction",   "Normalized direction Vec3."},
 
         {NodeType::ModelMatrix, NodeGroup::Data,      "Model Matrix",      "ModelMatrix", ""},
         {NodeType::ViewMatrix,  NodeGroup::Data,      "View Matrix",       "ViewMatrix",  ""},
         {NodeType::ProjMatrix,  NodeGroup::Data,      "Projection Matrix", "ProjMatrix",  ""},
+
+        {NodeType::ScreenWidth, NodeGroup::System,    "Screen Width",      "ScreenWidth",  "Vec2 which auto-matches screen width."},
     };
 
     return cNODE_DATA[(size_t)type];

@@ -8,6 +8,7 @@
 #include "Nodes/MeshNode.h"
 #include "Nodes/RenderPassNode.h"
 #include "Nodes/ShaderNode.h"
+#include "Nodes/SystemNodes.h"
 #include "Nodes/TextureFileNode.h"
 #include "Nodes/TextureNode.h"
 
@@ -99,6 +100,8 @@ std::unique_ptr<Node> PipelineGraph::generateNode(NodeType type) const {
         case NodeType::ViewMatrix  : return std::make_unique<ViewMatrixNode>();
         case NodeType::ProjMatrix  : return std::make_unique<ProjMatrixNode>();
 
+        case NodeType::ScreenWidth : return std::make_unique<ScreenWidthNode>();
+
         default: return nullptr;
     }
 }
@@ -110,6 +113,7 @@ std::string PipelineGraph::getGroupName(NodeGroup group) {
         case NodeGroup::Numerics : return "Numerics";
         case NodeGroup::Data     : return "Data";
         case NodeGroup::Graphics : return "Graphics";
+        case NodeGroup::System   : return "System";
 
         default: return "Undefined";
     }

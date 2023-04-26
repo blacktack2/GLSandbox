@@ -1,4 +1,6 @@
 #pragma once
+#include <glm/glm.hpp>
+
 #include <cstddef>
 
 class RenderConfig {
@@ -69,6 +71,9 @@ public:
     static void setViewport(int x = mVPortDefaultX, int y = mVPortDefaultY, unsigned int width = mVPortDefaultW, unsigned int height = mVPortDefaultH);
     static inline float getScreenAspect() {
         return ((float)mVPortDefaultW - (float)mVPortDefaultX) / ((float)mVPortDefaultH - (float)mVPortDefaultY);
+    }
+    static inline glm::vec2 getDefaultViewportBounds() {
+        return glm::vec2(mVPortDefaultW, mVPortDefaultH);
     }
 
     static void setClearColour(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f);
