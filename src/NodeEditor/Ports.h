@@ -78,14 +78,18 @@ public:
      */
     virtual void halfLink(IPort& linkTo, int linkID) = 0;
     /**
-     * @brief Break any existing link, or do nothing if this port is not linked with another.
+     * @brief Break any existing link between this port an unlinkFrom, or break all links if unlinkFrom is nullptr.
      * @brief If a link is present, this will cause a two-way break, such that both ports will no longer have any links.
      */
-    virtual void unlink() = 0;
+    virtual void unlink(IPort* unlinkFrom = nullptr) = 0;
+    /**
+     * @brief Break any link with the given linkID.
+     */
+    virtual void unlink(int linkID) = 0;
     /**
      * @brief Break any existing link.
      */
-    virtual void halfUnlink() = 0;
+    virtual void halfUnlink(IPort* unlinkFrom = nullptr) = 0;
 
     /**
      * @brief Call any update events in this port or a linked port, if present.
@@ -105,13 +109,17 @@ public:
      */
     [[nodiscard]] virtual int getID() const = 0;
     /**
+     * @return Number of ports this port is connected to.
+     */
+    [[nodiscard]] virtual size_t getNumLinks() const = 0;
+    /**
      * @return Unique ID for this port's connection, or -1 if no connection is present.
      */
-    [[nodiscard]] virtual int getLinkID() const = 0;
+    [[nodiscard]] virtual int getLinkID(size_t linkID) const = 0;
     /**
      * @return Unique ID of the port this port is connected to, or -1 if no connection is present.
      */
-    [[nodiscard]] virtual int getLinkedPortID() const = 0;
+    [[nodiscard]] virtual int getLinkedPortID(size_t linkIndex) const = 0;
 
     /**
      * @return Parent node to this port.
@@ -121,7 +129,7 @@ public:
      * @return Parent node to the port this port is connected to. If no connection is present this will result in
      * undefined behaviour.
      */
-    [[nodiscard]] virtual const Node& getLinkedParent() const = 0;
+    [[nodiscard]] virtual const Node& getLinkedParent(size_t linkIndex) const = 0;
     /**
      * @return Parent node to this port.
      */
@@ -130,7 +138,7 @@ public:
      * @return Parent node to the port this port is connected to. If no connection is present this will result in
      * undefined behaviour.
      */
-    [[nodiscard]] virtual Node& getLinkedParent() = 0;
+    [[nodiscard]] virtual Node& getLinkedParent(size_t linkIndex) = 0;
 
     [[nodiscard]] virtual Direction getDirection() const = 0;
 
@@ -138,7 +146,7 @@ public:
     [[nodiscard]] virtual const std::string& getDisplayName() const = 0;
 
     virtual void drawPort() = 0;
-    virtual void drawLink() = 0;
+    virtual void drawLinks() = 0;
 
     virtual void setTooltip(const std::string& tooltip) = 0;
 
@@ -171,10 +179,10 @@ public:
      * @param useDefault If true a default value will be generated and used.
      */
     Port(Node& parent, Direction direction, std::string uniqueName, std::string displayName,
-         const value_get_callback& getValue = nullptr, bool useDefault = false, bool isDynamic = false) :
-    mID(gGraphIDCounter++), mParent(parent),
-    mDirection(direction), mUniqueName(std::move(uniqueName)), mDisplayName(std::move(displayName)),
-    mGetValue(getValue), mUseDefault(useDefault), mIsDynamic(isDynamic) {
+        const value_get_callback& getValue = nullptr, bool useDefault = false, bool isDynamic = false) :
+        mID(gGraphIDCounter++), mParent(parent),
+        mDirection(direction), mUniqueName(std::move(uniqueName)), mDisplayName(std::move(displayName)),
+        mGetValue(getValue), mUseDefault(useDefault), mIsDynamic(isDynamic) {
         generatePinData();
         switch (mDirection) {
             case Direction::In  : mDrawPort = [this]() { drawIn();  }; break;
@@ -182,8 +190,8 @@ public:
         }
     }
     ~Port() final {
-        if (mLink)
-            mLink->halfUnlink();
+        for (Link& link : mLinks)
+            link.linkTo->halfUnlink(this);
     }
 
     void addValidateLinkEvent(const validate_link_callback& callback) final {
@@ -211,7 +219,7 @@ public:
             !(validateLink(linkTo) && linkTo.validateLink(*this)))
             return false;
 
-        if (mLink)
+        if (mDirection == Direction::In && !mLinks.empty())
             unlink();
         int linkID = gGraphIDCounter++;
         halfLink(linkTo, linkID);
@@ -219,20 +227,32 @@ public:
         return true;
     }
     void halfLink(IPort& linkTo, int linkID) final {
-        mLink = &linkTo;
-        mLinkID = linkID;
+        mLinks.push_back(Link{ &linkTo, linkID });
         for (const auto& callback : mOnLinks)
             callback();
         valueUpdated();
     }
-    void unlink() final {
-        if (!mLink)
+    void unlink(IPort* unlinkFrom = nullptr) final {
+        if (mLinks.empty())
             return;
-        mLink->halfUnlink();
-        halfUnlink();
+        for (Link& l : mLinks) {
+            if (l.linkTo == unlinkFrom) {
+                unlinkFrom->halfUnlink(this);
+                halfUnlink(unlinkFrom);
+                break;
+            }
+        }
     }
-    void halfUnlink() final {
-        mLink = nullptr;
+    void unlink(int linkID) final {
+        for (Link& l : mLinks)
+            if (l.linkID == linkID)
+                unlink(l.linkTo);
+    }
+    void halfUnlink(IPort* unlinkFrom = nullptr) final {
+        if (unlinkFrom == nullptr)
+            mLinks.clear();
+        else
+            mLinks.erase(std::remove_if(mLinks.begin(), mLinks.end(), [unlinkFrom](Link& l) { return l.linkTo == unlinkFrom; }), mLinks.end());
         for (const auto& callback : mOnUnlinks)
             callback();
         valueUpdated();
@@ -240,8 +260,8 @@ public:
 
     void valueUpdated() final {
         halfValueUpdated();
-        if (mLink)
-            mLink->halfValueUpdated();
+        for (Link& l : mLinks)
+            l.linkTo->halfValueUpdated();
     }
     void halfValueUpdated() final {
         for (const auto& callback : mOnUpdates)
@@ -249,7 +269,7 @@ public:
     }
 
     [[nodiscard]] bool isLinked() const final {
-        return mLink != nullptr;
+        return !mLinks.empty();
     }
     [[nodiscard]] bool isDynamic() const final {
         return mIsDynamic;
@@ -258,24 +278,27 @@ public:
     [[nodiscard]] int getID() const final {
         return mID;
     }
-    [[nodiscard]] int getLinkID() const final {
-        return mLinkID;
+    [[nodiscard]] size_t getNumLinks() const final {
+        return mLinks.size();
     }
-    [[nodiscard]] int getLinkedPortID() const final {
-        return mLink ? mLink->getID() : -1;
+    [[nodiscard]] int getLinkID(size_t linkIndex) const final {
+        return mLinks[linkIndex].linkID;
+    }
+    [[nodiscard]] int getLinkedPortID(size_t linkIndex) const final {
+        return mLinks.size() > linkIndex ? mLinks[linkIndex].linkTo->getID() : -1;
     }
 
     [[nodiscard]] const Node& getParent() const final {
         return mParent;
     }
-    [[nodiscard]] const Node& getLinkedParent() const final {
-        return mLink->getParent();
+    [[nodiscard]] const Node& getLinkedParent(size_t linkIndex) const final {
+        return mLinks[linkIndex].linkTo->getParent();
     }
     [[nodiscard]] Node& getParent() final {
         return mParent;
     }
-    [[nodiscard]] Node& getLinkedParent() final {
-        return mLink->getParent();
+    [[nodiscard]] Node& getLinkedParent(size_t linkIndex) final {
+        return mLinks[linkIndex].linkTo->getParent();
     }
 
     [[nodiscard]] Direction getDirection() const final {
@@ -292,9 +315,10 @@ public:
     void drawPort() final {
         mDrawPort();
     }
-    void drawLink() final {
-        if (mDirection == Direction::In && mLink)
-            ed::Link(mLinkID, mLink->getID(), getID());
+    void drawLinks() final {
+        if (mDirection == Direction::In)
+            for (const Link& l : mLinks)
+                ed::Link(l.linkID, l.linkTo->getID(), getID());
     }
 
     void setTooltip(const std::string& tooltip) final {
@@ -311,22 +335,29 @@ public:
     std::variant<Types...> getValue() const {
         return mGetValue();
     }
-    std::variant<Types...> getConnectedValue() const {
-        return mLink ? dynamic_cast<Port<Types...>*>(mLink)->getValue() : *mDefaultValue;
+    std::variant<Types...> getConnectedValue(size_t linkIndex = 0) const {
+        return mLinks[linkIndex].linkTo ? dynamic_cast<Port<Types...>*>(mLinks[linkIndex].linkTo)->getValue() : *mDefaultValue;
     }
 
     template<typename T>
     T getSingleValue() const {
-        return std::visit([](const auto& arg)->T { return arg; }, mGetValue());
+        return std::visit([](const auto& arg)->T {
+            return arg;
+        }, getValue());
     }
     template<typename T>
-    T getSingleConnectedValue() const {
-        std::variant<Types...> value = mLink ? dynamic_cast<Port<Types...>*>(mLink)->getValue() : *mDefaultValue;
+    T getSingleConnectedValue(size_t linkIndex = 0) const {
+        std::variant<Types...> value = mLinks[linkIndex].linkTo ? dynamic_cast<Port<Types...>*>(mLinks[linkIndex].linkTo)->getValue() : *mDefaultValue;
         return std::visit([](const auto& arg)->T { return arg; }, value);
     }
 private:
     typedef std::function<void()> draw_port_callback;
     typedef std::function<void()> draw_pin_callback;
+
+    struct Link {
+        IPort* linkTo;
+        int linkID;
+    };
 
     enum class PinShape {
         Circle,
@@ -502,8 +533,7 @@ private:
     bool mUseDefault;
     std::unique_ptr<std::variant<Types...>> mDefaultValue = nullptr;
 
-    IPort* mLink = nullptr;
-    int mLinkID = -1;
+    std::vector<Link> mLinks{};
 
     std::vector<validate_link_callback> mValidateLinks;
     std::vector<on_link_callback> mOnLinks;

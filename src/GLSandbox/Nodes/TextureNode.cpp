@@ -219,6 +219,7 @@ bool TextureNode::isValid() const {
 
 std::vector<std::pair<std::string, std::string>> TextureNode::generateSerializedData() const {
     std::vector<std::pair<std::string, std::string>> data{};
+    data.emplace_back("Type", SerializationUtils::serializeData((int)mTextureType));
     data.emplace_back("Bounds", SerializationUtils::serializeData(mTexBounds));
     data.emplace_back("Min", SerializationUtils::serializeData((int)mMinFilter));
     data.emplace_back("Mag", SerializationUtils::serializeData((int)mMagFilter));
@@ -233,7 +234,9 @@ std::vector<std::pair<std::string, std::string>> TextureNode::generateSerialized
 }
 
 void TextureNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
-    if (dataID == "Bounds")
+    if (dataID == "Type")
+        SerializationUtils::deserializeData(stream, (int&)mTextureType);
+    else if (dataID == "Bounds")
         SerializationUtils::deserializeData(stream, mTexBounds);
     else if (dataID == "Min")
         SerializationUtils::deserializeData(stream, (int&)mMinFilter);
@@ -271,6 +274,9 @@ void TextureNode::drawContents() {
     getTextureStatus(mTexture->getState(), message, colour);
     drawMessage(getInternalFormatLabel(mInternalFormat), ImVec4(1, 0, 1, 1));
     drawMessage(message, colour);
+
+    if (mTexture->getState() == Texture::ErrorState::VALID)
+        ImUtils::image(*mTexture, generateNodeLabelID("Preview"), mShowPreview);
 }
 
 bool TextureNode::drawTextureSettings() {
@@ -356,4 +362,6 @@ void TextureNode::updateTexture() {
     mTexture->setEdgeWrap(mEdgeWrap);
     mTexture->setCompareMode(mCompareMode);
     mTexture->resize(mTexBounds.x, mTexBounds.y);
+
+    mTextureOut.valueUpdated();
 }

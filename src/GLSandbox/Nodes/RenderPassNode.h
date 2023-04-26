@@ -42,7 +42,7 @@ public:
 
     [[nodiscard]] inline const RenderPassNode* getNextPass() const {
         return mExecutionOut.isLinked() ?
-            dynamic_cast<const RenderPassNode*>(&mExecutionOut.getLinkedParent()) : nullptr;
+            dynamic_cast<const RenderPassNode*>(&mExecutionOut.getLinkedParent(0)) : nullptr;
     }
 protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;

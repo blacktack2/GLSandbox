@@ -142,7 +142,7 @@ bool RenderPassNode::validate() const {
     } else {
         mValidationState |= ValidationState::NoShader;
     }
-    if (mFramebufferIn.isLinked() && !mFramebufferIn.getLinkedParent().validate())
+    if (mFramebufferIn.isLinked() && !mFramebufferIn.getLinkedParent(0).validate())
         mValidationState |= ValidationState::InvalidFramebuffer;
 
     for (const auto& port : mSamplerPorts) {
@@ -171,16 +171,6 @@ RenderPassNode::pipeline_callback RenderPassNode::generateCallback() const {
 
     passCallbacks.emplace_back([shader]() { shader->bind(); });
 
-    if (useFramebuffer) {
-        std::vector<const Texture*> textures{};
-        for (const auto& port : mSamplerPorts)
-            textures.push_back(dynamic_cast<Port<Texture*>*>(&port.get())->getSingleValue<Texture*>());
-        passCallbacks.emplace_back([textures]() {
-            for (int i = 0; i < textures.size(); i++)
-                textures[i]->bind(i);
-        });
-    }
-
     passCallbacks.emplace_back([this]() {
         if (mViewport == glm::vec4(0.0f))
             RenderConfig::setViewport();
@@ -198,6 +188,16 @@ RenderPassNode::pipeline_callback RenderPassNode::generateCallback() const {
             RenderConfig::clearBuffers(RenderConfig::ClearBit::Colour | RenderConfig::ClearBit::Depth | RenderConfig::ClearBit::Stencil);
         }
     });
+
+    std::vector<const Texture*> textures{};
+    for (const auto& port : mSamplerPorts)
+        textures.push_back(dynamic_cast<Port<Texture*>*>(&port.get())->getSingleConnectedValue<Texture*>());
+    if (!textures.empty()) {
+        passCallbacks.emplace_back([textures]() {
+            for (int i = 0; i < textures.size(); i++)
+            textures[i]->bind(i);
+        });
+    }
 
     passCallbacks.emplace_back([mesh]() {
         mesh->bind();
@@ -239,23 +239,26 @@ void RenderPassNode::onShaderUpdate() {
                 std::string uniformName = uniform.name;
                 std::variant<port_type> variant;
                 std::visit(VisitOverload{
-                    [this, rawPort](Texture* arg2) {
+                    [this, rawPort, shader, uniformName](Texture* arg2) {
                         mSamplerPorts.push_back(*rawPort);
+                        shader->bind();
+                        shader->setUniform(uniformName, (int)mSamplerPorts.size() - 1);
                     },
                     [rawPort, shader, uniformName](auto arg2) {
                         rawPort->addOnUpdateEvent([rawPort, shader, uniformName]() {
                             if (!rawPort->isLinked())
                                 return;
                             std::visit(VisitOverload{
-                                [](Texture* arg2) {},
-                                [shader, uniformName](auto arg2) {
+                                [](Texture* arg3) {},
+                                [shader, uniformName](auto arg3) {
                                     shader->bind();
-                                    shader->setUniform(uniformName, arg2);
+                                    shader->setUniform(uniformName, arg3);
                                 },
                             }, rawPort->getConnectedValue());
                         });
                     },
                 }, variant);
+
                 addPort(*port);
                 mUniformInPorts.push_back(std::move(port));
             }, uniform.value);

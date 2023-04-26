@@ -46,7 +46,7 @@ bool EntryNode::validatePipeline() const {
         mMessageType = MessageType::Error;
         return false;
     }
-    const RenderPassNode* current = &dynamic_cast<const RenderPassNode&>(mExecutionOut.getLinkedParent());
+    const RenderPassNode* current = &dynamic_cast<const RenderPassNode&>(mExecutionOut.getLinkedParent(0));
     bool isValid = true;
     while (current) {
         isValid &= current->validate();
@@ -72,7 +72,7 @@ bool EntryNode::validatePipeline() const {
 void EntryNode::updatePipeline() {
     mPipelineHandler.clearPipeline();
 
-    const RenderPassNode* current = &dynamic_cast<RenderPassNode&>(mExecutionOut.getLinkedParent());
+    const RenderPassNode* current = &dynamic_cast<RenderPassNode&>(mExecutionOut.getLinkedParent(0));
     while (current) {
         mPipelineHandler.appendPipeline(current->generateCallback());
 

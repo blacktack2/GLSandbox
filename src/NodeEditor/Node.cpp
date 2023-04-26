@@ -59,7 +59,7 @@ void Node::serialize(std::ofstream& streamOut) const {
 
     for (const IPort& port : mInPorts)
         data.emplace_back(port.isDynamic() ? gSERIAL_DATA_DYNAMIC_INPORT : gSERIAL_DATA_INPORT,
-                          std::string(port.getUniqueName()).append(" ").append(std::to_string(port.getLinkedPortID())));
+                          std::string(port.getUniqueName()).append(" ").append(std::to_string(port.getLinkedPortID(0))));
     for (const IPort& port : mOutPorts)
         data.emplace_back(port.isDynamic() ? gSERIAL_DATA_DYNAMIC_OUTPORT : gSERIAL_DATA_OUTPORT,
                           std::string(port.getUniqueName()).append(" ").append(std::to_string(port.getID())));
@@ -170,7 +170,7 @@ void Node::draw() {
 
 void Node::drawLinks() {
     for (auto port : mPorts)
-        port.get().drawLink();
+        port.get().drawLinks();
 }
 
 ImVec2 Node::getAbsolutePosition() const {
@@ -254,7 +254,8 @@ void Node::lock() {
     mIsLocked = true;
     for (auto port : mPorts)
         if (port.get().isLinked())
-            port.get().getLinkedParent().lock();
+            for (size_t i = 0; i < port.get().getNumLinks(); i++)
+                port.get().getLinkedParent(i).lock();
     onLock();
 }
 
@@ -264,6 +265,7 @@ void Node::unlock() {
     mIsLocked = false;
     for (auto port : mPorts)
         if (port.get().isLinked())
-            port.get().getLinkedParent().unlock();
+            for (size_t i = 0; i < port.get().getNumLinks(); i++)
+                port.get().getLinkedParent(i).unlock();
     onUnlock();
 }

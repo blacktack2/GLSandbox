@@ -76,5 +76,6 @@ private:
 
     bool mShowParameters = false;
     bool mShowInternalFormat = false;
+    bool mShowPreview = false;
 };
 
