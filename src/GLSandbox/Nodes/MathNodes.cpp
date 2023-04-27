@@ -1,6 +1,8 @@
 #include "MathNodes.h"
 
 ArithmeticNode::ArithmeticNode() : Node("Arithmetic") {
+    mValueBIn = nullptr;
+    mValueOut = nullptr;
     addPort(mValueAIn);
 
     mValueAIn.addOnLinkEvent([this]() {
@@ -8,6 +10,9 @@ ArithmeticNode::ArithmeticNode() : Node("Arithmetic") {
             using port_type = std::decay_t<decltype(arg)>;
             mValueBIn = std::make_unique<Port<port_type>>(*this, IPort::Direction::In, "ValueBIn", "B");
             addPort(*mValueBIn);
+            mValueBIn->addOnUpdateEvent([this]() {
+                mValueOut->valueUpdated();
+            });
             mValueOut = std::make_unique<Port<port_type>>(*this, IPort::Direction::Out, "ValueOut", "Result",
                 [&]() { return std::visit(VisitOverload{
                     [](const port_type& arg2)->port_type { return arg2; },
@@ -21,6 +26,10 @@ ArithmeticNode::ArithmeticNode() : Node("Arithmetic") {
         mValueBIn = nullptr;
         removePort(*mValueOut);
         mValueOut = nullptr;
+    });
+    mValueAIn.addOnUpdateEvent([this]() {
+        if (mValueOut)
+            mValueOut->valueUpdated();
     });
 }
 
