@@ -4,6 +4,8 @@
 #include "../../NodeEditor/Ports.h"
 
 #include "../../Rendering/Shader.h"
+
+#include "../Assets.h"
 #include "../NodeClassifications.h"
 
 #include <filesystem>
@@ -34,8 +36,27 @@ protected:
 
     void drawContents() override;
 private:
+    enum class ShaderFileState {
+        Unloaded,
+        ReadSuccess,
+        ReadFailure,
+    };
+
+    struct ShaderPassData {
+        ShaderPassData(std::string displayName, const std::vector<std::string>& validExtensions) :
+        displayName(displayName), validExtensions(validExtensions) {}
+
+        ShaderFileState state = ShaderFileState::Unloaded;
+        std::filesystem::path filepath;
+        std::string code;
+        std::string displayName;
+        const std::vector<std::string>& validExtensions;
+    };
+
     typedef std::function<void()> update_files_callback;
     typedef std::function<std::vector<std::string>&()> get_files_callback;
+
+    void drawShaderInput(ShaderPassData& data);
 
     void drawShaderStatus();
 
@@ -44,10 +65,10 @@ private:
     std::unique_ptr<Shader> mShader = std::make_unique<Shader>();
     Port<Shader*> mShaderOut = Port<Shader*>(*this, IPort::Direction::Out, "ShaderOut", "Shader", [&]() { return mShader.get(); });
 
-    std::filesystem::path mVertFilepath;
-    std::filesystem::path mFragFilepath;
-    std::filesystem::path mTescFilepath;
-    std::filesystem::path mTeseFilepath;
-    std::filesystem::path mGeomFilepath;
+    ShaderPassData mVertData = ShaderPassData("Vertex",   getValidVertexShaderFileExtensions());
+    ShaderPassData mFragData = ShaderPassData("Fragment",  getValidFragmentShaderFileExtensions());
+    ShaderPassData mTescData = ShaderPassData("Tess-Cont", getValidTessContShaderFileExtensions());
+    ShaderPassData mTeseData = ShaderPassData("Tess-Eval", getValidTessEvalShaderFileExtensions());
+    ShaderPassData mGeomData = ShaderPassData("Geometry",  getValidGeometryShaderFileExtensions());
 };
 

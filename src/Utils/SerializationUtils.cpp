@@ -1,5 +1,7 @@
 #include "SerializationUtils.h"
 
+#include <fstream>
+
 static constexpr char gMARK_PREFIX = '$';
 static constexpr char gMARK_BEGIN_SUFFIX[] = "Begin";
 static constexpr char gMARK_END_SUFFIX[] = "End";
@@ -108,6 +110,19 @@ std::string SerializationUtils::readLine(std::istream& stream, char delimiter) {
     if (!result.empty() && result.back() == '\r')
         result.pop_back();
     return result;
+}
+
+bool SerializationUtils::readFile(const std::filesystem::path& filepath, std::string& contents) {
+    std::ifstream file(filepath);
+    if (!file)
+        return false;
+
+    std::stringstream sstream;
+    sstream << file.rdbuf();
+    if (!file || !sstream)
+        return false;
+    contents = sstream.str();
+    return true;
 }
 
 std::filesystem::path SerializationUtils::generateFilename(const std::filesystem::path& directory,

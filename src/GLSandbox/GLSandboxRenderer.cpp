@@ -1,5 +1,7 @@
 #include "GLSandboxRenderer.h"
 
+#include "../Utils/SerializationUtils.h"
+
 #include <glad/glad.h>
 
 #include <imgui.h>
@@ -13,7 +15,11 @@ bool                     GLSandboxRenderer::sErrorFlag = false;
 GLSandboxRenderer::GLSandboxRenderer() : Renderer() {
     mDefaultMesh = std::make_unique<Mesh>();
     Mesh::makeScreenQuad(*mDefaultMesh);
-    mDefaultShader = std::make_unique<Shader>("Shaders/simple-quad.vert", "Shaders/simple-quad.frag");
+    std::string vertexCode;
+    SerializationUtils::readFile("Shaders/simple-quad.vert", vertexCode);
+    std::string fragmentCode;
+    SerializationUtils::readFile("Shaders/simple-quad.frag", fragmentCode);
+    mDefaultShader = std::make_unique<Shader>(vertexCode, fragmentCode);
     resetPipeline();
 }
 

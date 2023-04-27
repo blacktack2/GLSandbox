@@ -2,8 +2,6 @@
 
 #include "../../Utils/SerializationUtils.h"
 
-#include "../Assets.h"
-
 #include <algorithm>
 
 ShaderNode::ShaderNode() : Node("Shader") {
@@ -17,49 +15,50 @@ bool ShaderNode::isValid() const {
 std::vector<std::pair<std::string, std::string>> ShaderNode::generateSerializedData() const {
     std::vector<std::pair<std::string, std::string>> data;
 
-    if (!mVertFilepath.empty())
-        data.emplace_back("Vertex", mVertFilepath.string());
-    if (!mFragFilepath.empty())
-        data.emplace_back("Fragment", mFragFilepath.string());
-    if (!mTescFilepath.empty())
-        data.emplace_back("TessCont", mTescFilepath.string());
-    if (!mTeseFilepath.empty())
-        data.emplace_back("TessEval", mTeseFilepath.string());
-    if (!mGeomFilepath.empty())
-        data.emplace_back("Geometry", mGeomFilepath.string());
+    if (!mVertData.filepath.empty())
+        data.emplace_back("Vertex", mVertData.filepath.string());
+    if (!mFragData.filepath.empty())
+        data.emplace_back("Fragment", mFragData.filepath.string());
+    if (!mTescData.filepath.empty())
+        data.emplace_back("TessCont", mTescData.filepath.string());
+    if (!mTeseData.filepath.empty())
+        data.emplace_back("TessEval", mTeseData.filepath.string());
+    if (!mGeomData.filepath.empty())
+        data.emplace_back("Geometry", mGeomData.filepath.string());
 
     return data;
 }
 
 void ShaderNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
-    if (dataID == "Vertex")
-        mVertFilepath = SerializationUtils::readLine(stream);
-    else if (dataID == "Fragment")
-        mFragFilepath = SerializationUtils::readLine(stream);
-    else if (dataID == "TessCont")
-        mTescFilepath = SerializationUtils::readLine(stream);
-    else if (dataID == "TessEval")
-        mTeseFilepath = SerializationUtils::readLine(stream);
-    else if (dataID == "Geometry")
-        mGeomFilepath = SerializationUtils::readLine(stream);
+    if (dataID == "Vertex") {
+        mVertData.filepath = SerializationUtils::readLine(stream);
+        SerializationUtils::readFile(mVertData.filepath, mVertData.code);
+    } else if (dataID == "Fragment") {
+        mFragData.filepath = SerializationUtils::readLine(stream);
+        SerializationUtils::readFile(mFragData.filepath, mFragData.code);
+    } else if (dataID == "TessCont") {
+        mTescData.filepath = SerializationUtils::readLine(stream);
+        SerializationUtils::readFile(mTescData.filepath, mTescData.code);
+    } else if (dataID == "TessEval") {
+        mTeseData.filepath = SerializationUtils::readLine(stream);
+        SerializationUtils::readFile(mTeseData.filepath, mTeseData.code);
+    } else if (dataID == "Geometry") {
+        mGeomData.filepath = SerializationUtils::readLine(stream);
+        SerializationUtils::readFile(mGeomData.filepath, mGeomData.code);
+    }
 }
 void ShaderNode::onDeserialize() {
     uploadShader();
 }
 
 void ShaderNode::drawContents() {
-    ImGui::BeginDisabled(isLocked());
+    drawShaderInput(mVertData);
+    drawShaderInput(mFragData);
+    drawShaderInput(mTescData);
+    drawShaderInput(mTeseData);
+    drawShaderInput(mGeomData);
 
-    ImUtils::fileChooseDialog(mVertFilepath, getShaderAssetDirectory(), generateNodeLabelID("VertexFile"),
-                              getValidVertexShaderFileExtensions());
-    ImUtils::fileChooseDialog(mFragFilepath, getShaderAssetDirectory(), generateNodeLabelID("FragmentFile"),
-                              getValidFragmentShaderFileExtensions());
-    ImUtils::fileChooseDialog(mTescFilepath, getShaderAssetDirectory(), generateNodeLabelID("Tess-ContFile"),
-                              getValidTessContShaderFileExtensions());
-    ImUtils::fileChooseDialog(mTeseFilepath, getShaderAssetDirectory(), generateNodeLabelID("Tess-EvalFile"),
-                              getValidTessEvalShaderFileExtensions());
-    ImUtils::fileChooseDialog(mGeomFilepath, getShaderAssetDirectory(), generateNodeLabelID("GeometryFile"),
-                              getValidGeometryShaderFileExtensions());
+    ImGui::BeginDisabled(isLocked());
 
     if (ImUtils::button("Upload", generateNodeLabelID("Upload"))) {
         uploadShader();
@@ -71,19 +70,64 @@ void ShaderNode::drawContents() {
     drawShaderStatus();
 }
 
+void ShaderNode::drawShaderInput(ShaderPassData& data) {
+    ImGui::BeginDisabled(isLocked());
+
+    bool fileChosen = ImUtils::fileChooseDialog(
+        data.filepath, getShaderAssetDirectory(), generateNodeLabelID(data.displayName, "File"),
+        getValidVertexShaderFileExtensions()
+    );
+    if (fileChosen) {
+        if (SerializationUtils::readFile(data.filepath, data.code))
+            data.state = ShaderFileState::ReadSuccess;
+        else
+            data.state = ShaderFileState::ReadFailure;
+    }
+
+    ImGui::EndDisabled();
+
+    if (data.code.empty()) {
+        if (data.filepath.empty())
+            drawMessage("File not selected", ImVec4(1, 1, 0, 1));
+        else
+            drawMessage("Error reading file", ImVec4(1, 0, 0, 1));
+    } else {
+        ImUtils::dataPanelButton(
+            data.displayName, generateNodeLabelID(data.displayName, "Panel"), *this,
+            [this, &data]() {
+                if (ImUtils::button("Remove Pass", generateNodeLabelID(data.displayName, "Remove"))) {
+                    data.filepath = "";
+                    data.code = "";
+                    data.state = ShaderFileState::Unloaded;
+                    ImUtils::softUnsetDataPanel(*this);
+                    return;
+                }
+
+                ImGui::TextUnformatted(data.filepath.filename().string().c_str());
+
+                ImGui::BeginDisabled(isLocked());
+
+                ImUtils::inputTextAreaFile(data.code, generateNodeLabelID(data.displayName, "Code"));
+
+                ImGui::EndDisabled();
+            }
+        );
+    }
+}
+
 void ShaderNode::drawShaderStatus() {
     std::string text;
     ImVec4 colour;
 
     switch (mShader->getState()) {
         case Shader::ErrorState::INVALID:
-            if (mVertFilepath.empty())
+            if (mVertData.filepath.empty())
                 text = "No vertex shader selected";
-            else if (mFragFilepath.empty())
+            else if (mFragData.filepath.empty())
                 text = "No fragment shader selected";
-            else if (!mTescFilepath.empty() && mTeseFilepath.empty())
+            else if (!mTescData.filepath.empty() && mTeseData.filepath.empty())
                 text = "Tesselation Control selected, but no Tesselation Evaluation";
-            else if (mTescFilepath.empty() && !mTeseFilepath.empty())
+            else if (mTescData.filepath.empty() && !mTeseData.filepath.empty())
                 text = "Tesselation Evaluation selected, but no Tesselation Control";
             else
                 text = mShader->getErrorMessage();
@@ -103,11 +147,11 @@ void ShaderNode::drawShaderStatus() {
 }
 
 void ShaderNode::uploadShader() {
-    if (mVertFilepath.empty() || mFragFilepath.empty() || (mTescFilepath.empty() != mTeseFilepath.empty())) {
+    if (mVertData.filepath.empty() || mFragData.filepath.empty() || (mTescData.filepath.empty() != mTeseData.filepath.empty())) {
         mShader = std::make_unique<Shader>();
         return;
     }
     mShader = std::make_unique<Shader>(
-        mVertFilepath.string(), mFragFilepath.string(), mTescFilepath.string(), mTeseFilepath.string(), mGeomFilepath.string()
+        mVertData.code, mFragData.code, mTescData.code, mTeseData.code, mGeomData.code
     );
 }

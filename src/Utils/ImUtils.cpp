@@ -103,7 +103,7 @@ void ImUtils::endHeader() {
 
 }
 
-void ImUtils::setDataPanel(const std::string& labelID, const Node& node, std::function<void()> panelCallback) {
+void ImUtils::setDataPanel(const std::string& labelID, const Node& node, data_panel_callback panelCallback) {
     gDataPanel.labelID = labelID;
     gDataPanel.contentsCallback = std::move(panelCallback);
     gDataPanel.node = &node;
@@ -116,9 +116,9 @@ void ImUtils::softUnsetDataPanel(const Node& node) {
 
 void ImUtils::drawDataPanel() {
     ImGui::SetNextWindowSizeConstraints(ImVec2(50.0f, 50.0f), ImVec2(FLT_MAX, FLT_MAX));
-    ImGui::Begin(gDataPanel.node ?
-        std::string("Data - [").append(gDataPanel.node->getName()).append("]##DataPanel").c_str() :
-        std::string("Data - <none>##DataPanel").c_str());
+    ImGui::Begin(std::string("Data##DataPanel").c_str());
+
+    ImGui::TextUnformatted(gDataPanel.contentsCallback ? gDataPanel.node->getName().c_str() : "Nothing Selected");
 
     if (gDataPanel.contentsCallback)
         gDataPanel.contentsCallback();
@@ -176,6 +176,11 @@ void ImUtils::dataPanelButton(const std::string& displayText, const std::string&
 bool ImUtils::inputText(std::string& text, const std::string& labelID) {
     ImGui::SetNextItemWidth(gTEXT_INPUT_WIDTH);
     return ImGui::InputText(formatLabel(labelID).c_str(), &text);
+}
+
+bool ImUtils::inputTextAreaFile(std::string& text, const std::string& labelID) {
+    ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+    return ImGui::InputTextMultiline(formatLabel(labelID).c_str(), &text);
 }
 
 bool ImUtils::inputFloat(float* value, const std::string& labelID, float min, float max) {

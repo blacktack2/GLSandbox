@@ -11,6 +11,8 @@ class Node;
 class Texture;
 
 namespace ImUtils {
+    typedef std::function<void()> data_panel_callback;
+
     template<typename T>
     void concatString(std::stringstream& stream, const std::string& delimiter, T val) {
         stream << val;
@@ -35,7 +37,7 @@ namespace ImUtils {
     bool beginHeader(const std::string& displayText, const std::string& labelID, bool& show, unsigned int depth = 0);
     void endHeader();
 
-    void setDataPanel(const std::string& labelID, const Node& node, std::function<void()> panelCallback);
+    void setDataPanel(const std::string& labelID, const Node& node, data_panel_callback panelCallback);
     void softUnsetDataPanel(const Node& node);
     void drawDataPanel();
 
@@ -52,6 +54,7 @@ namespace ImUtils {
                          const Node& node, std::function<void()> panelCallback);
 
     bool inputText(std::string& text, const std::string& labelID);
+    bool inputTextAreaFile(std::string& text, const std::string& labelID);
 
     bool inputFloat(float* value, const std::string& labelID, float min = 0.0f, float max = 0.0f);
     bool inputFloatN(float* value, unsigned int numComponents, const std::string& labelID,

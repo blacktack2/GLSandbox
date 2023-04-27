@@ -91,6 +91,12 @@ public:
      */
     static std::string readLine(std::istream& stream, char delimiter = '\n');
 
+    /**
+     * @brief Read the contents of filepath into the given contents string.
+     * @returns true if read is successful, otherwise false.
+     */
+    static bool readFile(const std::filesystem::path& filepath, std::string& contents);
+
     [[nodiscard]] static std::filesystem::path generateFilename(const std::filesystem::path& directory,
                                                                 const std::string& name, const std::string& extension);
 

@@ -8,17 +8,17 @@
 #include <regex>
 #include <sstream>
 
-Shader::Shader(const std::string& vertShader, const std::string& fragShader,
-               const std::string& tescShader, const std::string& teseShader, const std::string& geomShader) :
+Shader::Shader(const std::string& vertCode, const std::string& fragCode,
+               const std::string& tescCode, const std::string& teseCode, const std::string& geomCode) :
 mProgramID(glCreateProgram()) {
-    mShaderPasses.emplace_back(vertShader, GL_VERTEX_SHADER);
-    mShaderPasses.emplace_back(fragShader, GL_FRAGMENT_SHADER);
-    if (!tescShader.empty())
-        mShaderPasses.emplace_back(tescShader, GL_TESS_CONTROL_SHADER);
-    if (!teseShader.empty())
-        mShaderPasses.emplace_back(teseShader, GL_TESS_EVALUATION_SHADER);
-    if (!geomShader.empty())
-        mShaderPasses.emplace_back(geomShader, GL_GEOMETRY_SHADER);
+    mShaderPasses.emplace_back(vertCode, GL_VERTEX_SHADER);
+    mShaderPasses.emplace_back(fragCode, GL_FRAGMENT_SHADER);
+    if (!tescCode.empty())
+        mShaderPasses.emplace_back(tescCode, GL_TESS_CONTROL_SHADER);
+    if (!teseCode.empty())
+        mShaderPasses.emplace_back(teseCode, GL_TESS_EVALUATION_SHADER);
+    if (!geomCode.empty())
+        mShaderPasses.emplace_back(geomCode, GL_GEOMETRY_SHADER);
 
     if (loadShaders())
         mState = ErrorState::VALID;
@@ -141,32 +141,10 @@ std::vector<Shader::UniformSet> Shader::getUniforms() {
 }
 
 bool Shader::loadShaders() {
-    for (ShaderPass& pass : mShaderPasses) {
-        if (!readShader(pass.filename, pass.code))
-            return false;
+    for (ShaderPass& pass : mShaderPasses)
         if (!compileShader(pass.code, pass.type))
             return false;
-    }
     return linkProgram();
-}
-
-bool Shader::readShader(const std::string& filename, std::string& code) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        mState = ErrorState::FILE_READ;
-        mMessage = std::string("Failed to open shader file: ").append(filename);
-        return false;
-    }
-
-    std::stringstream sstream;
-    sstream << file.rdbuf();
-    if (!file || !sstream) {
-        mState = ErrorState::FILE_READ;
-        mMessage = std::string("Error reading shader file: ").append(filename);
-        return false;
-    }
-    code = sstream.str();
-    return true;
 }
 
 bool Shader::compileShader(const std::string& code, unsigned int type) {

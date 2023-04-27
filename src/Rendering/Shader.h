@@ -41,8 +41,8 @@ public:
     };
 
     Shader() = default;
-    Shader(const std::string& vertShader, const std::string& fragShader,
-           const std::string& tescShader = "", const std::string& teseShader = "", const std::string& geomShader = "");
+    Shader(const std::string& vertCode, const std::string& fragCode,
+           const std::string& tescCode = "", const std::string& teseCode = "", const std::string& geomCode = "");
     ~Shader();
 
     void setUniformAny(const std::string& name, const std::any& value);
@@ -84,13 +84,11 @@ public:
     std::vector<UniformSet> getUniforms();
 private:
     struct ShaderPass {
-        ShaderPass(std::string filename, unsigned int type) : filename(std::move(filename)), type(type) {}
-        std::string filename;
+        ShaderPass(std::string code, unsigned int type) : code(std::move(code)), type(type) {}
         unsigned int type;
         std::string code;
     };
     bool loadShaders();
-    bool readShader(const std::string& filename, std::string& code);
     bool compileShader(const std::string& code, unsigned int type);
     bool linkProgram();
 
