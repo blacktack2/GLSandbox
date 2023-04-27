@@ -151,6 +151,8 @@ public:
     virtual void setTooltip(const std::string& tooltip) = 0;
 
     [[nodiscard]] virtual std::set<std::type_index> getParameterTypes() const = 0;
+
+    [[nodiscard]] virtual std::any getAnyValue() const = 0;
 };
 
 template<typename... Ts>
@@ -329,14 +331,14 @@ public:
         return { typeid(Types)... };
     };
 
-    /**
-     * @brief should only be called on input ports.
-     */
-    std::variant<Types...> getValue() const {
-        return mGetValue();
+    std::variant<Types...> getValue(size_t linkIndex = 0) const {
+        if (mDirection == Direction::Out)
+            return mGetValue();
+        else
+            return mLinks[linkIndex].linkTo ? anyToVariant<Types...>(mLinks[linkIndex].linkTo->getAnyValue()) : *mDefaultValue;
     }
-    std::variant<Types...> getConnectedValue(size_t linkIndex = 0) const {
-        return mLinks[linkIndex].linkTo ? dynamic_cast<Port<Types...>*>(mLinks[linkIndex].linkTo)->getValue() : *mDefaultValue;
+    [[nodiscard]] std::any getAnyValue() const final {
+        return std::visit([](const auto& arg)->std::any { return arg; }, getValue());
     }
 
     template<typename T>
@@ -371,12 +373,12 @@ private:
         const auto thisTypes = getParameterTypes();
         const auto otherTypes = other.getParameterTypes();
         switch (mDirection) {
-            case Direction::In:
-                return std::includes(otherTypes.begin(), otherTypes.end(), thisTypes.begin(), thisTypes.end());
+            default: return false;
             case Direction::Out:
+                return std::includes(otherTypes.begin(), otherTypes.end(), thisTypes.begin(), thisTypes.end());
+            case Direction::In:
                 return std::includes(thisTypes.begin(), thisTypes.end(), otherTypes.begin(), otherTypes.end());
         }
-        return false;
     }
 
     void drawIn() {

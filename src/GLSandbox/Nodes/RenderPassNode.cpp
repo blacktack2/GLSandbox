@@ -254,7 +254,7 @@ void RenderPassNode::onShaderUpdate() {
                                     shader->bind();
                                     shader->setUniform(uniformName, arg3);
                                 },
-                            }, rawPort->getConnectedValue());
+                            }, rawPort->getValue());
                         });
                     },
                 }, variant);

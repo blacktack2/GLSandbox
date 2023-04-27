@@ -6,6 +6,8 @@
 #include "../NodeClassifications.h"
 #include "BasicNodes.h"
 
+#include <glm/glm.hpp>
+
 #include <functional>
 #include <string>
 #include <unordered_map>
@@ -13,11 +15,16 @@
 
 class ArithmeticNode final : public Node {
 public:
-    ArithmeticNode() : Node("Arithmetic") {
-        addPort(mValueAIn);
-        addPort(mValueBIn);
-        addPort(mValueOut);
-    }
+    typedef std::variant<
+        int,   glm::ivec2, glm::ivec3, glm::ivec4,
+        float, glm::vec2,  glm::vec3,  glm::vec4
+    > numeric_variant_t;
+    typedef Port<
+        int, glm::ivec2, glm::ivec3, glm::ivec4,
+        float, glm::vec2, glm::vec3, glm::vec4
+    > numeric_port_t;
+
+    ArithmeticNode();
     ~ArithmeticNode() final = default;
 
     [[nodiscard]] unsigned int getTypeID() const final {
@@ -29,7 +36,7 @@ protected:
 
     void drawContents() final;
 private:
-    enum class Operation {
+    enum class Operation : size_t {
         Add = 0,
         Subtract,
         Multiply,
@@ -38,7 +45,7 @@ private:
         Max,
     };
 
-    std::variant<float, int> calculateValue();
+    numeric_variant_t calculateValue();
 
     static inline std::string getOperationLabel(Operation operation) {
         switch (operation) {
@@ -61,10 +68,10 @@ private:
         }
     };
 
-    Port<float, int> mValueAIn = Port<float, int>(*this, IPort::Direction::In, "ValueAIn", "A");
-    Port<float, int> mValueBIn = Port<float, int>(*this, IPort::Direction::In, "ValueBIn", "B");
+    numeric_port_t mValueAIn = numeric_port_t(*this, IPort::Direction::In, "ValueAIn", "A");
+    std::unique_ptr<IPort> mValueBIn;
 
-    Port<float, int> mValueOut = Port<float, int>(*this, IPort::Direction::Out, "ValueOut", "Out", [&]() { return calculateValue(); });
+    std::unique_ptr<IPort> mValueOut;
 
     Operation mCurrentOperation = Operation::Add;
 };
