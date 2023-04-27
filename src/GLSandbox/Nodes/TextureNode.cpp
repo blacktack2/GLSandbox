@@ -1,7 +1,6 @@
 #include "TextureNode.h"
 
 #include "../../Utils/SerializationUtils.h"
-#include "../../Rendering/RenderConfig.h"
 
 #include <sstream>
 
@@ -212,10 +211,21 @@ TextureNode::TextureNode() : Node("Texture") {
     mTexture->resize(mTexBounds.x, mTexBounds.y);
 
     addPort(mTextureOut);
+
+    RenderConfig::addResizeCallable(*this);
+}
+
+TextureNode::~TextureNode() {
+    if (mIsScreenLocked)
+        RenderConfig::removeResizeCallable(*this);
 }
 
 bool TextureNode::isValid() const {
     return mTexture->getState() == Texture::ErrorState::VALID;
+}
+
+void TextureNode::onResizeEvent() {
+    updateTexture();
 }
 
 std::vector<std::pair<std::string, std::string>> TextureNode::generateSerializedData() const {
@@ -292,6 +302,10 @@ bool TextureNode::drawTextureSettings() {
     ImGui::Text("Bounds:");
     if (ImUtils::button(mIsScreenLocked ? "Unlock from Screen" : "Lock to Screen", generateNodeLabelID("ScreenLock"))) {
         mIsScreenLocked = !mIsScreenLocked;
+        if (mIsScreenLocked)
+            RenderConfig::addResizeCallable(*this);
+        else
+            RenderConfig::removeResizeCallable(*this);
         updateSettings = true;
     }
     ImGui::BeginDisabled(mIsScreenLocked);

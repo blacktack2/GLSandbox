@@ -2,10 +2,12 @@
 
 #include <glad/glad.h>
 
-int RenderConfig::mVPortDefaultX = 0;
-int RenderConfig::mVPortDefaultY = 0;
-unsigned int RenderConfig::mVPortDefaultW = 1024;
-unsigned int RenderConfig::mVPortDefaultH = 1024;
+int          RenderConfig::sVPortDefaultX = 0;
+int          RenderConfig::sVPortDefaultY = 0;
+unsigned int RenderConfig::sVPortDefaultW = 1024;
+unsigned int RenderConfig::sVPortDefaultH = 1024;
+
+std::vector<IResizeCallable*> RenderConfig::sResizeEvents{};
 
 GLenum parseBlendFuncSrc(RenderConfig::BlendFuncSrc srcFactor) {
     switch (srcFactor) {
@@ -68,11 +70,22 @@ GLenum parseDepthTestFunc(RenderConfig::DepthTestFunc func) {
     }
 }
 
+void RenderConfig::addResizeCallable(IResizeCallable& callable) {
+    sResizeEvents.push_back(&callable);
+}
+
+void RenderConfig::removeResizeCallable(IResizeCallable& callable) {
+    sResizeEvents.erase(std::remove_if(sResizeEvents.begin(), sResizeEvents.end(),
+        [&callable](const IResizeCallable* otherCallable) { return &callable == otherCallable; }), sResizeEvents.end());
+}
+
 void RenderConfig::setDefaultViewport(int x, int y, unsigned int width, unsigned int height) {
-    mVPortDefaultX = x;
-    mVPortDefaultY = y;
-    mVPortDefaultW = width;
-    mVPortDefaultH = height;
+    sVPortDefaultX = x;
+    sVPortDefaultY = y;
+    sVPortDefaultW = width;
+    sVPortDefaultH = height;
+    for (auto& callable : sResizeEvents)
+        callable->onResizeEvent();
 }
 
 void RenderConfig::setViewport(int x, int y, unsigned int width, unsigned int height) {

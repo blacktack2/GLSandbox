@@ -9,14 +9,16 @@
 
 #include <glm/glm.hpp>
 
-class ScreenWidthNode final : public Node {
+class ScreenWidthNode final : public Node, public IResizeCallable {
 public:
     ScreenWidthNode();
-    ~ScreenWidthNode() final = default;
+    ~ScreenWidthNode() final;
 
     [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::ScreenWidth;
     }
+
+    void onResizeEvent() final;
 protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;

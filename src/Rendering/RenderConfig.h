@@ -2,6 +2,15 @@
 #include <glm/glm.hpp>
 
 #include <cstddef>
+#include <vector>
+
+class IResizeCallable {
+public:
+    IResizeCallable() = default;
+    ~IResizeCallable() = default;
+
+    virtual void onResizeEvent() = 0;
+};
 
 class RenderConfig {
 public:
@@ -67,13 +76,16 @@ public:
         Max,
     };
 
+    static void addResizeCallable(IResizeCallable& callable);
+    static void removeResizeCallable(IResizeCallable& callable);
+
     static void setDefaultViewport(int x, int y, unsigned int width, unsigned int height);
-    static void setViewport(int x = mVPortDefaultX, int y = mVPortDefaultY, unsigned int width = mVPortDefaultW, unsigned int height = mVPortDefaultH);
+    static void setViewport(int x = sVPortDefaultX, int y = sVPortDefaultY, unsigned int width = sVPortDefaultW, unsigned int height = sVPortDefaultH);
     static inline float getScreenAspect() {
-        return ((float)mVPortDefaultW - (float)mVPortDefaultX) / ((float)mVPortDefaultH - (float)mVPortDefaultY);
+        return ((float)sVPortDefaultW - (float)sVPortDefaultX) / ((float)sVPortDefaultH - (float)sVPortDefaultY);
     }
     static inline glm::vec2 getDefaultViewportBounds() {
-        return glm::vec2(mVPortDefaultW, mVPortDefaultH);
+        return glm::vec2(sVPortDefaultW, sVPortDefaultH);
     }
 
     static void setClearColour(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f);
@@ -86,8 +98,10 @@ public:
     static void setDepthMask(bool enabled = false);
     static void setPatchVertices(int numVertices = 3);
 private:
-    static int mVPortDefaultX, mVPortDefaultY;
-    static unsigned int mVPortDefaultW, mVPortDefaultH;
+    static int sVPortDefaultX, sVPortDefaultY;
+    static unsigned int sVPortDefaultW, sVPortDefaultH;
+
+    static std::vector<IResizeCallable*> sResizeEvents;
 };
 
 bool operator&(RenderConfig::ClearBit a, RenderConfig::ClearBit b);

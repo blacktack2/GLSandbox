@@ -3,12 +3,14 @@
 
 #include "../../NodeEditor/Ports.h"
 
+#include "../../Rendering/RenderConfig.h"
 #include "../../Rendering/Texture.h"
+
 #include "../NodeClassifications.h"
 
 #include <memory>
 
-class TextureNode final : public Node {
+class TextureNode final : public Node, public IResizeCallable {
 public:
     enum class DataType : size_t {
         Clamp = 0,
@@ -33,13 +35,15 @@ public:
     };
 
     TextureNode();
-    ~TextureNode() final = default;
+    ~TextureNode() final;
 
     [[nodiscard]] unsigned int getTypeID() const final {
         return (unsigned int)NodeType::Texture;
     }
 
     [[nodiscard]] bool isValid() const;
+
+    void onResizeEvent() final;
 protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;

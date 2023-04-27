@@ -2,6 +2,16 @@
 
 ScreenWidthNode::ScreenWidthNode() : Node("Screen Width") {
 	addPort(mValueOut);
+
+	RenderConfig::addResizeCallable(*this);
+}
+
+ScreenWidthNode::~ScreenWidthNode() {
+	RenderConfig::removeResizeCallable(*this);
+}
+
+void ScreenWidthNode::onResizeEvent() {
+	mValueOut.valueUpdated();
 }
 
 std::vector<std::pair<std::string, std::string>> ScreenWidthNode::generateSerializedData() const {
