@@ -25,11 +25,14 @@ ArithmeticNode::ArithmeticNode() : Node("Arithmetic") {
 }
 
 std::vector<std::pair<std::string, std::string>> ArithmeticNode::generateSerializedData() const {
-    return {};
+    std::vector<std::pair<std::string, std::string>> data{};
+    data.emplace_back("Operation", SerializationUtils::serializeData((int&)mCurrentOperation));
+    return data;
 }
 
 void ArithmeticNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
-
+    if (dataID == "Operation")
+        SerializationUtils::deserializeData(stream, (int&)mCurrentOperation);
 }
 
 void ArithmeticNode::drawContents() {
