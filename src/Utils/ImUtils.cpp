@@ -386,7 +386,7 @@ void ImUtils::image(const Texture& tex, const std::string& labelID, bool& show) 
         return;
 
     float height = gIMAGE_WIDTH * (float)tex.getHeight() / (float)tex.getWidth();
-    ImGui::Image((ImTextureID)(intptr_t)tex.getID(), ImVec2(gIMAGE_WIDTH, height));
+    ImGui::Image((ImTextureID)(intptr_t)tex.getID(), ImVec2(gIMAGE_WIDTH, height), ImVec2(0, 1), ImVec2(1, 0));
 
     endHeader();
 }
