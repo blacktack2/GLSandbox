@@ -6,6 +6,27 @@
 #include <filesystem>
 #include <unordered_set>
 
+glm::vec4 calculateTangentFromTri(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c,
+    const glm::vec2& ta, const glm::vec2& tb, const glm::vec2& tc) {
+    glm::vec3 ba = b - a;
+    glm::vec3 ca = c - a;
+
+    glm::vec2 tba = tb - ta;
+    glm::vec2 tca = tc - ta;
+
+    glm::mat2 texMatrix = glm::inverse(glm::mat2(tba, tca));
+    
+    glm::vec3 tangent   = ba * texMatrix[0][0] + ca * texMatrix[0][1];
+    glm::vec3 bitangent = ba * texMatrix[1][0] + ca * texMatrix[1][1];
+
+    glm::vec3 normal = glm::cross(ba, ca);
+    glm::vec3 biCross = glm::cross(tangent, normal);
+
+    float handedness = (glm::dot(biCross, bitangent) > 0.0f) ? 1.0f : -1.0f;
+
+    return glm::vec4(tangent, handedness);
+}
+
 MeshNode::MeshNode() : Node("Mesh") {
     mMesh = std::make_unique<Mesh>();
 
@@ -71,10 +92,13 @@ void MeshNode::loadFromFile() {
     if (!stream)
         return;
 
-    if (fileExtension == ".msh")
+    if (fileExtension == ".msh") {
         loadFromStreamMSH(stream);
-    else if (fileExtension == ".obj")
+        mFromOBJ = false;
+    } else if (fileExtension == ".obj") {
         loadFromStreamOBJ(stream);
+        mFromOBJ = true;
+    }
 }
 
 void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
@@ -345,8 +369,11 @@ void MeshNode::drawGlobalParameters() {
     ImUtils::fileChooseDialog(mFilepath, getMeshAssetDirectory(), generateNodeLabelID("FileChoose"),
                               getValidMeshFileExtensions());
 
-    if (ImUtils::button("Load", generateNodeLabelID("LoadButton")))
+    if (mFromOBJ && ImUtils::button("Load", generateNodeLabelID("LoadButton")))
         loadFromFile();
+
+    if (ImUtils::button("Build Tangents", generateNodeLabelID("GenerateTangents")))
+        generateTangents();
 
     ImGui::Text("Vertex Count:");
     if (ImUtils::inputInt((int*)&mNumVertices, generateNodeLabelID("NumVertices"), 1, INT_MAX)) {
@@ -459,6 +486,61 @@ void MeshNode::drawMeshStatus() {
 void MeshNode::resizeAttributes() {
     for (auto& attribute : mAttributes)
         std::visit([this](auto& data) { data.resize(mNumVertices); }, attribute.data);
+}
+
+void MeshNode::generateTangents() {
+    Attribute* posAttr = nullptr;
+    Attribute* uvAttr = nullptr;
+
+    for (auto& attribute : mAttributes) {
+        if (attribute.name == "position")
+            posAttr = &attribute;
+        else if (attribute.name == "uv")
+            uvAttr = &attribute;
+    }
+
+    if (!posAttr || !uvAttr)
+        return;
+
+    const std::vector<glm::vec3>& positions = std::visit(VisitOverload{
+        [](const std::vector<glm::vec3>& arg) { return arg; },
+        [](const auto& arg) { return std::vector<glm::vec3>{}; },
+    }, posAttr->data);
+    const std::vector<glm::vec2>& uvs= std::visit(VisitOverload{
+        [](const std::vector<glm::vec2>& arg) { return arg; },
+        [](const auto& arg) { return std::vector<glm::vec2>{}; },
+    }, uvAttr->data);
+
+    std::vector<glm::vec4> tangents(mNumVertices, glm::vec4(0.0f));
+    for (size_t i = 0; i < mNumIndices; i += 3) {
+        unsigned int ia = mIndices[i    ];
+        unsigned int ib = mIndices[i + 1];
+        unsigned int ic = mIndices[i + 2];
+
+        glm::vec3 a = positions[ia];
+        glm::vec3 b = positions[ib];
+        glm::vec3 c = positions[ic];
+
+        glm::vec2 ta = uvs[ia];
+        glm::vec2 tb = uvs[ib];
+        glm::vec2 tc = uvs[ic];
+
+        glm::vec4 tangent = calculateTangentFromTri(a, b, c, ta, tb, tc);
+        tangents[ia] = tangent;
+        tangents[ib] = tangent;
+        tangents[ic] = tangent;
+    }
+
+    Attribute& tanAttr = mAttributes.emplace_back();
+    tanAttr.binding = 3;
+    tanAttr.data = tangents;
+    tanAttr.name = "tangent";
+
+    uploadMesh();
+
+    mFilepath.replace_extension(getMeshDefaultExtension());
+
+    mFromOBJ = false;
 }
 
 void MeshNode::clearMesh() {

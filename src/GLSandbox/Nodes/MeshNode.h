@@ -76,6 +76,8 @@ private:
 
     void resizeAttributes();
 
+    void generateTangents();
+
     void clearMesh();
     void clearAttributes();
 
@@ -188,5 +190,7 @@ private:
 
     bool mShowAttributes = false;
     bool mShowAddAttribute = false;
+
+    bool mFromOBJ = false;
 };
 
