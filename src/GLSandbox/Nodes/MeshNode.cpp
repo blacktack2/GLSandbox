@@ -238,8 +238,12 @@ void MeshNode::loadFromStreamOBJ(std::ifstream& stream) {
 
 void MeshNode::loadFromStreamMSH(std::ifstream& stream) {
     SerializationUtils::skipToNextLine(stream);
+
     stream >> mNumVertices;
     stream >> mNumIndices;
+
+    mIndices.resize(mNumIndices);
+
     unsigned int type;
     stream >> type;
     mType = (Mesh::Type)type;
@@ -250,6 +254,12 @@ void MeshNode::loadFromStreamMSH(std::ifstream& stream) {
 
         if (name.empty() || name[0] == '#') {
             SerializationUtils::skipToNextLine(stream);
+            continue;
+        }
+
+        if (name == "i") {
+            for (unsigned int i = 0; i < mNumIndices; i++)
+                stream >> mIndices[i];
             continue;
         }
 
@@ -331,8 +341,11 @@ void MeshNode::writeToStreamMSH(std::ofstream& stream) const {
             },
         }, attribute.data);
     }
-    for (unsigned int index : mIndices) {
-        stream << "i " << index << "\n";
+    if (mNumIndices > 0) {
+        stream << "i\n";
+        for (unsigned int index : mIndices) {
+            stream << index << "\n";
+        }
     }
 }
 
@@ -395,56 +408,70 @@ void MeshNode::drawAttributes() {
             [](const auto& attr) { return attr.isMarkedDelete; }
         ), mAttributes.end()
     );
+
+    if (mNumIndices == 0)
+        return;
+
+    ImUtils::dataPanelButton("Indices", generateNodeLabelID("Indices"), *this,
+        [this]() {
+            ImGui::TextUnformatted("Indices");
+
+            ImGui::TextUnformatted("Data:");
+            for (unsigned int i = 0; i < mNumIndices; i++)
+                ImUtils::inputInt((int*)&mIndices[i], generateNodeLabelID("Index", i), 0, INT_MAX);
+        }
+    );
 }
 
 void MeshNode::drawAttribute(Attribute& attribute) {
     ImUtils::dataPanelButton(attribute.name, generateAttributeLabelID(attribute, "DataPanel"), *this,
-                             [this, &attribute]() {
-        if (ImUtils::button("Remove", generateAttributeLabelID(attribute, "Remove"))) {
-            attribute.isMarkedDelete = true;
-            ImUtils::softUnsetDataPanel(*this);
-            return;
+        [this, &attribute]() {
+            if (ImUtils::button("Remove", generateAttributeLabelID(attribute, "Remove"))) {
+                attribute.isMarkedDelete = true;
+                ImUtils::softUnsetDataPanel(*this);
+                return;
+            }
+
+            ImUtils::inputText(attribute.name, generateAttributeLabelID(attribute, "Name"));
+            if (ImGui::IsItemHovered())
+                ImUtils::postTooltip([]() { ImGui::TextUnformatted("Attribute Name"); });
+
+            ImGui::TextUnformatted("Binding");
+            ImUtils::inputInt((int*)&attribute.binding, generateAttributeLabelID(attribute, "Binding"), 0, INT_MAX);
+
+            ImGui::TextUnformatted("Data:");
+            for (unsigned int i = 0; i < mNumVertices; i++) {
+                const std::string valueInputLabel = generateAttributeLabelID(attribute, "Value", std::to_string(i));
+                std::visit(VisitOverload{
+                    [valueInputLabel, i](std::vector<int>& data) {
+                        ImUtils::inputIntN(&data[i], 1, valueInputLabel);
+                    },
+                    [valueInputLabel, i](std::vector<glm::ivec2>& data) {
+                        ImUtils::inputIntN(&data[i][0], 2, valueInputLabel);
+                    },
+                    [valueInputLabel, i](std::vector<glm::ivec3>& data) {
+                        ImUtils::inputIntN(&data[i][0], 3, valueInputLabel);
+                    },
+                    [valueInputLabel, i](std::vector<glm::ivec4>& data) {
+                        ImUtils::inputIntN(&data[i][0], 4, valueInputLabel);
+                    },
+                    [valueInputLabel, i](std::vector<float>& data) {
+                        ImUtils::inputFloatN(&data[i], 1, valueInputLabel);
+                    },
+                    [valueInputLabel, i](std::vector<glm::vec2>& data) {
+                        ImUtils::inputFloatN(&data[i][0], 2, valueInputLabel);
+                    },
+                    [valueInputLabel, i](std::vector<glm::vec3>& data) {
+                        ImUtils::inputFloatN(&data[i][0], 3, valueInputLabel);
+                    },
+                    [valueInputLabel, i](std::vector<glm::vec4>& data) {
+                        ImUtils::inputFloatN(&data[i][0], 4, valueInputLabel);
+                    },
+                    [](auto arg) { ImGui::Text("Undefined"); },
+                }, attribute.data);
+            }
         }
-
-        ImUtils::inputText(attribute.name, generateAttributeLabelID(attribute, "Name"));
-        if (ImGui::IsItemHovered())
-            ImUtils::postTooltip([]() { ImGui::TextUnformatted("Attribute Name"); });
-
-        ImGui::TextUnformatted("Binding");
-        ImUtils::inputInt((int*)&attribute.binding, generateAttributeLabelID(attribute, "Binding"), 0, INT_MAX);
-
-        ImGui::TextUnformatted("Data:");
-        for (unsigned int i = 0; i < mNumVertices; i++) {
-            const std::string valueInputLabel = generateAttributeLabelID(attribute, "Value", std::to_string(i));
-            std::visit(VisitOverload{
-                [valueInputLabel, i](std::vector<int>& data) {
-                    ImUtils::inputIntN(&data[i], 1, valueInputLabel);
-                },
-                [valueInputLabel, i](std::vector<glm::ivec2>& data) {
-                    ImUtils::inputIntN(&data[i][0], 2, valueInputLabel);
-                },
-                [valueInputLabel, i](std::vector<glm::ivec3>& data) {
-                    ImUtils::inputIntN(&data[i][0], 3, valueInputLabel);
-                },
-                [valueInputLabel, i](std::vector<glm::ivec4>& data) {
-                    ImUtils::inputIntN(&data[i][0], 4, valueInputLabel);
-                },
-                [valueInputLabel, i](std::vector<float>& data) {
-                    ImUtils::inputFloatN(&data[i], 1, valueInputLabel);
-                },
-                [valueInputLabel, i](std::vector<glm::vec2>& data) {
-                    ImUtils::inputFloatN(&data[i][0], 2, valueInputLabel);
-                },
-                [valueInputLabel, i](std::vector<glm::vec3>& data) {
-                    ImUtils::inputFloatN(&data[i][0], 3, valueInputLabel);
-                },
-                [valueInputLabel, i](std::vector<glm::vec4>& data) {
-                    ImUtils::inputFloatN(&data[i][0], 4, valueInputLabel);
-                },
-                [](auto arg) { ImGui::Text("Undefined"); },
-            }, attribute.data);
-        }
-    });
+    );
 }
 
 void MeshNode::drawAddAttributePopup() {
@@ -539,6 +566,7 @@ void MeshNode::generateTangents() {
     uploadMesh();
 
     mFilepath.replace_extension(getMeshDefaultExtension());
+    writeToFile(mFilepath);
 
     mFromOBJ = false;
 }
