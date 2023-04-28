@@ -24,7 +24,7 @@ glm::vec4 calculateTangentFromTri(const glm::vec3& a, const glm::vec3& b, const 
 
     float handedness = (glm::dot(biCross, bitangent) > 0.0f) ? 1.0f : -1.0f;
 
-    return glm::vec4(tangent, handedness);
+    return glm::vec4(glm::normalize(tangent), handedness);
 }
 
 MeshNode::MeshNode() : Node("Mesh") {
