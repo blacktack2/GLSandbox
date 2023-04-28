@@ -25,7 +25,7 @@ GLSandboxRenderer::GLSandboxRenderer() : Renderer() {
 
 void GLSandboxRenderer::update() {
     if (sErrorFlag)
-        clearPipeline();
+        resetPipeline();
 }
 
 void GLSandboxRenderer::drawDebug() {

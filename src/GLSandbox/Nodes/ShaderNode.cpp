@@ -16,15 +16,15 @@ std::vector<std::pair<std::string, std::string>> ShaderNode::generateSerializedD
     std::vector<std::pair<std::string, std::string>> data;
 
     if (!mVertData.filepath.empty())
-        data.emplace_back("Vertex", mVertData.filepath.string());
+        data.emplace_back("Vertex", mVertData.filepath.generic_string());
     if (!mFragData.filepath.empty())
-        data.emplace_back("Fragment", mFragData.filepath.string());
+        data.emplace_back("Fragment", mFragData.filepath.generic_string());
     if (!mTescData.filepath.empty())
-        data.emplace_back("TessCont", mTescData.filepath.string());
+        data.emplace_back("TessCont", mTescData.filepath.generic_string());
     if (!mTeseData.filepath.empty())
-        data.emplace_back("TessEval", mTeseData.filepath.string());
+        data.emplace_back("TessEval", mTeseData.filepath.generic_string());
     if (!mGeomData.filepath.empty())
-        data.emplace_back("Geometry", mGeomData.filepath.string());
+        data.emplace_back("Geometry", mGeomData.filepath.generic_string());
 
     return data;
 }
@@ -75,7 +75,7 @@ void ShaderNode::drawShaderInput(ShaderPassData& data) {
 
     bool fileChosen = ImUtils::fileChooseDialog(
         data.filepath, getShaderAssetDirectory(), generateNodeLabelID(data.displayName, "File"),
-        getValidVertexShaderFileExtensions()
+        data.validExtensions
     );
     if (fileChosen) {
         if (SerializationUtils::readFile(data.filepath, data.code))
@@ -103,7 +103,7 @@ void ShaderNode::drawShaderInput(ShaderPassData& data) {
                     return;
                 }
 
-                ImGui::TextUnformatted(data.filepath.filename().string().c_str());
+                ImGui::TextUnformatted(data.filepath.filename().generic_string().c_str());
 
                 ImGui::BeginDisabled(isLocked());
 

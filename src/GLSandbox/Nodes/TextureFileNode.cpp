@@ -35,7 +35,7 @@ TextureFileNode::TextureFileNode() : Node("Texture") {
 
 std::vector<std::pair<std::string, std::string>> TextureFileNode::generateSerializedData() const {
     std::vector<std::pair<std::string, std::string>> data{};
-    data.emplace_back("File", mFilepath.string());
+    data.emplace_back("File", mFilepath.generic_string());
     return data;
 }
 
@@ -66,7 +66,7 @@ void TextureFileNode::drawContents() {
 
 void TextureFileNode::loadFromFile() {
     int width, height, channels;
-    unsigned char* data = stbi_load(mFilepath.string().c_str(), &width, &height, &channels, 0);
+    unsigned char* data = stbi_load(mFilepath.generic_string().c_str(), &width, &height, &channels, 0);
     if (!data) {
         mState = ValidationState::InvalidFile;
         stbi_image_free(data);

@@ -138,5 +138,5 @@ std::filesystem::path SerializationUtils::generateFilename(const std::filesystem
         filePath += extension;
     } while (std::filesystem::exists(filePath));
 
-    return filePath.string();
+    return filePath.generic_string();
 }

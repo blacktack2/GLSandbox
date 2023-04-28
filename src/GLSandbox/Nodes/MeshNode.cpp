@@ -47,7 +47,7 @@ std::vector<std::pair<std::string, std::string>> MeshNode::generateSerializedDat
     std::filesystem::path fileExtension = mFilepath.extension();
     if (fileExtension == getMeshDefaultExtension())
         writeToFile(filepath);
-    data.emplace_back("File", filepath.string());
+    data.emplace_back("File", filepath.generic_string());
 
     return data;
 }
@@ -369,10 +369,10 @@ void MeshNode::drawGlobalParameters() {
     ImUtils::fileChooseDialog(mFilepath, getMeshAssetDirectory(), generateNodeLabelID("FileChoose"),
                               getValidMeshFileExtensions());
 
-    if (mFromOBJ && ImUtils::button("Load", generateNodeLabelID("LoadButton")))
+    if (ImUtils::button("Load", generateNodeLabelID("LoadButton")))
         loadFromFile();
 
-    if (ImUtils::button("Build Tangents", generateNodeLabelID("GenerateTangents")))
+    if (mFromOBJ && ImUtils::button("Build Tangents", generateNodeLabelID("GenerateTangents")))
         generateTangents();
 
     ImGui::Text("Vertex Count:");

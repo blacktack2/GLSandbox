@@ -376,7 +376,7 @@ bool ImUtils::fileChooseDialog(std::filesystem::path& filepath, const std::files
 
     ImGui::SameLine();
 
-    const std::string displayName = filepath.filename().string();
+    const std::string displayName = filepath.filename().generic_string();
     ImGui::Text("%s", filepath.empty() ? "<none>" : displayName.c_str());
     return false;
 }

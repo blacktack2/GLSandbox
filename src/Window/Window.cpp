@@ -163,7 +163,7 @@ void Window::handleEvent(SDL_Event &e) {
 }
 
 void Window::updateTitle() {
-    std::string title = mTitle + " - " + mGraphFilepath.filename().string() + (mGraph->isDirty() ? " *" : "");
+    std::string title = mTitle + " - " + mGraphFilepath.filename().generic_string() + (mGraph->isDirty() ? " *" : "");
     SDL_SetWindowTitle(mWindow, title.c_str());
 }
 
@@ -238,7 +238,7 @@ void Window::writeConfig() {
     if (!stream)
         return;
 
-    stream << gSERIAL_GRAPH_FILE << " " << mGraphFilepath.string() << "\n";
+    stream << gSERIAL_GRAPH_FILE << " " << mGraphFilepath.generic_string() << "\n";
 }
 
 void Window::loadGraph() {
