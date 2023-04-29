@@ -25,6 +25,10 @@ namespace ed = ax::NodeEditor;
 
 enum class PinShape {
     Circle,
+    Octagon,
+    Septagon,
+    Hexagon,
+    Pentagon,
     FlatSquare,
     Square,
     Triangle,
@@ -419,6 +423,26 @@ private:
             case PinShape::Circle:
                 mDrawPin = [pinSize, colour]() {
                     ImUtils::Pins::circleIcon(pinSize, colour, ImColor(0.0f, 0.0f, 0.0f));
+                };
+                break;
+            case PinShape::Octagon:
+                mDrawPin = [pinSize, colour]() {
+                    ImUtils::Pins::nGonIcon(pinSize, 8, colour, ImColor(0.0f, 0.0f, 0.0f));
+                };
+                break;
+            case PinShape::Septagon:
+                mDrawPin = [pinSize, colour]() {
+                    ImUtils::Pins::nGonIcon(pinSize, 7, colour, ImColor(0.0f, 0.0f, 0.0f));
+                };
+                break;
+            case PinShape::Hexagon:
+                mDrawPin = [pinSize, colour]() {
+                    ImUtils::Pins::nGonIcon(pinSize, 6, colour, ImColor(0.0f, 0.0f, 0.0f));
+                };
+                break;
+            case PinShape::Pentagon:
+                mDrawPin = [pinSize, colour]() {
+                    ImUtils::Pins::nGonIcon(pinSize, 5, colour, ImColor(0.0f, 0.0f, 0.0f));
                 };
                 break;
             case PinShape::FlatSquare:
