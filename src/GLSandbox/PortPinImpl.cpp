@@ -1,5 +1,12 @@
 #include "../NodeEditor/Ports.cpp"
 
+#include "Nodes/MathNodes.h"
+
+template<typename... Types>
+std::size_t variantTypeHash(const std::variant<Types...>& variant) {
+    return typeHash<Types...>();
+}
+
 void parsePinTypeData(size_t pinHash, float& pinSize, PinShape& shape, ImU32& colour, std::string& tooltip) {
     if (pinHash == typeHash<void*>()) {
         pinSize = 14.0f;
@@ -81,10 +88,10 @@ void parsePinTypeData(size_t pinHash, float& pinSize, PinShape& shape, ImU32& co
         shape = PinShape::FlatSquare;
         colour = ImColor(0.0f, 1.0f, 0.0f);
         tooltip = "Texture";
-    } else if (pinHash == typeHash<float, int>()) {
+    } else if (pinHash == variantTypeHash(ArithmeticNode::numeric_variant_t{})) {
         pinSize = 10.0f;
-        shape = PinShape::Circle;
-        colour = ImColor(1.0f, 1.0f, 0.0f);
+        shape = PinShape::Pentagon;
+        colour = ImColor(0.8f, 0.8f, 0.8f);
         tooltip = "Number";
     } else {
         pinSize = 8.0f;
