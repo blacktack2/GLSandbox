@@ -33,3 +33,33 @@ private:
     mutable std::string mMessage;
     mutable MessageType mMessageType = MessageType::Info;
 };
+
+class InputNode final : public Node {
+public:
+    InputNode();
+    ~InputNode() final = default;
+
+    [[nodiscard]] unsigned int getTypeID() const final {
+        return (unsigned int)NodeType::Input;
+    }
+protected:
+    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
+    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
+
+    void drawContents() final;
+};
+
+class OutputNode final : public Node {
+public:
+    OutputNode();
+    ~OutputNode() final = default;
+
+    [[nodiscard]] unsigned int getTypeID() const final {
+        return (unsigned int)NodeType::Output;
+    }
+protected:
+    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
+    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
+
+    void drawContents() final;
+};

@@ -2,8 +2,10 @@
 #include <string>
 
 // Warning - Changing the ID of a NodeType may invalidate existing serialized graphs with that type.
-enum class NodeType {
+enum class NodeType : std::size_t {
     Entry = 0,
+    Input,
+    Output,
     RenderPass,
 
     Arithmetic,
@@ -40,10 +42,9 @@ enum class NodeType {
     ScreenWidth,
 
     Max,
-    Undefined = -1
 };
 
-enum class NodeGroup {
+enum class NodeGroup : std::size_t {
     Execution = 0,
     Maths,
     Numerics,
@@ -52,7 +53,6 @@ enum class NodeGroup {
     System,
 
     Max,
-    Undefined = -1
 };
 
 struct NodeData {
@@ -67,6 +67,8 @@ static const NodeData& getNodeData(NodeType type) {
     // Must be in the same order as NodeType enum
     static const NodeData cNODE_DATA[] = {
         {NodeType::Entry,       NodeGroup::Execution, "Entry",             "Entry",       "Entry point of the graph."},
+        {NodeType::Input,       NodeGroup::Execution, "Input",             "Input",       "Graph input."},
+        {NodeType::Output,      NodeGroup::Execution, "Output",            "Output",      "Graph output."},
         {NodeType::RenderPass,  NodeGroup::Execution, "Render Pass",       "RenderPass",  "Single draw call."},
 
         {NodeType::Arithmetic,  NodeGroup::Maths,     "Arithmetic",        "Arithmetic",  "Arithmetic operations on numeric types."},
@@ -100,7 +102,7 @@ static const NodeData& getNodeData(NodeType type) {
         {NodeType::ViewMatrix,  NodeGroup::Data,      "View Matrix",       "ViewMatrix",  ""},
         {NodeType::ProjMatrix,  NodeGroup::Data,      "Projection Matrix", "ProjMatrix",  ""},
 
-        {NodeType::ScreenWidth, NodeGroup::System,    "Screen Width",      "ScreenWidth",  "Vec2 which auto-matches screen width."},
+        {NodeType::ScreenWidth, NodeGroup::System,    "Screen Width",      "ScreenWidth", "Vec2 which auto-matches screen width."},
     };
 
     return cNODE_DATA[(size_t)type];
@@ -113,8 +115,7 @@ static const std::unordered_map<NodeGroup, const std::vector<NodeType>> gNODE_GR
 
     for (int i = 0; i < (int)NodeType::Max; i++) {
         NodeGroup group = getNodeData((NodeType)i).group;
-        if (group != NodeGroup::Undefined)
-            groups.find(group)->second.emplace_back((NodeType)i);
+        groups.find(group)->second.emplace_back((NodeType)i);
     }
 
     std::unordered_map<NodeGroup, const std::vector<NodeType>> constGroups;

@@ -66,6 +66,8 @@ void PipelineGraph::drawNodeCreation() {
 std::unique_ptr<Node> PipelineGraph::generateNode(NodeType type) const {
     switch (type) {
         case NodeType::Entry       : return std::make_unique<EntryNode>(mPipelineHandler);
+        case NodeType::Input       : return std::make_unique<InputNode>();
+        case NodeType::Output      : return std::make_unique<OutputNode>();
 
         case NodeType::RenderPass  : return std::make_unique<RenderPassNode>();
 

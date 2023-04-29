@@ -90,3 +90,35 @@ void EntryNode::updatePipeline() {
 
     lock();
 }
+
+InputNode::InputNode() : Node("Input") {
+
+}
+
+std::vector<std::pair<std::string, std::string>> InputNode::generateSerializedData() const {
+    return std::vector<std::pair<std::string, std::string>>();
+}
+
+void InputNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
+
+}
+
+void InputNode::drawContents() {
+
+}
+
+OutputNode::OutputNode() : Node("Output") {
+
+}
+
+std::vector<std::pair<std::string, std::string>> OutputNode::generateSerializedData() const {
+    return std::vector<std::pair<std::string, std::string>>();
+}
+
+void OutputNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
+
+}
+
+void OutputNode::drawContents() {
+
+}
