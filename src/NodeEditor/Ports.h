@@ -86,18 +86,19 @@ public:
      */
     virtual void halfLink(IPort& linkTo, int linkID) = 0;
     /**
-     * @brief Break any existing link between this port an unlinkFrom, or break all links if unlinkFrom is nullptr.
+     * @brief Break any existing link between this port an unlinkFrom (or all links if given nullptr).
      * @brief If a link is present, this will cause a two-way break, such that both ports will no longer have any links.
      */
-    virtual void unlink(IPort* unlinkFrom = nullptr) = 0;
+    virtual void unlink(IPort* unlinkFrom) = 0;
     /**
      * @brief Break any link with the given linkID.
+     * @brief If a link is present, this will cause a two-way break, such that both ports will no longer have any links.
      */
     virtual void unlink(int linkID) = 0;
     /**
-     * @brief Break any existing link.
+     * @brief Break any existing link with unlinkFrom (or all links if given nullptr).
      */
-    virtual void halfUnlink(IPort* unlinkFrom = nullptr) = 0;
+    virtual void halfUnlink(IPort* unlinkFrom) = 0;
 
     /**
      * @brief Call any update events in this port or a linked port, if present.
@@ -232,7 +233,7 @@ public:
             return false;
 
         if (mDirection == Direction::In && !mLinks.empty())
-            unlink();
+            unlink(nullptr);
         int linkID = gGraphIDCounter++;
         halfLink(linkTo, linkID);
         linkTo.halfLink(*this, linkID);
@@ -244,7 +245,7 @@ public:
             callback();
         valueUpdated();
     }
-    void unlink(IPort* unlinkFrom = nullptr) final {
+    void unlink(IPort* unlinkFrom) final {
         if (mLinks.empty())
             return;
         for (Link& l : mLinks) {
@@ -260,7 +261,7 @@ public:
             if (l.linkID == linkID)
                 unlink(l.linkTo);
     }
-    void halfUnlink(IPort* unlinkFrom = nullptr) final {
+    void halfUnlink(IPort* unlinkFrom) final {
         if (unlinkFrom == nullptr)
             mLinks.clear();
         else
