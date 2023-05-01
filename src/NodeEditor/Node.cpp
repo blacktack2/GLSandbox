@@ -42,6 +42,11 @@ Node::~Node() {
     ImUtils::softUnsetDataPanel(*this);
 }
 
+void Node::safeDestroy() {
+    for (const auto& port : mPorts)
+        port.get().safeDestroy();
+}
+
 void Node::setParent(Graph* parent) {
     mParent = parent;
 }
@@ -206,15 +211,20 @@ void Node::addPort(IPort& port) {
 }
 
 void Node::removePort(const IPort& port) {
-    mPorts.erase(std::remove_if(mPorts.begin(), mPorts.end(),
-                               [&port](const auto& other) { return port.getID() == other.get().getID(); }),
-                 mPorts.end());
-    mInPorts.erase(std::remove_if(mInPorts.begin(), mInPorts.end(),
-                               [&port](const auto& other) { return port.getID() == other.get().getID(); }),
-                   mInPorts.end());
-    mOutPorts.erase(std::remove_if(mOutPorts.begin(), mOutPorts.end(),
-                               [&port](const auto& other) { return port.getID() == other.get().getID(); }),
-                    mOutPorts.end());
+    const auto destroyPortCallback = [&port](auto& other) {
+        if (port.getID() == other.get().getID()) {
+            other.get().safeDestroy();
+            return true;
+        }
+        return false;
+    };
+    const auto removePortCallback = [&port](const auto& other) {
+        return port.getID() == other.get().getID();
+    };
+
+    mPorts.erase(std::remove_if(mPorts.begin(), mPorts.end(), destroyPortCallback), mPorts.end());
+    mInPorts.erase(std::remove_if(mInPorts.begin(), mInPorts.end(), removePortCallback), mInPorts.end());
+    mOutPorts.erase(std::remove_if(mOutPorts.begin(), mOutPorts.end(), removePortCallback), mOutPorts.end());
 }
 
 size_t Node::numPorts() const {

@@ -32,6 +32,11 @@ public:
 
     void setParent(Graph* parent);
 
+    /**
+     * @brief Call before destructor to safely remove this node and any dependent links or data.
+     */
+    void safeDestroy();
+
     [[nodiscard]] virtual unsigned int getTypeID() const = 0;
 
     [[nodiscard]] virtual bool validate() const {

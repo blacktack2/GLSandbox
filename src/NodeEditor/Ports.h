@@ -51,6 +51,11 @@ public:
     virtual ~IPort() = default;
 
     /**
+     * @brief Call before destructor to safely remove all dependent links and data.
+     */
+    virtual void safeDestroy() = 0;
+
+    /**
      * @brief Callback used whenever a link is being attempted.
      * @param linkTo Port attempting to link.
      * @returns true if the link should be allowed, otherwise false to reject the link.
@@ -207,8 +212,12 @@ public:
             case Direction::Out : mDrawPort = [this]() { drawOut(); }; break;
         }
     }
-    ~Port() final {
-        unlink(nullptr);
+    ~Port() final = default;
+
+    void safeDestroy() final {
+        for (const Link& l : mLinks)
+            l.linkTo->halfUnlink(this);
+        mLinks.clear();
     }
 
     void addValidateLinkEvent(const validate_link_callback& callback) final {

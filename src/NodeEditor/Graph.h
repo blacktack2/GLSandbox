@@ -16,6 +16,8 @@ public:
     Graph();
     virtual ~Graph();
 
+    void safeDestroy();
+
     virtual void initializeDefault() = 0;
 
     void serialize(std::ofstream& streamOut) const;

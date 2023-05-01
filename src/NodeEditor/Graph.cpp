@@ -44,6 +44,11 @@ Graph::~Graph() {
     ed::DestroyEditor(mContext);
 }
 
+void Graph::safeDestroy() {
+    for (const auto& node : mNodes)
+        node->safeDestroy();
+}
+
 void Graph::serialize(std::ofstream& streamOut) const {
     for (const auto& node : mNodes) {
         SerializationUtils::writeBeginMark(streamOut, gSERIAL_MARK_NODE);
@@ -245,6 +250,7 @@ void Graph::checkNodesDeleted() {
             [this, nodeId](const auto& node) {
                 if (!node->isLocked() && node->getID() == nodeId.Get()) {
                     onNodeDelete(*node);
+                    node->safeDestroy();
                     return true;
                 }
                 return false;

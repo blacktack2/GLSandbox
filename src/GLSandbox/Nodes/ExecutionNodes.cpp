@@ -2,11 +2,6 @@
 
 #include "RenderPassNode.h"
 
-#include "../../Rendering/Framebuffer.h"
-#include "../../Rendering/Mesh.h"
-#include "../../Rendering/Shader.h"
-#include "../../Rendering/Texture.h"
-
 EntryNode::EntryNode(IPipelineHandler& pipelineHandler) : Node("Entry"), mPipelineHandler(pipelineHandler) {
     addPort(mExecutionOut);
 }
