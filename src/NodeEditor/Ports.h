@@ -208,8 +208,7 @@ public:
         }
     }
     ~Port() final {
-        for (Link& link : mLinks)
-            link.linkTo->halfUnlink(this);
+        unlink(nullptr);
     }
 
     void addValidateLinkEvent(const validate_link_callback& callback) final {
@@ -239,6 +238,8 @@ public:
 
         if (mDirection == Direction::In && !mLinks.empty())
             unlink(nullptr);
+        else if (linkTo.getDirection() == Direction::In && linkTo.isLinked())
+            linkTo.unlink(nullptr);
         int linkID = gGraphIDCounter++;
         halfLink(linkTo, linkID);
         linkTo.halfLink(*this, linkID);
@@ -253,6 +254,13 @@ public:
     void unlink(IPort* unlinkFrom) final {
         if (mLinks.empty())
             return;
+        if (unlinkFrom == nullptr) {
+            mLinks.clear();
+            for (const auto& callback : mOnUnlinks)
+                callback();
+            valueUpdated();
+            return;
+        }
         for (Link& l : mLinks) {
             if (l.linkTo == unlinkFrom) {
                 unlinkFrom->halfUnlink(this);
