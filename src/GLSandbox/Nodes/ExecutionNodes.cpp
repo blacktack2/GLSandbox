@@ -118,14 +118,37 @@ InputNode::InputNode() : Node("Input") {
 }
 
 void InputNode::drawInput() {
-    if (!ImGui::CollapsingHeader(std::string(getName()).append(generateNodeLabelID("InputHeader")).c_str()))
-        return;
+    ImGui::Text("%s -> ", getName().c_str());
+
+    ImGui::SameLine();
 
     switch (isValid()) {
         case ValidationState::Valid:
             std::visit(VisitOverload{
-                [&](const auto& value) { drawMessage("Undefined", ImVec4(1.0f, 0.0f, 0.0f, 1.0f)); }
+                [&](int value) {
+                    if (ImUtils::inputIntN(&value, 1, generateNodeLabelID("InputValue")))
+                        setValue(value);
+                },
+                [&](glm::ivec2 value) {
+                    if (ImUtils::inputIntN(&value[0], 2, generateNodeLabelID("InputValue")))
+                        setValue(value);
+                },
+                [&](glm::ivec3 value) {
+                    if (ImUtils::inputIntN(&value[0], 3, generateNodeLabelID("InputValue")))
+                        setValue(value);
+                },
+                [&](glm::ivec4 value) {
+                    if (ImUtils::inputIntN(&value[0], 4, generateNodeLabelID("InputValue")))
+                        setValue(value);
+                },
+                [&](const auto& value) { drawMessage("Undefined", ImVec4(1.0f, 0.0f, 0.0f, 1.0f)); },
             }, mExternalInput ? *mExternalInput : mDefaultIn.getValue());
+
+            ImGui::SameLine();
+
+            if (ImUtils::button("Reset", generateNodeLabelID("InputReset")))
+                mExternalInput = nullptr;
+
             break;
         default:
         case ValidationState::Unlinked:
@@ -154,12 +177,18 @@ OutputNode::OutputNode() : Node("Output") {
 }
 
 void OutputNode::drawOutput() {
-    if (!ImGui::CollapsingHeader(std::string(getName()).append(generateNodeLabelID("InputHeader")).c_str()))
-        return;
+    ImGui::Text("%s -> ", getName().c_str());
+
+    ImGui::SameLine();
+
     switch (isValid()) {
         case ValidationState::Valid:
             std::visit(VisitOverload{
-                [&](const auto& value) { drawMessage("Undefined", ImVec4(1.0f, 0.0f, 0.0f, 1.0f)); }
+                [&](const int&        value) { ImGui::Text("%d", value); },
+                [&](const glm::ivec2& value) { ImGui::Text("%d, %d", value.x, value.y); },
+                [&](const glm::ivec3& value) { ImGui::Text("%d, %d, %d", value.x, value.y, value.z); },
+                [&](const glm::ivec4& value) { ImGui::Text("%d, %d, %d, %d", value.x, value.y, value.z, value.w); },
+                [&](const auto& value) { drawMessage("Undefined", ImVec4(1.0f, 0.0f, 0.0f, 1.0f)); },
             }, mValueIn.getValue());
             break;
         default:
