@@ -115,6 +115,7 @@ public:
     virtual void halfValueUpdated() = 0;
 
     [[nodiscard]] virtual bool isLinked() const = 0;
+    [[nodiscard]] virtual bool isLinkedWith(IPort& other) const = 0;
     [[nodiscard]] virtual bool isDynamic() const = 0;
 
     /**
@@ -287,6 +288,12 @@ public:
 
     [[nodiscard]] bool isLinked() const final {
         return !mLinks.empty();
+    }
+    [[nodiscard]] bool isLinkedWith(IPort& other) const final {
+        for (const Link& l : mLinks)
+            if (l.linkTo == &other)
+                return true;
+        return false;
     }
     [[nodiscard]] bool isDynamic() const final {
         return mIsDynamic;

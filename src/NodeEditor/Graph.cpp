@@ -10,20 +10,30 @@ static constexpr char gSERIAL_MARK_NODE[] = "Node";
 static constexpr char gSERIAL_DATA_PREFIX = '^';
 static constexpr char gSERIAL_DATA_NODE_TYPE[] = "NodeType";
 
-void deserializeLinks(Node::port_data_t& portData, Node::link_data_t& linkData) {
-    for (auto& dynamicLinkPair : linkData) {
-        Node* nodeFrom = dynamicLinkPair.first;
-        const std::vector<std::pair<std::string, int>>& nodeLinks = dynamicLinkPair.second;
-        for (const auto& link : nodeLinks) {
-            const auto match = portData.find(link.second);
+bool deserializeLinks(const Node::port_data_t& portData, const Node::link_data_t& linkData) {
+    bool changed = false;
+    for (const auto& linkPair : linkData) {
+        Node* nodeFrom = linkPair.first;
+        const std::vector<std::pair<std::string, int>>& nodeLinks = linkPair.second;
+
+        for (const std::pair<std::string, int>& link : nodeLinks) {
+            std::string portNameFrom = link.first;
+            int portID = link.second;
+            const auto match = portData.find(portID);
             if (match == portData.end())
                 continue;
-            IPort* portA = nodeFrom->getPortByName(link.first);
-            IPort* portB = match->second.first->getPortByName(match->second.second);
-            if (portA && portB)
-                portA->link(*portB);
+
+            Node* nodeTo = match->second.first;
+            std::string portNameTo = match->second.second;
+
+            IPort* portFrom = nodeFrom->getPortByName(portNameFrom);
+            IPort* portTo = nodeTo->getPortByName(portNameTo);
+
+            if (portFrom && portTo && !(portFrom->isLinkedWith(*portTo) || portTo->isLinkedWith(*portFrom)))
+                changed |= portFrom->link(*portTo);
         }
     }
+    return changed;
 }
 
 Graph::Graph() {
@@ -45,6 +55,7 @@ void Graph::serialize(std::ofstream& streamOut) const {
 }
 
 void Graph::deserialize(std::ifstream& streamIn) {
+    onClear();
     mNodes.clear();
 
     Node::port_data_t staticPortData, dynamicPortData;
@@ -82,9 +93,13 @@ void Graph::deserialize(std::ifstream& streamIn) {
     }
 
     deserializeLinks(staticPortData, staticLinkData);
-    deserializeLinks(staticPortData, dynamicLinkData);
-    deserializeLinks(dynamicPortData, staticLinkData);
-    deserializeLinks(dynamicPortData, dynamicLinkData);
+    bool dynamicUpdated;
+    do {
+        dynamicUpdated = false;
+        dynamicUpdated |= deserializeLinks(staticPortData, dynamicLinkData);
+        dynamicUpdated |= deserializeLinks(dynamicPortData, staticLinkData);
+        dynamicUpdated |= deserializeLinks(dynamicPortData, dynamicLinkData);
+    } while (dynamicUpdated);
 }
 
 void Graph::preDraw() {

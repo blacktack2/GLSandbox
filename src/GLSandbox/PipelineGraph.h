@@ -29,6 +29,7 @@ protected:
     void drawInputPanelContents() final;
     void drawOutputPanelContents() final;
 
+    void onClear() final;
     void onNodeAdd(Node& node) final;
     void onNodeDelete(Node& node) final;
 private:

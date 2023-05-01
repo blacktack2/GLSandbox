@@ -73,6 +73,11 @@ void PipelineGraph::drawOutputPanelContents() {
         node.drawOutput();
 }
 
+void PipelineGraph::onClear() {
+    mInputNodes.clear();
+    mOutputNodes.clear();
+}
+
 void PipelineGraph::onNodeAdd(Node& node) {
     if (InputNode* inNode = dynamic_cast<InputNode*>(&node))
         mInputNodes.emplace_back(*inNode);

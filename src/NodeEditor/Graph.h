@@ -53,6 +53,7 @@ protected:
     virtual void drawInputPanelContents() = 0;
     virtual void drawOutputPanelContents() = 0;
 
+    virtual void onClear() = 0;
     virtual void onNodeAdd(Node& node) = 0;
     virtual void onNodeDelete(Node& node) = 0;
 

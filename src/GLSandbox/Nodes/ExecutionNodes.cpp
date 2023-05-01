@@ -107,7 +107,7 @@ InputNode::InputNode() : Node("Input") {
                     [](const auto& arg2) { return port_type{}; },
                     [](const port_type& arg2) { return arg2; },
                 }, mExternalInput ? *mExternalInput : mDefaultIn.getValue());
-            });
+            }, false, true);
             addPort(*mValueOut);
         }, mDefaultIn.getValue());
     });
