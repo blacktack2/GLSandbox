@@ -52,6 +52,7 @@ public:
     typedef std::variant<
         int, glm::ivec2, glm::ivec3, glm::ivec4,
         float, glm::vec2, glm::vec3, glm::vec4,
+        glm::mat2, glm::mat3, glm::mat4,
         Framebuffer*, Mesh*, Shader*, Texture*
     > input_t;
     typedef VariantCast<Port, input_t> port_t;
@@ -117,6 +118,7 @@ public:
     typedef std::variant<
         int, glm::ivec2, glm::ivec3, glm::ivec4,
         float, glm::vec2, glm::vec3, glm::vec4,
+        glm::mat2, glm::mat3, glm::mat4,
         Framebuffer*, Mesh*, Shader*, Texture*
     > input_t;
     typedef VariantCast<Port, input_t> port_t;

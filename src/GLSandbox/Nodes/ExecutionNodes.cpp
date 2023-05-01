@@ -124,6 +124,8 @@ void InputNode::drawInput() {
 
     switch (isValid()) {
         case ValidationState::Valid:
+            ImGui::BeginGroup();
+
             std::visit(VisitOverload{
                 [&](int value) {
                     if (ImUtils::inputIntN(&value, 1, generateNodeLabelID("InputValue")))
@@ -141,8 +143,38 @@ void InputNode::drawInput() {
                     if (ImUtils::inputIntN(&value[0], 4, generateNodeLabelID("InputValue")))
                         setValue(value);
                 },
+                [&](float value) {
+                    if (ImUtils::inputFloatN(&value, 1, generateNodeLabelID("InputValue")))
+                        setValue(value);
+                },
+                [&](glm::vec2 value) {
+                    if (ImUtils::inputFloatN(&value[0], 2, generateNodeLabelID("InputValue")))
+                        setValue(value);
+                },
+                [&](glm::vec3 value) {
+                    if (ImUtils::inputFloatN(&value[0], 3, generateNodeLabelID("InputValue")))
+                        setValue(value);
+                },
+                [&](glm::vec4 value) {
+                    if (ImUtils::inputFloatN(&value[0], 4, generateNodeLabelID("InputValue")))
+                        setValue(value);
+                },
+                [&](glm::mat2 value) {
+                    if (ImUtils::inputFloatNxN(&value[0][0], 2, generateNodeLabelID("InputValue")))
+                        setValue(value);
+                },
+                [&](glm::mat3 value) {
+                    if (ImUtils::inputFloatNxN(&value[0][0], 3, generateNodeLabelID("InputValue")))
+                        setValue(value);
+                },
+                [&](glm::mat4 value) {
+                    if (ImUtils::inputFloatNxN(&value[0][0], 4, generateNodeLabelID("InputValue")))
+                        setValue(value);
+                },
                 [&](const auto& value) { drawMessage("Undefined", ImVec4(1.0f, 0.0f, 0.0f, 1.0f)); },
             }, mExternalInput ? *mExternalInput : mDefaultIn.getValue());
+
+            ImGui::EndGroup();
 
             ImGui::SameLine();
 
@@ -183,13 +215,36 @@ void OutputNode::drawOutput() {
 
     switch (isValid()) {
         case ValidationState::Valid:
+            ImGui::BeginGroup();
+
             std::visit(VisitOverload{
                 [&](const int&        value) { ImGui::Text("%d", value); },
                 [&](const glm::ivec2& value) { ImGui::Text("%d, %d", value.x, value.y); },
                 [&](const glm::ivec3& value) { ImGui::Text("%d, %d, %d", value.x, value.y, value.z); },
                 [&](const glm::ivec4& value) { ImGui::Text("%d, %d, %d, %d", value.x, value.y, value.z, value.w); },
+                [&](const float&     value) { ImGui::Text("%.2f", value); },
+                [&](const glm::vec2& value) { ImGui::Text("%.2f, %.2f", value.x, value.y); },
+                [&](const glm::vec3& value) { ImGui::Text("%.2f, %.2f, %.2f", value.x, value.y, value.z); },
+                [&](const glm::vec4& value) { ImGui::Text("%.2f, %.2f, %.2f, %.2f", value.x, value.y, value.z, value.w); },
+                [&](const glm::mat2& value) {
+                    ImGui::Text("%.2f, %.2f", value[0][0], value[0][1]);
+                    ImGui::Text("%.2f, %.2f", value[1][0], value[1][1]);
+                },
+                [&](const glm::mat3& value) {
+                    ImGui::Text("%.2f, %.2f, %.2f", value[0][0], value[0][1], value[0][2]);
+                    ImGui::Text("%.2f, %.2f, %.2f", value[1][0], value[1][1], value[1][2]);
+                    ImGui::Text("%.2f, %.2f, %.2f", value[2][0], value[2][1], value[2][2]);
+                },
+                [&](const glm::mat4& value) {
+                    ImGui::Text("%.2f, %.2f, %.2f, %.2f", value[0][0], value[0][1], value[0][2], value[0][3]);
+                    ImGui::Text("%.2f, %.2f, %.2f, %.2f", value[1][0], value[1][1], value[1][2], value[1][3]);
+                    ImGui::Text("%.2f, %.2f, %.2f, %.2f", value[2][0], value[2][1], value[2][2], value[2][3]);
+                    ImGui::Text("%.2f, %.2f, %.2f, %.2f", value[3][0], value[3][1], value[3][2], value[3][3]);
+                },
                 [&](const auto& value) { drawMessage("Undefined", ImVec4(1.0f, 0.0f, 0.0f, 1.0f)); },
             }, mValueIn.getValue());
+
+            ImGui::EndGroup();
             break;
         default:
         case ValidationState::Unlinked:
