@@ -65,7 +65,7 @@ public:
     ~IVec2Node() final = default;
 
     [[nodiscard]] unsigned int getTypeID() const final {
-        return (unsigned int)NodeType::Integer;
+        return (unsigned int)NodeType::IVec2;
     }
 protected:
     bool drawInputArea(const std::string& label) final;
@@ -77,7 +77,7 @@ public:
     ~IVec3Node() final = default;
 
     [[nodiscard]] unsigned int getTypeID() const final {
-        return (unsigned int)NodeType::Integer;
+        return (unsigned int)NodeType::IVec3;
     }
 protected:
     bool drawInputArea(const std::string& label) final;
@@ -89,7 +89,7 @@ public:
     ~IVec4Node() final = default;
 
     [[nodiscard]] unsigned int getTypeID() const final {
-        return (unsigned int)NodeType::Integer;
+        return (unsigned int)NodeType::IVec4;
     }
 protected:
     bool drawInputArea(const std::string& label) final;
