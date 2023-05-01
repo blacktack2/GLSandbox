@@ -255,10 +255,9 @@ public:
         if (mLinks.empty())
             return;
         if (unlinkFrom == nullptr) {
-            mLinks.clear();
-            for (const auto& callback : mOnUnlinks)
-                callback();
-            valueUpdated();
+            for (Link& l : mLinks)
+                l.linkTo->halfUnlink(this);
+            halfUnlink(nullptr);
             return;
         }
         for (Link& l : mLinks) {
