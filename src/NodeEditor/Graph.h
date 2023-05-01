@@ -47,20 +47,21 @@ public:
     }
 protected:
     virtual std::unique_ptr<Node> deserializeNodeType(const std::string& nodeType) = 0;
-    virtual std::string getNodeSerialName(const Node& node) const = 0;
+    [[nodiscard]] virtual std::string getNodeSerialName(const Node& node) const = 0;
 
     virtual void drawNodeCreation() = 0;
+    virtual void drawInputPanelContents() = 0;
+    virtual void drawOutputPanelContents() = 0;
 
-    inline void addNode(std::unique_ptr<Node> node) {
-        if (node) {
-            node->setParent(this);
-            mNodes.push_back(std::move(node));
-            markDirty();
-        }
-    }
+    virtual void onNodeAdd(Node& node) = 0;
+    virtual void onNodeDelete(Node& node) = 0;
+
+    void addNode(std::unique_ptr<Node> node);
 private:
     void drawEditor();
     void drawConfig();
+    void drawInputPanel();
+    void drawOutputPanel();
 
     void checkLinkCreated();
     void checkLinksDeleted();

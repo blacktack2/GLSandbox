@@ -63,6 +63,32 @@ void PipelineGraph::drawNodeCreation() {
     }
 }
 
+void PipelineGraph::drawInputPanelContents() {
+    for (InputNode& node : mInputNodes)
+            node.drawInput();
+}
+
+void PipelineGraph::drawOutputPanelContents() {
+    for (OutputNode& node : mOutputNodes)
+        node.drawOutput();
+}
+
+void PipelineGraph::onNodeAdd(Node& node) {
+    if (InputNode* inNode = dynamic_cast<InputNode*>(&node))
+        mInputNodes.emplace_back(*inNode);
+    else if (OutputNode* outNode = dynamic_cast<OutputNode*>(&node))
+        mOutputNodes.emplace_back(*outNode);
+}
+
+void PipelineGraph::onNodeDelete(Node& node) {
+    mInputNodes.erase(std::remove_if(mInputNodes.begin(), mInputNodes.end(), [&node](const auto& inputNode) {
+        return &node == &inputNode.get();
+    }), mInputNodes.end());
+    mOutputNodes.erase(std::remove_if(mOutputNodes.begin(), mOutputNodes.end(), [&node](const auto& outputNode) {
+        return &node == &outputNode.get();
+    }), mOutputNodes.end());
+}
+
 std::unique_ptr<Node> PipelineGraph::generateNode(NodeType type) const {
     switch (type) {
         case NodeType::Entry       : return std::make_unique<EntryNode>(mPipelineHandler);

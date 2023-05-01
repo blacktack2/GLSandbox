@@ -95,6 +95,9 @@ void Graph::draw() {
     drawEditor();
 
     drawConfig();
+
+    drawInputPanel();
+    drawOutputPanel();
 }
 
 void Graph::postDraw() {
@@ -113,6 +116,15 @@ void Graph::markClean() {
         event();
     for (const auto& node : mNodes)
         node->markClean();
+}
+
+void Graph::addNode(std::unique_ptr<Node> node) {
+    if (node) {
+        node->setParent(this);
+        onNodeAdd(*node);
+        mNodes.push_back(std::move(node));
+        markDirty();
+    }
 }
 
 void Graph::drawEditor() {
@@ -149,6 +161,22 @@ void Graph::drawConfig() {
     ImGui::End();
 }
 
+void Graph::drawInputPanel() {
+    ImGui::Begin("Inputs");
+
+    drawInputPanelContents();
+
+    ImGui::End();
+}
+
+void Graph::drawOutputPanel() {
+    ImGui::Begin("Outputs");
+
+    drawOutputPanelContents();
+
+    ImGui::End();
+}
+
 void Graph::checkLinkCreated() {
     ed::PinId portAID, portBID;
     if (!ed::QueryNewLink(&portAID, &portBID) || !ed::AcceptNewItem())
@@ -179,8 +207,8 @@ void Graph::checkLinksDeleted() {
     for (auto& node : mNodes) {
         for (size_t i = 0; i < node->numPorts(); i++) {
             IPort& port = node->getPortByIndex(i);
-            for (size_t i = 0; i < port.getNumLinks(); i++) {
-                if (port.getLinkID(i) != linkID.Get() || port.getParent().isLocked() || port.getLinkedParent(i).isLocked())
+            for (size_t j = 0; j < port.getNumLinks(); j++) {
+                if (port.getLinkID(j) != linkID.Get() || port.getParent().isLocked() || port.getLinkedParent(j).isLocked())
                     continue;
                 port.unlink(linkID.Get());
                 markDirty();
@@ -199,8 +227,12 @@ void Graph::checkNodesDeleted() {
     mNodes.erase(
         std::remove_if(
             mNodes.begin(), mNodes.end(),
-            [nodeId](const auto& node) {
-                return !node->isLocked() && node->getID() == nodeId.Get();
+            [this, nodeId](const auto& node) {
+                if (!node->isLocked() && node->getID() == nodeId.Get()) {
+                    onNodeDelete(*node);
+                    return true;
+                }
+                return false;
             }
         ),
         mNodes.end()

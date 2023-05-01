@@ -2,7 +2,10 @@
 
 #include "RenderPassNode.h"
 
-#include "../../Rendering/RenderConfig.h"
+#include "../../Rendering/Framebuffer.h"
+#include "../../Rendering/Mesh.h"
+#include "../../Rendering/Shader.h"
+#include "../../Rendering/Texture.h"
 
 EntryNode::EntryNode(IPipelineHandler& pipelineHandler) : Node("Entry"), mPipelineHandler(pipelineHandler) {
     addPort(mExecutionOut);
@@ -92,11 +95,47 @@ void EntryNode::updatePipeline() {
 }
 
 InputNode::InputNode() : Node("Input") {
+    addPort(mDefaultIn);
 
+    mValueOut = nullptr;
+
+    mDefaultIn.addOnLinkEvent([this]() {
+        std::visit([this](const auto& arg) {
+            using port_type = std::decay_t<decltype(arg)>;
+            mValueOut = std::make_unique<Port<port_type>>(*this, IPort::Direction::Out, "Out", "Out", [this]() {
+                return std::visit(VisitOverload{
+                    [](const auto& arg2) { return port_type{}; },
+                    [](const port_type& arg2) { return arg2; },
+                }, mExternalInput ? *mExternalInput : mDefaultIn.getValue());
+            });
+            addPort(*mValueOut);
+        }, mDefaultIn.getValue());
+    });
+    mDefaultIn.addOnUnlinkEvent([this]() {
+        removePort(*mValueOut);
+        mValueOut = nullptr;
+    });
+}
+
+void InputNode::drawInput() {
+    if (!ImGui::CollapsingHeader(std::string(getName()).append(generateNodeLabelID("InputHeader")).c_str()))
+        return;
+
+    switch (isValid()) {
+        case ValidationState::Valid:
+            std::visit(VisitOverload{
+                [&](const auto& value) { drawMessage("Undefined", ImVec4(1.0f, 0.0f, 0.0f, 1.0f)); }
+            }, mExternalInput ? *mExternalInput : mDefaultIn.getValue());
+            break;
+        default:
+        case ValidationState::Unlinked:
+            drawMessage("Must be linked", ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+            break;
+    }
 }
 
 std::vector<std::pair<std::string, std::string>> InputNode::generateSerializedData() const {
-    return std::vector<std::pair<std::string, std::string>>();
+    return {};
 }
 
 void InputNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
@@ -104,15 +143,34 @@ void InputNode::deserializeData(const std::string& dataID, std::ifstream& stream
 }
 
 void InputNode::drawContents() {
-
+    if (!mDefaultIn.isLinked())
+        drawMessage("Must have a default value linked", ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+    else if (!mValueOut->isLinked())
+        drawMessage("Output should be linked to something", ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
 }
 
 OutputNode::OutputNode() : Node("Output") {
+    addPort(mValueIn);
+}
 
+void OutputNode::drawOutput() {
+    if (!ImGui::CollapsingHeader(std::string(getName()).append(generateNodeLabelID("InputHeader")).c_str()))
+        return;
+    switch (isValid()) {
+        case ValidationState::Valid:
+            std::visit(VisitOverload{
+                [&](const auto& value) { drawMessage("Undefined", ImVec4(1.0f, 0.0f, 0.0f, 1.0f)); }
+            }, mValueIn.getValue());
+            break;
+        default:
+        case ValidationState::Unlinked:
+            drawMessage("Must be linked", ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+            break;
+    }
 }
 
 std::vector<std::pair<std::string, std::string>> OutputNode::generateSerializedData() const {
-    return std::vector<std::pair<std::string, std::string>>();
+    return {};
 }
 
 void OutputNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
@@ -120,5 +178,6 @@ void OutputNode::deserializeData(const std::string& dataID, std::ifstream& strea
 }
 
 void OutputNode::drawContents() {
-
+    if (!mValueIn.isLinked())
+        drawMessage("Must have a value linked", ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
 }
