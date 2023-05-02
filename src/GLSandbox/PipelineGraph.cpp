@@ -18,7 +18,7 @@ PipelineGraph::PipelineGraph(IPipelineHandler& pipelineHandler) : mPipelineHandl
 
 }
 
-void PipelineGraph::initializeDefault() {
+void PipelineGraph::onDefaultInitialize() {
     clearNodes();
 
     std::unique_ptr<EntryNode> defaultEntry = std::make_unique<EntryNode>(mPipelineHandler);
@@ -99,6 +99,7 @@ std::unique_ptr<Node> PipelineGraph::generateNode(NodeType type) const {
         case NodeType::Entry       : return std::make_unique<EntryNode>(mPipelineHandler);
         case NodeType::Input       : return std::make_unique<InputNode>();
         case NodeType::Output      : return std::make_unique<OutputNode>();
+        case NodeType::Graph       : return std::make_unique<SubGraphNode>((Graph&)*this, mPipelineHandler);
 
         case NodeType::RenderPass  : return std::make_unique<RenderPassNode>();
 

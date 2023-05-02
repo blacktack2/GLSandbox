@@ -138,6 +138,10 @@ public:
         return ValidationState::Unlinked;
     }
 
+    input_t getValue() {
+        return mValueIn.getValue();
+    }
+
     template<typename T>
     T getValue() {
         return std::visit(VisitOverload{
@@ -152,4 +156,34 @@ protected:
     void drawContents() final;
 private:
     port_t mValueIn = port_t(*this, IPort::Direction::In, "ValueIn", "Value");
+};
+
+class SubGraphNode final : public Node {
+public:
+    explicit SubGraphNode(Graph& parent, IPipelineHandler& pipelineHandler);
+    ~SubGraphNode() final = default;
+
+    [[nodiscard]] unsigned int getTypeID() const final {
+        return (unsigned int)NodeType::Graph;
+    }
+protected:
+    [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
+    void deserializeData(const std::string& dataID, std::ifstream& stream) final;
+
+    void onDeserialize() final;
+
+    void drawContents() final;
+private:
+    void loadFromFile();
+    void updatePorts();
+
+    Graph& mParent;
+    IPipelineHandler& mPipelineHandler;
+
+    std::filesystem::path mGraphFilepath;
+
+    std::unique_ptr<Graph> mGraph;
+
+    std::vector<std::unique_ptr<IPort>> mInputs;
+    std::vector<std::unique_ptr<IPort>> mOutputs;
 };

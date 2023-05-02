@@ -6,6 +6,7 @@ enum class NodeType : std::size_t {
     Entry = 0,
     Input,
     Output,
+    Graph,
     RenderPass,
 
     Arithmetic,
@@ -69,6 +70,7 @@ static const NodeData& getNodeData(NodeType type) {
         {NodeType::Entry,       NodeGroup::Execution, "Entry",             "Entry",       "Entry point of the graph."},
         {NodeType::Input,       NodeGroup::Execution, "Input",             "Input",       "Graph input."},
         {NodeType::Output,      NodeGroup::Execution, "Output",            "Output",      "Graph output."},
+        {NodeType::Graph,       NodeGroup::Execution, "Sub-Graph",         "SubGraph",    ""},
         {NodeType::RenderPass,  NodeGroup::Execution, "Render Pass",       "RenderPass",  "Single draw call."},
 
         {NodeType::Arithmetic,  NodeGroup::Maths,     "Arithmetic",        "Arithmetic",  "Arithmetic operations on numeric types."},

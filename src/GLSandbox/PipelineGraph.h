@@ -20,7 +20,14 @@ public:
     explicit PipelineGraph(IPipelineHandler& pipelineHandler);
     ~PipelineGraph() final = default;
 
-    void initializeDefault() final;
+    void onDefaultInitialize() final;
+
+    inline const std::vector<std::reference_wrapper<InputNode>>& getInputNodes() {
+        return mInputNodes;
+    }
+    inline const std::vector<std::reference_wrapper<OutputNode>>& getOutputNodes() {
+        return mOutputNodes;
+    }
 protected:
     std::unique_ptr<Node> deserializeNodeType(const std::string& nodeType) final;
     [[nodiscard]] std::string getNodeSerialName(const Node& node) const final;

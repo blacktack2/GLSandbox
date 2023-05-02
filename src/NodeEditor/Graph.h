@@ -1,8 +1,10 @@
 #pragma once
 #include "Node.h"
 
+#include <filesystem>
 #include <functional>
 #include <memory>
+#include <unordered_set>
 #include <vector>
 
 namespace ed = ax::NodeEditor;
@@ -18,7 +20,7 @@ public:
 
     void safeDestroy();
 
-    virtual void initializeDefault() = 0;
+    void initializeDefault();
 
     void serialize(std::ofstream& streamOut) const;
     void deserialize(std::ifstream& streamIn);
@@ -29,10 +31,26 @@ public:
 
     inline void clearNodes() {
         mNodes.clear();
+        onClear();
     }
 
     [[nodiscard]] inline size_t getNumNodes() const {
         return mNodes.size();
+    }
+
+    void regenerateID();
+    [[nodiscard]] inline long getID() const {
+        return mID;
+    }
+
+    inline void addDependency(long dependency) {
+        mDependencies.emplace(dependency);
+    }
+    inline void removeDependency(long dependency) {
+        mDependencies.erase(dependency);
+    }
+    [[nodiscard]] inline bool isDependency(long dependency) const {
+        return mDependencies.contains(dependency);
     }
 
     void markDirty();
@@ -48,6 +66,8 @@ public:
         mOnCleanEvents.push_back(std::move(event));
     }
 protected:
+    virtual void onDefaultInitialize() = 0;
+
     virtual std::unique_ptr<Node> deserializeNodeType(const std::string& nodeType) = 0;
     [[nodiscard]] virtual std::string getNodeSerialName(const Node& node) const = 0;
 
@@ -72,7 +92,11 @@ private:
 
     ed::EditorContext* mContext;
 
+    long mID = 0;
+
     std::vector<std::unique_ptr<Node>> mNodes{};
+
+    std::unordered_set<int> mDependencies;
 
     bool mConfigPanelOpen = true;
 

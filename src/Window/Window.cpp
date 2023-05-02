@@ -201,6 +201,7 @@ void Window::drawFileMenu() {
                 mGraphFilepath += ".";
                 mGraphFilepath += getGraphDefaultExtension();
             }
+            mGraph->regenerateID();
             saveGraph();
         }
     }

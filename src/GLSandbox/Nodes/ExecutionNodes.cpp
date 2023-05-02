@@ -2,6 +2,11 @@
 
 #include "RenderPassNode.h"
 
+#include "../Assets.h"
+#include "../PipelineGraph.h"
+
+#include "../../Utils/SerializationUtils.h"
+
 EntryNode::EntryNode(IPipelineHandler& pipelineHandler) : Node("Entry"), mPipelineHandler(pipelineHandler) {
     addPort(mExecutionOut);
 }
@@ -259,4 +264,88 @@ void OutputNode::deserializeData(const std::string& dataID, std::ifstream& strea
 void OutputNode::drawContents() {
     if (!mValueIn.isLinked())
         drawMessage("Must have a value linked", ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+}
+
+SubGraphNode::SubGraphNode(Graph& parent, IPipelineHandler& pipelineHandler) : Node("Sub-Graph"),
+mParent(parent), mPipelineHandler(pipelineHandler) {
+    mGraph = nullptr;
+}
+
+std::vector<std::pair<std::string, std::string>> SubGraphNode::generateSerializedData() const {
+    std::vector<std::pair<std::string, std::string>> data;
+    data.emplace_back("File", mGraphFilepath.generic_string());
+    return data;
+}
+
+void SubGraphNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
+    if (dataID == "File")
+        mGraphFilepath = SerializationUtils::readLine(stream);
+}
+
+void SubGraphNode::onDeserialize() {
+    loadFromFile();
+}
+
+void SubGraphNode::drawContents() {
+    if (ImUtils::fileChooseDialog(mGraphFilepath, getGraphAssetDirectory(), generateNodeLabelID("File"),
+                                  getValidGraphFileExtensions()))
+        loadFromFile();
+}
+
+void SubGraphNode::loadFromFile() {
+    mGraph = nullptr;
+    mInputs.clear();
+    mOutputs.clear();
+
+    std::ifstream stream(mGraphFilepath);
+    if (!stream)
+        return;
+
+    std::streampos begin = stream.tellg();
+
+    long id;
+    stream >> id;
+    if (mParent.isDependency(id))
+        return;
+
+    stream.seekg(begin);
+    mGraph = std::make_unique<PipelineGraph>(mPipelineHandler);
+    mGraph->deserialize(stream);
+
+    updatePorts();
+}
+
+void SubGraphNode::updatePorts() {
+    const auto& inputs  = ((PipelineGraph&)*mGraph).getInputNodes();
+    const auto& outputs = ((PipelineGraph&)*mGraph).getOutputNodes();
+
+    for (InputNode& node : inputs) {
+        std::unique_ptr<IPort> port = std::visit([this, &node](const auto& arg)->std::unique_ptr<IPort> {
+            using value_t = std::decay_t<decltype(arg)>;
+            std::string uniqueName = std::string("Input-").append(std::to_string(mInputs.size()));
+            auto port = std::make_unique<Port<value_t>>(*this, IPort::Direction::In, uniqueName, node.getName(),
+                                                        nullptr, false, true);
+            Port<value_t>* rawPort = port.get();
+            port->addOnUpdateEvent([&node, rawPort]() {
+                node.setValue(rawPort->template getSingleValue<value_t>());
+            });
+            return port;
+        }, node.getDefaultValue());
+
+        addPort(*port);
+        mInputs.push_back(std::move(port));
+    }
+    for (OutputNode& node : outputs) {
+        std::unique_ptr<IPort> port = std::visit([this, &node](const auto& arg)->std::unique_ptr<IPort> {
+            using value_t = std::decay_t<decltype(arg)>;
+            std::string uniqueName = std::string("Output-").append(std::to_string(mOutputs.size()));
+            return std::make_unique<Port<value_t>>(*this, IPort::Direction::Out, uniqueName, node.getName(),
+                [&node]() {
+                    return node.getValue<value_t>();
+                }, false, true);
+        }, node.getValue());
+
+        addPort(*port);
+        mOutputs.push_back(std::move(port));
+    }
 }

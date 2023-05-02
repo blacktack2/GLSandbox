@@ -5,6 +5,8 @@
 
 #include <imgui_node_editor.h>
 
+#include <chrono>
+
 static constexpr char gSERIAL_MARK_NODE[] = "Node";
 
 static constexpr char gSERIAL_DATA_PREFIX = '^';
@@ -38,6 +40,9 @@ bool deserializeLinks(const Node::port_data_t& portData, const Node::link_data_t
 
 Graph::Graph() {
     mContext = ed::CreateEditor();
+
+    regenerateID();
+    addDependency(mID);
 }
 
 Graph::~Graph() {
@@ -49,7 +54,13 @@ void Graph::safeDestroy() {
         node->safeDestroy();
 }
 
+void Graph::initializeDefault() {
+    regenerateID();
+    onDefaultInitialize();
+}
+
 void Graph::serialize(std::ofstream& streamOut) const {
+    streamOut << mID << "\n";
     for (const auto& node : mNodes) {
         SerializationUtils::writeBeginMark(streamOut, gSERIAL_MARK_NODE);
         SerializationUtils::writeDataPoint(streamOut, gSERIAL_DATA_PREFIX, gSERIAL_DATA_NODE_TYPE,
@@ -67,6 +78,8 @@ void Graph::deserialize(std::ifstream& streamIn) {
     Node::link_data_t staticLinkData, dynamicLinkData;
 
     std::streampos end = SerializationUtils::findEnd(streamIn);
+
+    streamIn >> mID;
 
     std::streampos markBegin, markEnd;
     while (SerializationUtils::findNextMarkPair(streamIn, end, gSERIAL_MARK_NODE, markBegin, markEnd)) {
@@ -124,6 +137,12 @@ void Graph::postDraw() {
 
 }
 
+void Graph::regenerateID() {
+    mID = std::chrono::system_clock::now().time_since_epoch().count();
+    std::string str = std::to_string(mID);
+    mID = std::hash<std::string>{}(str);
+}
+
 void Graph::markDirty() {
     mIsDirty = true;
     for (const auto& event : mOnDirtyEvents)
@@ -149,6 +168,12 @@ void Graph::addNode(std::unique_ptr<Node> node) {
 
 void Graph::drawEditor() {
     ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoCollapse);
+    if (ImGui::IsItemHovered()) {
+        ImGui::BeginTooltip();
+        ImGui::TextUnformatted(std::to_string(mID).c_str());
+        ImGui::EndTooltip();
+    }
+
     ed::SetCurrentEditor(mContext);
     ed::Begin("Graph");
 
