@@ -156,10 +156,28 @@ void Window::handleEvent(SDL_Event &e) {
                     break;
             }
             break;
+        case SDL_KEYDOWN:
+            switch (e.key.keysym.sym) {
+                case SDLK_ESCAPE:
+                    mRunning = false;
+                    break;
+                case SDLK_LCTRL:
+                    mCtrlHeld = true;
+                    break;
+                case SDLK_s:
+                    if (mCtrlHeld)
+                        saveGraph();
+                    break;
+            }
+            break;
+        case SDL_KEYUP:
+            switch (e.key.keysym.sym) {
+                case SDLK_LCTRL:
+                    mCtrlHeld = false;
+                    break;
+            }
+            break;
     }
-
-    if (ImGui::IsKeyPressed(ImGuiKey_Escape))
-        mRunning = false;
 }
 
 void Window::updateTitle() {
@@ -193,7 +211,7 @@ void Window::drawFileMenu() {
         }
     }
 
-    if (ImGui::MenuItem("Save##MainMenu_File") || (ImGui::IsKeyPressed(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_S)))
+    if (ImGui::MenuItem("Save##MainMenu_File"))
         saveGraph();
     if (ImGui::MenuItem("Save As##MainMenu_File")) {
         if (FileUtils::openSaveDialog(mGraphFilepath, getGraphAssetDirectory(), getValidGraphFileExtensions())) {

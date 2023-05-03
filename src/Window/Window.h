@@ -56,4 +56,6 @@ private:
 
     std::filesystem::path mGraphFilepath;
     bool mIsGraphFileWrittenTo = false;
+
+    bool mCtrlHeld = false;
 };
