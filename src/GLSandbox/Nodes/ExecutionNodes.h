@@ -89,6 +89,7 @@ public:
      */
     inline void setValue(input_t value) {
         mExternalInput = std::make_unique<input_t>(value);
+        mValueOut->valueUpdated();
     }
     /**
      * @brief Remove any externally set values (see InputNode::setValue()), and use the default value instead.
@@ -170,6 +171,13 @@ public:
             [](const T& arg) { return arg; },
         }, getValue());
     }
+
+    inline void setNextPass(Node* node) {
+        mNextPass = node;
+    }
+    [[nodiscard]] inline Node* getNextPass() const {
+        return mNextPass;
+    }
 protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
     void deserializeData(const std::string& dataID, std::ifstream& stream) final;
@@ -177,6 +185,8 @@ protected:
     void drawContents() final;
 private:
     port_t mValueIn = port_t(*this, IPort::Direction::In, "ValueIn", "Value", [&]() { return this; });
+
+    Node* mNextPass = nullptr;
 };
 
 class SubGraphNode final : public Node {

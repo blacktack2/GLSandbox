@@ -61,6 +61,7 @@ bool EntryNode::validatePipeline() const {
                 next = inputNode->getOutputValue<Node*>();
         } else if (const OutputNode* outputNode = dynamic_cast<const OutputNode*>(node)) {
             isValid &= outputNode->validate();
+            next = outputNode->getNextPass();
         } else {
             mMessage = std::string("Unsupported connection [").append(node->getName()).append("]");
             return false;
@@ -93,8 +94,8 @@ void EntryNode::updatePipeline() {
             node = renderPassNode->getNextPass();
         } else if (const InputNode* inputNode = dynamic_cast<const InputNode*>(node)) {
             node = inputNode->getOutputValue<Node*>();
-        } else if (dynamic_cast<const OutputNode*>(node)) {
-            node = nullptr;
+        } else if (const OutputNode* outputNode = dynamic_cast<const OutputNode*>(node)) {
+            node = outputNode->getNextPass();
         } else {
             assert(false);
         }
@@ -365,7 +366,7 @@ void SubGraphNode::updatePorts() {
             [this, &node](Node* const arg)->std::unique_ptr<IPort> {
                 std::string uniqueName = std::string("Input-").append(std::to_string(mInputs.size()));
                 auto port = std::make_unique<Port<Node*>>(*this, IPort::Direction::In, uniqueName, node.getName(),
-                    [&]() { return this; }, false, true);
+                    [&]() { return &node; }, false, true);
                 return port;
             },
         }, node.getDefaultValue());
@@ -387,6 +388,13 @@ void SubGraphNode::updatePorts() {
                 std::string uniqueName = std::string("Output-").append(std::to_string(mOutputs.size()));
                 auto port = std::make_unique<Port<Node*>>(*this, IPort::Direction::Out, uniqueName, node.getName(),
                     [&]() { return this; }, false, true);
+                Port<Node*>* rawPort = port.get();
+                port->addOnLinkEvent([rawPort, &node]() {
+                    node.setNextPass(rawPort->getLinkedValue<Node*>());
+                });
+                port->addOnUnlinkEvent([&node]() {
+                    node.setNextPass(nullptr);
+                });
                 return port;
             },
         }, node.getValue());
