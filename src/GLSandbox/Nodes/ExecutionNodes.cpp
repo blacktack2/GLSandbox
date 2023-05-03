@@ -347,29 +347,48 @@ void SubGraphNode::updatePorts() {
     const auto& outputs = ((PipelineGraph&)*mGraph).getOutputNodes();
 
     for (InputNode& node : inputs) {
-        std::unique_ptr<IPort> port = std::visit([this, &node](const auto& arg)->std::unique_ptr<IPort> {
-            using value_t = std::decay_t<decltype(arg)>;
-            std::string uniqueName = std::string("Input-").append(std::to_string(mInputs.size()));
-            auto port = std::make_unique<Port<value_t>>(*this, IPort::Direction::In, uniqueName, node.getName(),
-                                                        nullptr, false, true);
-            Port<value_t>* rawPort = port.get();
-            port->addOnUpdateEvent([&node, rawPort]() {
-                node.setValue(rawPort->template getLinkedValue<value_t>());
-            });
-            return port;
+        std::unique_ptr<IPort> port = std::visit(VisitOverload{
+            [this, &node](const auto& arg)->std::unique_ptr<IPort> {
+                using value_t = std::decay_t<decltype(arg)>;
+                std::string uniqueName = std::string("Input-").append(std::to_string(mInputs.size()));
+                auto port = std::make_unique<Port<value_t>>(*this, IPort::Direction::In, uniqueName, node.getName(),
+                    nullptr, false, true);
+                Port<value_t>* rawPort = port.get();
+                port->addOnUpdateEvent([&node, rawPort]() {
+                    if (rawPort->isLinked())
+                        node.setValue(rawPort->template getLinkedValue<value_t>());
+                    else
+                        node.unsetValue();
+                });
+                return port;
+            },
+            [this, &node](Node* const arg)->std::unique_ptr<IPort> {
+                std::string uniqueName = std::string("Input-").append(std::to_string(mInputs.size()));
+                auto port = std::make_unique<Port<Node*>>(*this, IPort::Direction::In, uniqueName, node.getName(),
+                    [&]() { return this; }, false, true);
+                return port;
+            },
         }, node.getDefaultValue());
 
         addPort(*port);
         mInputs.push_back(std::move(port));
     }
     for (OutputNode& node : outputs) {
-        std::unique_ptr<IPort> port = std::visit([this, &node](const auto& arg)->std::unique_ptr<IPort> {
-            using value_t = std::decay_t<decltype(arg)>;
-            std::string uniqueName = std::string("Output-").append(std::to_string(mOutputs.size()));
-            return std::make_unique<Port<value_t>>(*this, IPort::Direction::Out, uniqueName, node.getName(),
-                [&node]() {
+        std::unique_ptr<IPort> port = std::visit(VisitOverload{
+            [this, &node](const auto& arg)->std::unique_ptr<IPort> {
+                using value_t = std::decay_t<decltype(arg)>;
+                std::string uniqueName = std::string("Output-").append(std::to_string(mOutputs.size()));
+                return std::make_unique<Port<value_t>>(*this, IPort::Direction::Out, uniqueName, node.getName(),
+                    [&node]() {
                     return node.getValue<value_t>();
-                }, false, true);
+                    }, false, true);
+            },
+            [this, &node](Node* const arg)->std::unique_ptr<IPort> {
+                std::string uniqueName = std::string("Output-").append(std::to_string(mOutputs.size()));
+                auto port = std::make_unique<Port<Node*>>(*this, IPort::Direction::Out, uniqueName, node.getName(),
+                    [&]() { return this; }, false, true);
+                return port;
+            },
         }, node.getValue());
 
         addPort(*port);
