@@ -322,6 +322,10 @@ void SubGraphNode::drawContents() {
 
 void SubGraphNode::loadFromFile() {
     mGraph = nullptr;
+    for (const auto& port : mInputs)
+        removePort(*port);
+    for (const auto& port : mOutputs)
+        removePort(*port);
     mInputs.clear();
     mOutputs.clear();
 
