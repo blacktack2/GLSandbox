@@ -45,7 +45,7 @@ bool SerializationUtils::findNextRawMark(std::istream& stream, std::streampos en
     std::streampos current;
     while ((current = stream.tellg()) < end && !stream.eof()) {
         char prefix;
-        stream >> prefix;
+        stream >> std::ws >> prefix;
         if (prefix != gMARK_PREFIX) {
             skipToNextLine(stream);
             continue;
@@ -138,5 +138,5 @@ std::filesystem::path SerializationUtils::generateFilename(const std::filesystem
         filePath += extension;
     } while (std::filesystem::exists(filePath));
 
-    return filePath.generic_string();
+    return filePath;
 }

@@ -92,7 +92,7 @@ private:
 
     ed::EditorContext* mContext;
 
-    long mID = 0;
+    long long mID = 0;
 
     std::vector<std::unique_ptr<Node>> mNodes{};
 

@@ -325,13 +325,13 @@ void SubGraphNode::loadFromFile() {
     mInputs.clear();
     mOutputs.clear();
 
-    std::ifstream stream(mGraphFilepath);
+    std::ifstream stream(mGraphFilepath, std::ios::in | std::ios::binary);
     if (!stream)
         return;
 
     std::streampos begin = stream.tellg();
 
-    long id;
+    long long id;
     stream >> id;
     if (mParent.isDependency(id))
         return;

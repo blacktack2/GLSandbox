@@ -19,7 +19,9 @@ bool FileUtils::openFileDialog(std::filesystem::path& filepath, const std::files
 
     nfdresult_t result = NFD_OpenDialog(
         filterList.empty() ? nullptr : filterList.c_str(),
-        filepath.empty() ? defaultLocation.generic_string().c_str() : filepath.parent_path().generic_string().c_str(),
+        filepath.empty() ?
+            std::filesystem::path(defaultLocation).make_preferred().string().c_str() :
+            filepath.parent_path().make_preferred().string().c_str(),
         &outPath
     );
 
@@ -38,7 +40,9 @@ bool FileUtils::openSaveDialog(std::filesystem::path& filepath, const std::files
 
     nfdresult_t result = NFD_SaveDialog(
         filterList.empty() ? nullptr : filterList.c_str(),
-        filepath.empty() ? defaultLocation.generic_string().c_str() : filepath.parent_path().generic_string().c_str(),
+        filepath.empty() ?
+            std::filesystem::path(defaultLocation).make_preferred().string().c_str() :
+            filepath.parent_path().make_preferred().string().c_str(),
         &outPath
     );
 
