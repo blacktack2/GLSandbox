@@ -253,7 +253,7 @@ void Graph::checkLinksDeleted() {
         for (size_t i = 0; i < node->numPorts(); i++) {
             IPort& port = node->getPortByIndex(i);
             for (size_t j = 0; j < port.getNumLinks(); j++) {
-                if (port.getLinkID(j) != linkID.Get() || port.getParent().isLocked() || port.getLinkedParent(j).isLocked())
+                if (port.getLinkID(j) != linkID.Get() || port.getParent().isLocked() || port.getLinkedPort(j)->getParent().isLocked())
                     continue;
                 port.unlink(linkID.Get());
                 markDirty();

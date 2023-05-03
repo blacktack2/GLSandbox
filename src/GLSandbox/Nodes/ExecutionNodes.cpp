@@ -49,17 +49,28 @@ bool EntryNode::validatePipeline() const {
         mMessageType = MessageType::Error;
         return false;
     }
-    const RenderPassNode* current = &dynamic_cast<const RenderPassNode&>(mExecutionOut.getLinkedParent(0));
     bool isValid = true;
-    while (current) {
-        isValid &= current->validate();
+    const Node* node = mExecutionOut.getLinkedValue<Node*>();
+    while (node) {
+        const Node* next = nullptr;
+        if (const RenderPassNode* renderPassNode = dynamic_cast<const RenderPassNode*>(node)) {
+            isValid &= renderPassNode->validate();
+            next = renderPassNode->getNextPass();
+        } else if (const InputNode* inputNode = dynamic_cast<const InputNode*>(node)) {
+            if (isValid &= inputNode->validate())
+                next = inputNode->getOutputValue<Node*>();
+        } else if (const OutputNode* outputNode = dynamic_cast<const OutputNode*>(node)) {
+            isValid &= outputNode->validate();
+        } else {
+            mMessage = std::string("Unsupported connection [").append(node->getName()).append("]");
+            return false;
+        }
 
-        const RenderPassNode* next = current->getNextPass();
-        if (next == current) {
+        if (next == node) {
             mMessage = "Infinite loop detected";
             return false;
         }
-        current = next;
+        node = next;
     }
     if (isValid) {
         mMessage = "Uploaded";
@@ -75,12 +86,20 @@ bool EntryNode::validatePipeline() const {
 void EntryNode::updatePipeline() {
     mPipelineHandler.clearPipeline();
 
-    const RenderPassNode* current = &dynamic_cast<RenderPassNode&>(mExecutionOut.getLinkedParent(0));
-    while (current) {
-        mPipelineHandler.appendPipeline(current->generateCallback());
-
-        current = current->getNextPass();
+    const Node* node = mExecutionOut.getLinkedValue<Node*>();
+    while (node) {
+        if (const RenderPassNode* renderPassNode = dynamic_cast<const RenderPassNode*>(node)) {
+            mPipelineHandler.appendPipeline(renderPassNode->generateCallback());
+            node = renderPassNode->getNextPass();
+        } else if (const InputNode* inputNode = dynamic_cast<const InputNode*>(node)) {
+            node = inputNode->getOutputValue<Node*>();
+        } else if (dynamic_cast<const OutputNode*>(node)) {
+            node = nullptr;
+        } else {
+            assert(false);
+        }
     }
+
     mPipelineHandler.appendPipeline([]() {
         RenderConfig::setViewport();
         RenderConfig::setClearColour();
@@ -106,15 +125,19 @@ InputNode::InputNode() : Node("Input") {
                 return std::visit(VisitOverload{
                     [](const auto& arg2) { return port_type{}; },
                     [](const port_type& arg2) { return arg2; },
-                }, mExternalInput ? *mExternalInput : mDefaultIn.getValue());
+                }, mExternalInput ? *mExternalInput : mDefaultIn.getLinkedValue());
             }, false, true);
             addPort(*mValueOut);
-        }, mDefaultIn.getValue());
+        }, mDefaultIn.getLinkedValue());
     });
     mDefaultIn.addOnUnlinkEvent([this]() {
         removePort(*mValueOut);
         mValueOut = nullptr;
     });
+}
+
+bool InputNode::validate() const {
+    return isValid() == ValidationState::Valid;
 }
 
 void InputNode::drawInput() {
@@ -172,7 +195,7 @@ void InputNode::drawInput() {
                         setValue(value);
                 },
                 [&](const auto& value) { drawMessage("Undefined", ImVec4(1.0f, 0.0f, 0.0f, 1.0f)); },
-            }, mExternalInput ? *mExternalInput : mDefaultIn.getValue());
+            }, mExternalInput ? *mExternalInput : mDefaultIn.getLinkedValue());
 
             ImGui::EndGroup();
 
@@ -206,6 +229,10 @@ void InputNode::drawContents() {
 
 OutputNode::OutputNode() : Node("Output") {
     addPort(mValueIn);
+}
+
+bool OutputNode::validate() const {
+    return isValid() == ValidationState::Valid;
 }
 
 void OutputNode::drawOutput() {
@@ -242,7 +269,7 @@ void OutputNode::drawOutput() {
                     ImGui::Text("%.2f, %.2f, %.2f, %.2f", value[3][0], value[3][1], value[3][2], value[3][3]);
                 },
                 [&](const auto& value) { drawMessage("Undefined", ImVec4(1.0f, 0.0f, 0.0f, 1.0f)); },
-            }, mValueIn.getValue());
+            }, mValueIn.getLinkedValue());
 
             ImGui::EndGroup();
             break;
@@ -327,7 +354,7 @@ void SubGraphNode::updatePorts() {
                                                         nullptr, false, true);
             Port<value_t>* rawPort = port.get();
             port->addOnUpdateEvent([&node, rawPort]() {
-                node.setValue(rawPort->template getSingleValue<value_t>());
+                node.setValue(rawPort->template getLinkedValue<value_t>());
             });
             return port;
         }, node.getDefaultValue());

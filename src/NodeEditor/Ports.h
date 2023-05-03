@@ -139,25 +139,19 @@ public:
      * @return Unique ID of the port this port is connected to, or -1 if no connection is present.
      */
     [[nodiscard]] virtual int getLinkedPortID(size_t linkIndex) const = 0;
+    /**
+     * @return Port this port is connected to, or nullptr if no connection is present.
+     */
+    [[nodiscard]] virtual IPort* getLinkedPort(size_t linkIndex) = 0;
 
     /**
      * @return Parent node to this port.
      */
     [[nodiscard]] virtual const Node& getParent() const = 0;
     /**
-     * @return Parent node to the port this port is connected to. If no connection is present this will result in
-     * undefined behaviour.
-     */
-    [[nodiscard]] virtual const Node& getLinkedParent(size_t linkIndex) const = 0;
-    /**
      * @return Parent node to this port.
      */
     [[nodiscard]] virtual Node& getParent() = 0;
-    /**
-     * @return Parent node to the port this port is connected to. If no connection is present this will result in
-     * undefined behaviour.
-     */
-    [[nodiscard]] virtual Node& getLinkedParent(size_t linkIndex) = 0;
 
     [[nodiscard]] virtual Direction getDirection() const = 0;
 
@@ -172,6 +166,7 @@ public:
     [[nodiscard]] virtual std::set<std::type_index> getParameterTypes() const = 0;
 
     [[nodiscard]] virtual std::any getAnyValue() const = 0;
+    [[nodiscard]] virtual std::any getAnyLinkedValue() const = 0;
 };
 
 template<typename... Ts>
@@ -327,18 +322,15 @@ public:
     [[nodiscard]] int getLinkedPortID(size_t linkIndex) const final {
         return mLinks.size() > linkIndex ? mLinks[linkIndex].linkTo->getID() : -1;
     }
+    [[nodiscard]] IPort* getLinkedPort(size_t linkIndex) final {
+        return mLinks.size() > linkIndex ? mLinks[linkIndex].linkTo : nullptr;
+    }
 
     [[nodiscard]] const Node& getParent() const final {
         return mParent;
     }
-    [[nodiscard]] const Node& getLinkedParent(size_t linkIndex) const final {
-        return mLinks[linkIndex].linkTo->getParent();
-    }
     [[nodiscard]] Node& getParent() final {
         return mParent;
-    }
-    [[nodiscard]] Node& getLinkedParent(size_t linkIndex) final {
-        return mLinks[linkIndex].linkTo->getParent();
     }
 
     [[nodiscard]] Direction getDirection() const final {
@@ -369,26 +361,30 @@ public:
         return { typeid(Types)... };
     };
 
-    std::variant<Types...> getValue(size_t linkIndex = 0) const {
-        if (mDirection == Direction::Out)
-            return mGetValue();
-        else
-            return mLinks[linkIndex].linkTo ? anyToVariant<Types...>(mLinks[linkIndex].linkTo->getAnyValue()) : *mDefaultValue;
+    std::variant<Types...> getValue() const {
+        return mGetValue();
     }
-    [[nodiscard]] std::any getAnyValue() const final {
-        return std::visit([](const auto& arg)->std::any { return arg; }, getValue());
-    }
-
     template<typename T>
-    T getSingleValue() const {
+    T getValue() const {
         return std::visit([](const auto& arg)->T {
             return arg;
         }, getValue());
     }
+    std::variant<Types...> getLinkedValue(size_t linkIndex = 0) const {
+        return mLinks[linkIndex].linkTo ? anyToVariant<Types...>(mLinks[linkIndex].linkTo->getAnyValue()) : *mDefaultValue;
+    }
     template<typename T>
-    T getSingleConnectedValue(size_t linkIndex = 0) const {
-        std::variant<Types...> value = mLinks[linkIndex].linkTo ? dynamic_cast<Port<Types...>*>(mLinks[linkIndex].linkTo)->getValue() : *mDefaultValue;
-        return std::visit([](const auto& arg)->T { return arg; }, value);
+    T getLinkedValue(size_t linkIndex = 0) const {
+        return std::visit([](const auto& arg)->T {
+            return arg;
+        }, getLinkedValue(linkIndex));
+    }
+
+    [[nodiscard]] std::any getAnyValue() const final {
+        return std::visit([](const auto& arg)->std::any { return arg; }, getValue());
+    }
+    [[nodiscard]] std::any getAnyLinkedValue() const final {
+        return std::visit([](const auto& arg)->std::any { return arg; }, getLinkedValue());
     }
 private:
     typedef std::function<void()> draw_port_callback;

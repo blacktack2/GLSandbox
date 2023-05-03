@@ -131,18 +131,18 @@ bool RenderPassNode::validate() const {
     mValidationState = ValidationState::Unloaded;
 
     if (mMeshIn.isLinked()) {
-        if (mMeshIn.getSingleConnectedValue<Mesh*>()->getState() != Mesh::ErrorState::VALID)
+        if (mMeshIn.getLinkedValue<Mesh*>()->getState() != Mesh::ErrorState::VALID)
             mValidationState |= ValidationState::InvalidMesh;
     } else {
         mValidationState |= ValidationState::NoMesh;
     }
     if (mShaderIn.isLinked()) {
-        if (mShaderIn.getSingleConnectedValue<Shader*>()->getState() != Shader::ErrorState::VALID)
+        if (mShaderIn.getLinkedValue<Shader*>()->getState() != Shader::ErrorState::VALID)
             mValidationState |= ValidationState::InvalidShader;
     } else {
         mValidationState |= ValidationState::NoShader;
     }
-    if (mFramebufferIn.isLinked() && !mFramebufferIn.getLinkedParent(0).validate())
+    if (mFramebufferIn.isLinked() && mFramebufferIn.getLinkedValue<Framebuffer*>()->getState() != Framebuffer::ErrorState::Valid)
         mValidationState |= ValidationState::InvalidFramebuffer;
 
     for (const auto& port : mSamplerPorts) {
@@ -158,9 +158,9 @@ bool RenderPassNode::validate() const {
 RenderPassNode::pipeline_callback RenderPassNode::generateCallback() const {
     mValidationState = ValidationState::Loaded;
 
-    const Framebuffer* framebuffer = mFramebufferIn.isLinked() ? mFramebufferIn.getSingleConnectedValue<Framebuffer*>() : nullptr;
-    const Mesh* mesh = mMeshIn.getSingleConnectedValue<Mesh*>();
-    const Shader* shader = mShaderIn.getSingleConnectedValue<Shader*>();
+    const Framebuffer* framebuffer = mFramebufferIn.isLinked() ? mFramebufferIn.getLinkedValue<Framebuffer*>() : nullptr;
+    const Mesh* mesh = mMeshIn.getLinkedValue<Mesh*>();
+    const Shader* shader = mShaderIn.getLinkedValue<Shader*>();
 
     std::vector<std::function<void()>> passCallbacks{};
 
@@ -191,7 +191,7 @@ RenderPassNode::pipeline_callback RenderPassNode::generateCallback() const {
 
     std::vector<const Texture*> textures{};
     for (const auto& port : mSamplerPorts)
-        textures.push_back(dynamic_cast<Port<Texture*>*>(&port.get())->getSingleConnectedValue<Texture*>());
+        textures.push_back(dynamic_cast<Port<Texture*>*>(&port.get())->getLinkedValue<Texture*>());
     if (!textures.empty()) {
         passCallbacks.emplace_back([textures]() {
             for (int i = 0; i < textures.size(); i++)
@@ -218,7 +218,7 @@ void RenderPassNode::onShaderUpdate() {
     if (!mShaderIn.isLinked())
         return;
 
-    Shader* shader = mShaderIn.getSingleConnectedValue<Shader*>();
+    Shader* shader = mShaderIn.getLinkedValue<Shader*>();
     shader->bind();
     const std::vector<Shader::UniformSet> uniforms = shader->getUniforms();
 
@@ -254,7 +254,7 @@ void RenderPassNode::onShaderUpdate() {
                                     shader->bind();
                                     shader->setUniform(uniformName, arg3);
                                 },
-                            }, rawPort->getValue());
+                            }, rawPort->getLinkedValue());
                         });
                     },
                 }, variant);

@@ -40,9 +40,8 @@ public:
 
     [[nodiscard]] pipeline_callback generateCallback() const;
 
-    [[nodiscard]] inline const RenderPassNode* getNextPass() const {
-        return mExecutionOut.isLinked() ?
-            dynamic_cast<const RenderPassNode*>(&mExecutionOut.getLinkedParent(0)) : nullptr;
+    [[nodiscard]] inline const Node* getNextPass() const {
+        return mExecutionOut.isLinked() ? mExecutionOut.getLinkedValue<Node*>() : nullptr;
     }
 protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
@@ -57,8 +56,8 @@ private:
     void drawSettings();
     void drawValidationMessage();
 
-    Port<void*> mExecutionIn  = Port<void*>(*this, IPort::Direction::In, "In", "In");
-    Port<void*> mExecutionOut = Port<void*>(*this, IPort::Direction::Out, "Out", "Out", [&]() { return (void*)nullptr; });
+    Port<Node*> mExecutionIn  = Port<Node*>(*this, IPort::Direction::In, "In", "In", [&]() { return this; });
+    Port<Node*> mExecutionOut = Port<Node*>(*this, IPort::Direction::Out, "Out", "Out", [&]() { return this; });
 
     Port<Framebuffer*> mFramebufferIn = Port<Framebuffer*>(*this, IPort::Direction::In, "FramebufferIn", "Framebuffer");
     Port<Mesh*>        mMeshIn        = Port<Mesh*>(*this, IPort::Direction::In, "MeshIn", "Mesh");

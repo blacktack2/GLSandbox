@@ -14,6 +14,10 @@ class Mesh;
 class Shader;
 class Texture;
 
+class InputNode;
+class OutputNode;
+class RenderPassNode;
+
 class EntryNode final : public Node {
 public:
     explicit EntryNode(IPipelineHandler& pipelineHandler);
@@ -32,11 +36,12 @@ private:
     void pipelineResetEvent();
 
     bool validatePipeline() const;
+
     void updatePipeline();
 
     IPipelineHandler& mPipelineHandler;
 
-    Port<void*> mExecutionOut = Port<void*>(*this, IPort::Direction::Out, "Out", "Out", [&]() { return (void*)nullptr; });
+    Port<Node*> mExecutionOut = Port<Node*>(*this, IPort::Direction::Out, "Out", "Out", [&]() { return this; });
 
     mutable std::string mMessage;
     mutable MessageType mMessageType = MessageType::Info;
@@ -50,6 +55,7 @@ public:
     };
 
     typedef std::variant<
+        Node*,
         int, glm::ivec2, glm::ivec3, glm::ivec4,
         float, glm::vec2, glm::vec3, glm::vec4,
         glm::mat2, glm::mat3, glm::mat4,
@@ -64,9 +70,11 @@ public:
         return (unsigned int)NodeType::Input;
     }
 
+    [[nodiscard]] bool validate() const final;
+
     void drawInput();
 
-    ValidationState isValid() {
+    [[nodiscard]] ValidationState isValid() const {
         if (mDefaultIn.isLinked())
             return ValidationState::Valid;
         return ValidationState::Unlinked;
@@ -89,12 +97,22 @@ public:
         mExternalInput = nullptr;
     }
     /**
-     * @brief This node is assumed to be ina valid state (see InputNode::isValid()). Usage of this function in an
-     * invalid state will result in undefined behaviour, and a likely segmentation fault.
+     * @brief This node is assumed to be in a valid state (see InputNode::isValid()). If not in a valid state, this
+     * function will result in undefined behaviour.
      * @return Default value for this node, used when no external value is set.
      */
-    inline input_t getDefaultValue() {
-        return mDefaultIn.getValue();
+    [[nodiscard]] inline input_t getDefaultValue() const {
+        return mDefaultIn.getLinkedValue();
+    }
+    [[nodiscard]] inline input_t getOutputValue() const {
+        return anyToVariant(mValueOut->getAnyLinkedValue(), input_t{});
+    }
+    template<typename T>
+    [[nodiscard]] inline T getOutputValue() const {
+        return std::visit(VisitOverload{
+            [](const auto& arg) { return T{}; },
+            [](const T& arg) { return arg; },
+        }, getOutputValue());
     }
 protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
@@ -104,7 +122,7 @@ protected:
 private:
     std::unique_ptr<input_t> mExternalInput = nullptr;
 
-    port_t mDefaultIn = port_t(*this, IPort::Direction::In, "DefaultIn", "Default");
+    port_t mDefaultIn = port_t(*this, IPort::Direction::In, "DefaultIn", "Default", [&]() { return this; });
     std::unique_ptr<IPort> mValueOut;
 };
 
@@ -116,6 +134,7 @@ public:
     };
 
     typedef std::variant<
+        Node*,
         int, glm::ivec2, glm::ivec3, glm::ivec4,
         float, glm::vec2, glm::vec3, glm::vec4,
         glm::mat2, glm::mat3, glm::mat4,
@@ -130,24 +149,26 @@ public:
         return (unsigned int)NodeType::Output;
     }
 
+    [[nodiscard]] bool validate() const final;
+
     void drawOutput();
 
-    ValidationState isValid() {
+    [[nodiscard]] ValidationState isValid() const {
         if (mValueIn.isLinked())
             return ValidationState::Valid;
         return ValidationState::Unlinked;
     }
 
-    input_t getValue() {
-        return mValueIn.getValue();
+    [[nodiscard]] inline input_t getValue() const {
+        return mValueIn.getLinkedValue();
     }
 
     template<typename T>
-    T getValue() {
+    [[nodiscard]] inline T getValue() const {
         return std::visit(VisitOverload{
             [](const auto& arg) { return T{}; },
             [](const T& arg) { return arg; },
-        }, mValueIn.getValue());
+        }, getValue());
     }
 protected:
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> generateSerializedData() const final;
@@ -155,7 +176,7 @@ protected:
 
     void drawContents() final;
 private:
-    port_t mValueIn = port_t(*this, IPort::Direction::In, "ValueIn", "Value");
+    port_t mValueIn = port_t(*this, IPort::Direction::In, "ValueIn", "Value", [&]() { return this; });
 };
 
 class SubGraphNode final : public Node {

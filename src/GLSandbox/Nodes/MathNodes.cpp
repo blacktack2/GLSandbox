@@ -19,7 +19,7 @@ ArithmeticNode::ArithmeticNode() : Node("Arithmetic") {
                     [](const auto& arg2)->port_type { return port_type{}; },
                 }, calculateValue()); });
             addPort(*mValueOut);
-        }, mValueAIn.getValue());
+        }, mValueAIn.getLinkedValue());
     });
     mValueAIn.addOnUnlinkEvent([this]() {
         removePort(*mValueBIn);
@@ -56,7 +56,7 @@ ArithmeticNode::numeric_variant_t ArithmeticNode::calculateValue() {
     return std::visit([this](const auto& valueA)->numeric_variant_t {
         using value_type = std::decay_t<decltype(valueA)>;
         value_type valueB = std::visit([](const auto& arg) { return arg; },
-            dynamic_cast<Port<value_type>*>(mValueBIn.get())->getValue());
+            dynamic_cast<Port<value_type>*>(mValueBIn.get())->getLinkedValue());
         return operate(mCurrentOperation, valueA, valueB);
-    }, mValueAIn.getValue());
+    }, mValueAIn.getLinkedValue());
 }

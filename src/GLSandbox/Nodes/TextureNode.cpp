@@ -211,8 +211,6 @@ TextureNode::TextureNode() : Node("Texture") {
     mTexture->resize(mTexBounds.x, mTexBounds.y);
 
     addPort(mTextureOut);
-
-    RenderConfig::addResizeCallable(*this);
 }
 
 TextureNode::~TextureNode() {
@@ -273,6 +271,8 @@ void TextureNode::deserializeData(const std::string& dataID, std::ifstream& stre
 }
 
 void TextureNode::onDeserialize() {
+    if (mIsScreenLocked)
+        RenderConfig::addResizeCallable(*this);
     updateTexture();
 }
 

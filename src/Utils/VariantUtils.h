@@ -28,6 +28,14 @@ struct VariantCastWrapper<target_t, std::variant<Types...>> {
     using type = target_t<Types...>;
 };
 
+template<template<typename...> typename target_t, typename source_t>
+struct Rebind;
+
+template<template<typename...> typename target_t, template<typename...> typename source_t, typename... Types>
+struct Rebind<target_t, source_t<Types...>> {
+    using type = target_t<Types...>;
+};
+
 /**
  * @brief Utility for converting a std::variant to a different class with the same variadic template arguments.
  * @code
@@ -94,5 +102,9 @@ struct AnyToVariantWrapper<variant_t> {
  */
 template <typename... Types>
 std::variant<Types...> anyToVariant(const std::any& any) {
+    return AnyToVariantWrapper<std::variant<Types...>, Types...>::convert(any);
+}
+template <typename... Types>
+std::variant<Types...> anyToVariant(const std::any& any, const std::variant<Types...>&) {
     return AnyToVariantWrapper<std::variant<Types...>, Types...>::convert(any);
 }

@@ -60,11 +60,11 @@ bool FramebufferNode::validate() const {
     isValid &= !mEnableDepthBuffer || (mDepthTexIn->isLinked() &&
         std::visit([](const auto& arg) {
             return arg->getInternalFormat() == Texture::InternalFormat::DepthComponent;
-        }, mDepthTexIn->getValue()));
+        }, mDepthTexIn->getLinkedValue()));
     isValid &= !mEnableDepthStencilBuffer || (mDepthStencilTexIn->isLinked() &&
         std::visit([](const auto& arg) {
             return arg->getInternalFormat() == Texture::InternalFormat::DepthStencil;
-        }, mDepthStencilTexIn->getValue()));
+        }, mDepthStencilTexIn->getLinkedValue()));
 
     for (const auto& texPort : mTextureInPorts)
         isValid &= texPort->isLinked();
@@ -165,12 +165,12 @@ void FramebufferNode::updateFramebuffer() {
     }
 
     if (mEnableDepthBuffer && mDepthTexIn->isLinked())
-        mFramebuffer->bindTexture(*std::visit([](auto arg)->Texture* { return arg; }, mDepthTexIn->getValue()));
+        mFramebuffer->bindTexture(*std::visit([](auto arg)->Texture* { return arg; }, mDepthTexIn->getLinkedValue()));
     if (mEnableDepthStencilBuffer && mDepthStencilTexIn->isLinked())
-        mFramebuffer->bindTexture(*std::visit([](auto arg)->Texture* { return arg; }, mDepthStencilTexIn->getValue()));
+        mFramebuffer->bindTexture(*std::visit([](auto arg)->Texture* { return arg; }, mDepthStencilTexIn->getLinkedValue()));
     for (unsigned int i = 0; i < mNumColourBuffers; i++)
         if (mTextureInPorts[i]->isLinked())
-            mFramebuffer->bindTexture(*std::visit([](auto arg)->Texture* { return arg; }, mTextureInPorts[i]->getValue()), i);
+            mFramebuffer->bindTexture(*std::visit([](auto arg)->Texture* { return arg; }, mTextureInPorts[i]->getLinkedValue()), i);
 
     mFramebuffer->drawBuffers();
 

@@ -265,7 +265,7 @@ void Node::lock() {
     for (auto port : mPorts)
         if (port.get().isLinked())
             for (size_t i = 0; i < port.get().getNumLinks(); i++)
-                port.get().getLinkedParent(i).lock();
+                port.get().getLinkedPort(i)->getParent().lock();
     onLock();
 }
 
@@ -276,6 +276,6 @@ void Node::unlock() {
     for (auto port : mPorts)
         if (port.get().isLinked())
             for (size_t i = 0; i < port.get().getNumLinks(); i++)
-                port.get().getLinkedParent(i).unlock();
+                port.get().getLinkedPort(i)->getParent().unlock();
     onUnlock();
 }

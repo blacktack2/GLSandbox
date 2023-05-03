@@ -8,7 +8,7 @@ std::size_t variantTypeHash(const std::variant<Types...>& variant) {
 }
 
 void parsePinTypeData(size_t pinHash, float& pinSize, PinShape& shape, ImU32& colour, std::string& tooltip) {
-    if (pinHash == typeHash<void*>()) {
+    if (pinHash == typeHash<Node*>()) {
         pinSize = 14.0f;
         shape = PinShape::Arrow;
         colour = ImColor(1.0f, 1.0f, 1.0f);
