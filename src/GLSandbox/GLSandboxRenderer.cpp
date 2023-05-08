@@ -30,10 +30,25 @@ void GLSandboxRenderer::update() {
 
 void GLSandboxRenderer::drawDebug() {
     ImGui::Begin("Debug");
+
+    ImGui::BeginChild("DebugData", ImVec2(200.0f, 0.0f), true);
+
+    float deltaTime = mTimer.tick().count();
+    ImGui::Text("%.2f fps | %.2f ms", 1.0f / deltaTime, 1000.0f * deltaTime);
+
+    ImGui::EndChild();
+    ImGui::SameLine();
+    ImGui::BeginChild("DebugMessages", ImVec2(0.0f, 0.0f), true);
+
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 0, 1));
+
     for (const std::string& message : sDebugMessages)
         ImGui::TextWrapped("%s", message.c_str());
+
     ImGui::PopStyleColor();
+
+    ImGui::EndChild();
+
     ImGui::End();
 }
 
