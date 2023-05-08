@@ -54,6 +54,6 @@ void main() {
 
     vec3 result = diffuse * modelColour;
     result += specular;
-    result += diffuse * lightAmbient;
+    result += lightAmbient;
     fragColour = vec4(result, 1.0);
 }
