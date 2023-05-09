@@ -35,13 +35,13 @@ TextureFileNode::TextureFileNode() : Node("Texture") {
 
 std::vector<std::pair<std::string, std::string>> TextureFileNode::generateSerializedData() const {
     std::vector<std::pair<std::string, std::string>> data{};
-    data.emplace_back("File", mFilepath.generic_string());
+    data.emplace_back("File", SerializationUtils::serializeData(mFilepath));
     return data;
 }
 
 void TextureFileNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
     if (dataID == "File")
-        mFilepath = SerializationUtils::readLine(stream);
+        SerializationUtils::deserializeData(stream, mFilepath);
 }
 
 void TextureFileNode::onDeserialize() {

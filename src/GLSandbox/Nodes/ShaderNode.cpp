@@ -16,34 +16,34 @@ std::vector<std::pair<std::string, std::string>> ShaderNode::generateSerializedD
     std::vector<std::pair<std::string, std::string>> data;
 
     if (!mVertData.filepath.empty())
-        data.emplace_back("Vertex", mVertData.filepath.generic_string());
+        data.emplace_back("Vertex", SerializationUtils::serializeData(mVertData.filepath));
     if (!mFragData.filepath.empty())
-        data.emplace_back("Fragment", mFragData.filepath.generic_string());
+        data.emplace_back("Fragment", SerializationUtils::serializeData(mFragData.filepath));
     if (!mTescData.filepath.empty())
-        data.emplace_back("TessCont", mTescData.filepath.generic_string());
+        data.emplace_back("TessCont", SerializationUtils::serializeData(mTescData.filepath));
     if (!mTeseData.filepath.empty())
-        data.emplace_back("TessEval", mTeseData.filepath.generic_string());
+        data.emplace_back("TessEval", SerializationUtils::serializeData(mTeseData.filepath));
     if (!mGeomData.filepath.empty())
-        data.emplace_back("Geometry", mGeomData.filepath.generic_string());
+        data.emplace_back("Geometry", SerializationUtils::serializeData(mGeomData.filepath));
 
     return data;
 }
 
 void ShaderNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
     if (dataID == "Vertex") {
-        mVertData.filepath = SerializationUtils::readLine(stream);
+        SerializationUtils::deserializeData(stream, mVertData.filepath);
         SerializationUtils::readFile(mVertData.filepath, mVertData.code);
     } else if (dataID == "Fragment") {
-        mFragData.filepath = SerializationUtils::readLine(stream);
+        SerializationUtils::deserializeData(stream, mFragData.filepath);
         SerializationUtils::readFile(mFragData.filepath, mFragData.code);
     } else if (dataID == "TessCont") {
-        mTescData.filepath = SerializationUtils::readLine(stream);
+        SerializationUtils::deserializeData(stream, mTescData.filepath);
         SerializationUtils::readFile(mTescData.filepath, mTescData.code);
     } else if (dataID == "TessEval") {
-        mTeseData.filepath = SerializationUtils::readLine(stream);
+        SerializationUtils::deserializeData(stream, mTeseData.filepath);
         SerializationUtils::readFile(mTeseData.filepath, mTeseData.code);
     } else if (dataID == "Geometry") {
-        mGeomData.filepath = SerializationUtils::readLine(stream);
+        SerializationUtils::deserializeData(stream, mGeomData.filepath);
         SerializationUtils::readFile(mGeomData.filepath, mGeomData.code);
     }
 }

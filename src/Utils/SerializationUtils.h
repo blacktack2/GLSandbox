@@ -104,6 +104,11 @@ public:
     [[nodiscard]] static std::string serializeData(T value) {
         return std::to_string(value);
     }
+    [[nodiscard]] static std::string serializeData(const std::filesystem::path& value) {
+        std::stringstream stream;
+        stream << std::filesystem::relative(value);
+        return stream.str();
+    }
     template<glm::length_t L, typename T, glm::qualifier Q>
     [[nodiscard]] static std::string serializeData(glm::vec<L, T, Q> value) {
         std::stringstream stream;
@@ -123,6 +128,9 @@ public:
 
     template<typename T>
     static void deserializeData(std::istream& stream, T& value) {
+        stream >> value;
+    }
+    static void deserializeData(std::istream& stream, std::filesystem::path& value) {
         stream >> value;
     }
     template<glm::length_t L, typename T, glm::qualifier Q>

@@ -47,14 +47,14 @@ std::vector<std::pair<std::string, std::string>> MeshNode::generateSerializedDat
     std::filesystem::path fileExtension = mFilepath.extension();
     if (fileExtension == getMeshDefaultExtension())
         writeToFile(filepath);
-    data.emplace_back("File", filepath.generic_string());
+    data.emplace_back("File", SerializationUtils::serializeData(filepath));
 
     return data;
 }
 
 void MeshNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
     if (dataID == "File") {
-        mFilepath = SerializationUtils::readLine(stream);
+        SerializationUtils::deserializeData(stream, mFilepath);
         loadFromFile();
     }
 }
