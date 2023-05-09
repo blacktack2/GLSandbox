@@ -190,6 +190,7 @@ void Window::drawMenu() {
         return;
 
     drawFileMenu();
+    drawEditMenu();
 
     ImGui::EndMainMenuBar();
 }
@@ -228,6 +229,16 @@ void Window::drawFileMenu() {
 
     if (ImGui::MenuItem("Exit##MainMenu_File"))
         mRunning = false;
+
+    ImGui::EndMenu();
+}
+
+void Window::drawEditMenu() {
+    if (!ImGui::BeginMenu("Edit##MainMenu"))
+        return;
+
+    if (ImGui::MenuItem("Clear##MainMenu_Edit"))
+        mGraph->clearNodes();
 
     ImGui::EndMenu();
 }

@@ -30,6 +30,7 @@ private:
 
     void drawMenu();
     void drawFileMenu();
+    void drawEditMenu();
 
     void drawGraph();
 
