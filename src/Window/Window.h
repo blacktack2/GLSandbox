@@ -31,6 +31,7 @@ private:
     void drawMenu();
     void drawFileMenu();
     void drawEditMenu();
+    void drawAnalysisMenu();
 
     void drawGraph();
 

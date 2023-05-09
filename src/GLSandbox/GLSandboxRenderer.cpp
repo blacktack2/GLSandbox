@@ -13,13 +13,21 @@ std::vector<std::string> GLSandboxRenderer::sDebugMessages{};
 bool                     GLSandboxRenderer::sErrorFlag = false;
 
 GLSandboxRenderer::GLSandboxRenderer() : Renderer() {
-    mDefaultMesh = std::make_unique<Mesh>();
-    Mesh::makeScreenQuad(*mDefaultMesh);
-    std::string vertexCode;
-    SerializationUtils::readFile("Shaders/simple-quad.vert", vertexCode);
-    std::string fragmentCode;
-    SerializationUtils::readFile("Shaders/simple-quad.frag", fragmentCode);
-    mDefaultShader = std::make_unique<Shader>(vertexCode, fragmentCode);
+    mQuad = std::make_unique<Mesh>();
+    Mesh::makeScreenQuad(*mQuad);
+
+    std::string defaultVertCode;
+    SerializationUtils::readFile("Shaders/simple-quad.vert", defaultVertCode);
+    std::string defaultFragCode;
+    SerializationUtils::readFile("Shaders/simple-quad.frag", defaultFragCode);
+    mDefaultShader = std::make_unique<Shader>(defaultVertCode, defaultFragCode);
+
+    std::string profileVertCode;
+    SerializationUtils::readFile("Shaders/profile.vert", profileVertCode);
+    std::string profileFragCode;
+    SerializationUtils::readFile("Shaders/profile.frag", profileFragCode);
+    mProfileShader = std::make_unique<Shader>(profileVertCode, profileFragCode);
+
     resetPipeline();
 }
 
@@ -56,8 +64,23 @@ void GLSandboxRenderer::resetPipeline() {
     clearPipeline();
     appendPipeline([&]() {
         mDefaultShader->bind();
-        mDefaultMesh->bind();
-        mDefaultMesh->draw();
+        mQuad->bind();
+        mQuad->draw();
+    });
+}
+
+void GLSandboxRenderer::loadAnalysisPipeline(unsigned int bulk, std::size_t iterations) {
+    mProfileShader->bind();
+    mProfileShader->setUniform("bulk", (int)bulk);
+    mProfileShader->unbind();
+
+    clearPipeline();
+    appendPipeline([&, iterations]() {
+        for (std::size_t i = 0; i < iterations; i++) {
+            mProfileShader->bind();
+            mQuad->bind();
+            mQuad->draw();
+        }
     });
 }
 

@@ -25,13 +25,15 @@ public:
 
     void resetPipeline() final;
 
+    void loadAnalysisPipeline(unsigned int bulk, std::size_t iterations) final;
+
     static void APIENTRY debugOutput(unsigned int source, unsigned int type, unsigned int id, unsigned int severity,
                                      int length, const char* message, const void* userParam);
 private:
     Timer mTimer{10};
 
-    std::unique_ptr<Mesh> mDefaultMesh;
-    std::unique_ptr<Shader> mDefaultShader;
+    std::unique_ptr<Mesh> mQuad;
+    std::unique_ptr<Shader> mDefaultShader, mProfileShader;
 
     static std::vector<std::string> sDebugMessages;
     static bool sErrorFlag;

@@ -191,6 +191,7 @@ void Window::drawMenu() {
 
     drawFileMenu();
     drawEditMenu();
+    drawAnalysisMenu();
 
     ImGui::EndMainMenuBar();
 }
@@ -239,6 +240,19 @@ void Window::drawEditMenu() {
 
     if (ImGui::MenuItem("Clear##MainMenu_Edit"))
         mGraph->clearNodes();
+
+    ImGui::EndMenu();
+}
+
+void Window::drawAnalysisMenu() {
+    if (!ImGui::BeginMenu("Analysis##MainMenu"))
+        return;
+
+    if (ImGui::MenuItem("Analyse Bulky"))
+        mRenderer->loadAnalysisPipeline(200, 5);
+
+    if (ImGui::MenuItem("Analyse Iteration"))
+        mRenderer->loadAnalysisPipeline(5, 200);
 
     ImGui::EndMenu();
 }

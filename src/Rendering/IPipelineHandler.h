@@ -10,6 +10,8 @@ public:
     virtual void clearPipeline() = 0;
     virtual void resetPipeline() = 0;
     virtual void appendPipeline(pipeline_callback callback) = 0;
+
+    virtual void loadAnalysisPipeline(unsigned int bulk, std::size_t iterations) = 0;
 protected:
     IPipelineHandler() = default;
 };
