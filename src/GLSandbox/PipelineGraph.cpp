@@ -3,6 +3,7 @@
 #include "Nodes/BasicNodes.h"
 #include "Nodes/ExtendedNodes.h"
 #include "Nodes/ExecutionNodes.h"
+#include "Nodes/FlowControlNodes.h"
 #include "Nodes/FramebufferNode.h"
 #include "Nodes/MathNodes.h"
 #include "Nodes/MeshNode.h"
@@ -100,6 +101,8 @@ std::unique_ptr<Node> PipelineGraph::generateNode(NodeType type) const {
         case NodeType::Input       : return std::make_unique<InputNode>();
         case NodeType::Output      : return std::make_unique<OutputNode>();
         case NodeType::Graph       : return std::make_unique<SubGraphNode>((Graph&)*this, mPipelineHandler);
+
+        case NodeType::Loop        : return std::make_unique<LoopNode>();
 
         case NodeType::RenderPass  : return std::make_unique<RenderPassNode>();
 

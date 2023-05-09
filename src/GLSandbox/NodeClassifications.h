@@ -9,6 +9,8 @@ enum class NodeType : std::size_t {
     Graph,
     RenderPass,
 
+    Loop,
+
     Arithmetic,
 
     Integer,
@@ -72,6 +74,8 @@ static const NodeData& getNodeData(NodeType type) {
         {NodeType::Output,      NodeGroup::Execution, "Output",            "Output",      "Graph output."},
         {NodeType::Graph,       NodeGroup::Execution, "Sub-Graph",         "SubGraph",    ""},
         {NodeType::RenderPass,  NodeGroup::Execution, "Render Pass",       "RenderPass",  "Single draw call."},
+
+        {NodeType::Loop,        NodeGroup::Execution, "Loop",              "Loop",        "Repeat an operation."},
 
         {NodeType::Arithmetic,  NodeGroup::Maths,     "Arithmetic",        "Arithmetic",  "Arithmetic operations on numeric types."},
 

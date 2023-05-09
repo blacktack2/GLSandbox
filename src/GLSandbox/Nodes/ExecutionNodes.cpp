@@ -1,5 +1,6 @@
 #include "ExecutionNodes.h"
 
+#include "FlowControlNodes.h"
 #include "RenderPassNode.h"
 
 #include "../Assets.h"
@@ -43,44 +44,98 @@ void EntryNode::pipelineResetEvent() {
     mPipelineHandler.resetPipeline();
 }
 
+enum class PipelineState {
+    Valid,
+    Invalid,
+    InfiniteLoop,
+    UnsupportedConnection
+};
+
+PipelineState validateNode(const Node* node, const Node* parent, const LoopNode* currentLoop = nullptr) {
+    if (!node || node == currentLoop)
+        return PipelineState::Valid;
+    if (node == parent)
+        return PipelineState::InfiniteLoop;
+
+    const Node* next;
+    bool isValid;
+    if (const RenderPassNode* renderPassNode = dynamic_cast<const RenderPassNode*>(node)) {
+        isValid = renderPassNode->validate();
+        next = renderPassNode->getNextPass();
+    } else if (const InputNode* inputNode = dynamic_cast<const InputNode*>(node)) {
+        isValid = inputNode->validate();
+        if (isValid)
+            next = inputNode->getOutputValue<Node*>();
+    } else if (const OutputNode* outputNode = dynamic_cast<const OutputNode*>(node)) {
+        isValid = outputNode->validate();
+        next = outputNode->getNextPass();
+    } else if (const LoopNode* loopNode = dynamic_cast<const LoopNode*>(node)) {
+        PipelineState state = validateNode(loopNode->getLoopEntry(), loopNode, loopNode);
+        if (state != PipelineState::Valid)
+            return state;
+        isValid = true;
+        next = loopNode->getNextPass();
+    } else {
+        return PipelineState::UnsupportedConnection;
+    }
+
+    return isValid ? validateNode(next, node, currentLoop) : PipelineState::Invalid;
+}
+
 bool EntryNode::validatePipeline() const {
     if (!mExecutionOut.isLinked()) {
         mMessage = "Not linked to a render pass";
         mMessageType = MessageType::Error;
         return false;
     }
-    bool isValid = true;
-    const Node* node = mExecutionOut.getLinkedValue<Node*>();
-    while (node) {
-        const Node* next = nullptr;
-        if (const RenderPassNode* renderPassNode = dynamic_cast<const RenderPassNode*>(node)) {
-            isValid &= renderPassNode->validate();
-            next = renderPassNode->getNextPass();
-        } else if (const InputNode* inputNode = dynamic_cast<const InputNode*>(node)) {
-            if (isValid &= inputNode->validate())
-                next = inputNode->getOutputValue<Node*>();
-        } else if (const OutputNode* outputNode = dynamic_cast<const OutputNode*>(node)) {
-            isValid &= outputNode->validate();
-            next = outputNode->getNextPass();
-        } else {
-            mMessage = std::string("Unsupported connection [").append(node->getName()).append("]");
-            return false;
-        }
 
-        if (next == node) {
-            mMessage = "Infinite loop detected";
+    const Node* node = mExecutionOut.getLinkedValue<Node*>();
+    switch (validateNode(node, nullptr)) {
+        case PipelineState::Valid:
+            mMessage = "Uploaded";
+            mMessageType = MessageType::Confirmation;
+            return true;
+        case PipelineState::Invalid:
+            mMessage = "Invalid";
+            mMessageType = MessageType::Error;
             return false;
-        }
-        node = next;
+        case PipelineState::InfiniteLoop:
+            mMessage = "Infinite loop detected";
+            mMessageType = MessageType::Error;
+            return false;
+        case PipelineState::UnsupportedConnection:
+            mMessage = std::string("Unsupported connection [").append(node->getName()).append("]");
+            mMessageType = MessageType::Error;
+            return false;
+        default:
+            mMessage = "Undefined";
+            mMessageType = MessageType::Error;
+            return false;
     }
-    if (isValid) {
-        mMessage = "Uploaded";
-        mMessageType = MessageType::Confirmation;
-        return true;
+}
+
+void generatePipeline(IPipelineHandler& handler, const Node* node, const LoopNode* currentLoop = nullptr, std::size_t iteration = 1) {
+    if (!node)
+        return;
+
+    if (node == currentLoop) {
+        if (iteration != currentLoop->getNumIterations())
+            generatePipeline(handler, currentLoop->getLoopEntry(), currentLoop, iteration + 1);
+        return;
+    }
+
+    if (const RenderPassNode* renderPassNode = dynamic_cast<const RenderPassNode*>(node)) {
+        handler.appendPipeline(renderPassNode->generateCallback());
+        generatePipeline(handler, renderPassNode->getNextPass(), currentLoop, iteration);
+    } else if (const InputNode* inputNode = dynamic_cast<const InputNode*>(node)) {
+        generatePipeline(handler, inputNode->getOutputValue<Node*>(), currentLoop, iteration);
+    } else if (const OutputNode* outputNode = dynamic_cast<const OutputNode*>(node)) {
+        generatePipeline(handler, outputNode->getNextPass(), currentLoop, iteration);
+    } else if (const LoopNode* loopNode = dynamic_cast<const LoopNode*>(node)) {
+        generatePipeline(handler, loopNode->getLoopEntry(), loopNode);
+        generatePipeline(handler, loopNode->getNextPass(), currentLoop, iteration);
     } else {
-        mMessage = "Invalid";
-        mMessageType = MessageType::Error;
-        return false;
+        assert(false);
     }
 }
 
@@ -88,18 +143,7 @@ void EntryNode::updatePipeline() {
     mPipelineHandler.clearPipeline();
 
     const Node* node = mExecutionOut.getLinkedValue<Node*>();
-    while (node) {
-        if (const RenderPassNode* renderPassNode = dynamic_cast<const RenderPassNode*>(node)) {
-            mPipelineHandler.appendPipeline(renderPassNode->generateCallback());
-            node = renderPassNode->getNextPass();
-        } else if (const InputNode* inputNode = dynamic_cast<const InputNode*>(node)) {
-            node = inputNode->getOutputValue<Node*>();
-        } else if (const OutputNode* outputNode = dynamic_cast<const OutputNode*>(node)) {
-            node = outputNode->getNextPass();
-        } else {
-            assert(false);
-        }
-    }
+    generatePipeline(mPipelineHandler, node);
 
     mPipelineHandler.appendPipeline([]() {
         RenderConfig::setViewport();
