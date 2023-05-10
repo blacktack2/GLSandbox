@@ -1,0 +1,159 @@
+97201734810
+$NodeBegin
+^NodeType Entry
+-NodeID 1
+-NodeName Entry
+-NodePosition 0.000000 100.000000
+-OutPort Out 2
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType RenderPass
+-NodeID 3
+-NodeName Render Pass
+-NodePosition 280.000000 100.000000
+-InPort In 2
+-InPort FramebufferIn -1
+-InPort MeshIn 22
+-InPort ShaderIn 24
+-Dynamic-InPort DynamicIn-1 42
+-OutPort Out 5
+$DataBegin
+-Viewport 0 0 0 0
+-ClearColour 0 0 0 0
+-ColourMask 1 1 1 1
+-FaceCull 1
+-DepthMask 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType RenderPass
+-NodeID 10
+-NodeName Render Pass
+-NodePosition 832.000000 100.000000
+-InPort In 5
+-InPort FramebufferIn -1
+-InPort MeshIn 18
+-InPort ShaderIn 20
+-Dynamic-InPort DynamicIn-0 45
+-Dynamic-InPort DynamicIn-100 47
+-Dynamic-InPort DynamicIn-200 49
+-Dynamic-InPort DynamicIn-1 60
+-OutPort Out 12
+$DataBegin
+-Viewport 0 0 0 0
+-ColourMask 1 1 1 1
+-FaceCull 1
+-DepthTestFunc 3
+-DepthTestLimits 0 1
+-DepthMask 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Mesh
+-NodeID 17
+-NodeName Mesh
+-NodePosition 560.000000 182.000000
+-OutPort MeshOut 18
+$DataBegin
+-File Meshes/Teapot.obj
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Shader
+-NodeID 19
+-NodeName Shader
+-NodePosition 560.000000 454.000000
+-OutPort ShaderOut 20
+$DataBegin
+-Vertex Shaders/simple-model.vert
+-Fragment Shaders/simple-model.frag
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Mesh
+-NodeID 21
+-NodeName Mesh
+-NodePosition 0.000000 182.000000
+-OutPort MeshOut 22
+$DataBegin
+-File Meshes/Mesh1.msh
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Shader
+-NodeID 23
+-NodeName Shader
+-NodePosition 0.000000 454.000000
+-OutPort ShaderOut 24
+$DataBegin
+-Vertex Shaders/simple-quad.vert
+-Fragment Shaders/simple-quad.frag
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Colour
+-NodeID 41
+-NodeName Colour
+-NodePosition 0.000000 678.000000
+-OutPort ValueOut 42
+$DataBegin
+-Value 0 0.3 0.5
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType ModelMatrix
+-NodeID 44
+-NodeName Model
+-NodePosition 560.000000 -473.000000
+-OutPort ValueOut 45
+$DataBegin
+-Position 0 0 0
+-Roll 0.000000
+-Pitch 0.000000
+-Yaw 88.500000
+-Scale 1 1 1
+-Value 0.026177 0 -0.999657 0 0 1 0 0 0.999657 0 0.026177 0 0 0 0 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType ViewMatrix
+-NodeID 46
+-NodeName View
+-NodePosition 560.000000 -265.000000
+-OutPort ValueOut 47
+$DataBegin
+-Position 0 0 10
+-Roll 0.000000
+-Pitch 0.000000
+-Yaw 0.000000
+-Value 1 0 0 0 0 1 0 0 0 0 1 0 0 0 -10 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType ProjMatrix
+-NodeID 48
+-NodeName Projection
+-NodePosition 560.000000 -105.000000
+-OutPort ValueOut 49
+$DataBegin
+-Type 0
+-FoV 90.000000
+-Aspect 1.800000
+-ClipX -100 100
+-ClipY -100 100
+-ClipZ 1 100
+-Value 0.555556 0 0 0 0 1 0 0 0 0 -1.0202 -1 0 0 -2.0202 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Colour
+-NodeID 59
+-NodeName LightColour
+-NodePosition 560.000000 678.000000
+-OutPort ValueOut 60
+$DataBegin
+-Value 0 1 0
+$DataEnd
+$NodeEnd

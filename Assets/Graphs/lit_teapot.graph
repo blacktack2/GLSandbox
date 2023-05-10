@@ -1,0 +1,214 @@
+1239801829
+$NodeBegin
+^NodeType Entry
+-NodeID 650
+-NodeName Entry
+-NodePosition 0.000000 100.000000
+-OutPort Out 651
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType RenderPass
+-NodeID 652
+-NodeName Render Pass
+-NodePosition 288.000000 100.000000
+-InPort In 651
+-InPort FramebufferIn -1
+-InPort MeshIn 669
+-InPort ShaderIn 671
+-Dynamic-InPort DynamicIn-1 673
+-OutPort Out 654
+$DataBegin
+-Viewport 0 0 0 0
+-ClearColour 0 0 0 0
+-ColourMask 1 1 1 1
+-FaceCull 1
+-DepthMask 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType RenderPass
+-NodeID 658
+-NodeName Render Pass
+-NodePosition 576.000000 100.000000
+-InPort In 654
+-InPort FramebufferIn -1
+-InPort MeshIn 665
+-InPort ShaderIn 667
+-Dynamic-InPort DynamicIn-0 675
+-Dynamic-InPort DynamicIn-100 677
+-Dynamic-InPort DynamicIn-200 679
+-Dynamic-InPort DynamicIn-1 681
+-Dynamic-InPort DynamicIn-101 683
+-Dynamic-InPort DynamicIn-201 685
+-Dynamic-InPort DynamicIn-301 687
+-Dynamic-InPort DynamicIn-401 689
+-Dynamic-InPort DynamicIn-501 691
+-OutPort Out 660
+$DataBegin
+-Viewport 0 0 0 0
+-ColourMask 1 1 1 1
+-FaceCull 1
+-DepthTestFunc 3
+-DepthTestLimits 0 1
+-DepthMask 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Mesh
+-NodeID 664
+-NodeName Mesh
+-NodePosition 288.000000 326.000000
+-OutPort MeshOut 665
+$DataBegin
+-File "Meshes/Teapot.obj"
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Shader
+-NodeID 666
+-NodeName Shader
+-NodePosition 288.000000 646.000000
+-OutPort ShaderOut 667
+$DataBegin
+-Vertex "Shaders/blinn-phong.vert"
+-Fragment "Shaders/blinn-phong.frag"
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Mesh
+-NodeID 668
+-NodeName Mesh
+-NodePosition 0.000000 198.000000
+-OutPort MeshOut 669
+$DataBegin
+-File ""
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Shader
+-NodeID 670
+-NodeName Shader
+-NodePosition 0.000000 470.000000
+-OutPort ShaderOut 671
+$DataBegin
+-Vertex "Shaders/simple-quad.vert"
+-Fragment "Shaders/simple-quad.frag"
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Colour
+-NodeID 672
+-NodeName Colour
+-NodePosition 0.000000 790.000000
+-OutPort ValueOut 673
+$DataBegin
+-Value 0 0.3 0.5
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType ModelMatrix
+-NodeID 674
+-NodeName Model
+-NodePosition 288.000000 966.000000
+-OutPort ValueOut 675
+$DataBegin
+-Position 0 0 0
+-Roll 0.000000
+-Pitch 0.000000
+-Yaw 88.500000
+-Scale 1 1 1
+-Value 0.026177 0 -0.999657 0 0 1 0 0 0.999657 0 0.026177 0 0 0 0 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType ViewMatrix
+-NodeID 676
+-NodeName View
+-NodePosition 288.000000 1174.000000
+-OutPort ValueOut 677
+$DataBegin
+-Position 0 0 10
+-Roll 0.000000
+-Pitch 0.000000
+-Yaw 0.000000
+-Value 1 0 0 0 0 1 0 0 0 0 1 0 0 0 -10 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType ProjMatrix
+-NodeID 678
+-NodeName Projection
+-NodePosition 288.000000 1334.000000
+-OutPort ValueOut 679
+$DataBegin
+-Type 0
+-FoV 90.000000
+-Aspect 1.800000
+-ClipX -100 100
+-ClipY -100 100
+-ClipZ 1 100
+-Value 0.555556 0 0 0 0 1 0 0 0 0 -1.0202 -1 0 0 -2.0202 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Vec4
+-NodeID 680
+-NodeName LightPos
+-NodePosition 576.000000 1094.000000
+-OutPort ValueOut 681
+$DataBegin
+-Value -1.1 3.6 2.2 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Float
+-NodeID 682
+-NodeName LightRadius
+-NodePosition 576.000000 1174.000000
+-OutPort ValueOut 683
+$DataBegin
+-Value 100.000000
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Colour
+-NodeID 684
+-NodeName LightColour
+-NodePosition 576.000000 1254.000000
+-OutPort ValueOut 685
+$DataBegin
+-Value 1 1 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Direction
+-NodeID 686
+-NodeName LightDirection
+-NodePosition 576.000000 1334.000000
+-OutPort ValueOut 687
+$DataBegin
+-Value 0 1 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Float
+-NodeID 688
+-NodeName LightAngle
+-NodePosition 576.000000 1414.000000
+-OutPort ValueOut 689
+$DataBegin
+-Value 360.000000
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Colour
+-NodeID 690
+-NodeName LightAmbience
+-NodePosition 576.000000 1494.000000
+-OutPort ValueOut 691
+$DataBegin
+-Value 0.03 0.03 0.03
+$DataEnd
+$NodeEnd

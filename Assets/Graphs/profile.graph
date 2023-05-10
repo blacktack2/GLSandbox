@@ -1,0 +1,72 @@
+4258014653308150336
+$NodeBegin
+^NodeType Entry
+-NodeID 90
+-NodeName Entry
+-NodePosition -176.000000 -25.000000
+-OutPort Out 91
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType RenderPass
+-NodeID 92
+-NodeName Render Pass
+-NodePosition 100.000000 100.000000
+-InPort In 108
+-InPort FramebufferIn -1
+-InPort MeshIn 99
+-InPort ShaderIn 103
+-Dynamic-InPort DynamicIn-1 101
+-OutPort Out 94
+$DataBegin
+-Viewport 0 0 0 0
+-ColourMask 1 1 1 1
+-FaceCull 1
+-DepthMask 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Mesh
+-NodeID 98
+-NodeName Mesh
+-NodePosition -160.000000 198.000000
+-OutPort MeshOut 99
+$DataBegin
+-File "Meshes/quad.msh"
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Integer
+-NodeID 100
+-NodeName Integer
+-NodePosition -160.000000 806.000000
+-OutPort ValueOut 101
+$DataBegin
+-Value 2
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Shader
+-NodeID 102
+-NodeName Shader
+-NodePosition -160.000000 486.000000
+-OutPort ShaderOut 103
+$DataBegin
+-Vertex "Shaders/profile.vert"
+-Fragment "Shaders/profile.frag"
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Loop
+-NodeID 104
+-NodeName Loop
+-NodePosition 104.000000 -25.000000
+-InPort Entry 91
+-InPort LoopEnd 94
+-OutPort Exit 106
+-OutPort LoopBegin 108
+$DataBegin
+-Iterations 1
+$DataEnd
+$NodeEnd

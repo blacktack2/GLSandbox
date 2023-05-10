@@ -1,0 +1,320 @@
+382938767
+$NodeBegin
+^NodeType Entry
+-NodeID 562
+-NodeName Entry
+-NodePosition 0.000000 102.000000
+-OutPort Out 563
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType RenderPass
+-NodeID 564
+-NodeName Render Pass
+-NodePosition 896.000000 100.000000
+-InPort In -1
+-InPort FramebufferIn -1
+-InPort MeshIn -1
+-InPort ShaderIn -1
+-OutPort Out 566
+$DataBegin
+-Viewport 0 0 0 0
+-ColourMask 1 1 1 1
+-FaceCull 1
+-DepthMask 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Arithmetic
+-NodeID 570
+-NodeName Arithmetic
+-NodePosition 8.000000 389.000000
+-InPort ValueAIn -1
+$DataBegin
+-Operation 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Integer
+-NodeID 572
+-NodeName Integer
+-NodePosition 0.000000 582.000000
+-OutPort ValueOut 573
+$DataBegin
+-Value 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Integer
+-NodeID 574
+-NodeName IVec2
+-NodePosition 224.000000 582.000000
+-OutPort ValueOut 575
+$DataBegin
+-Value 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Integer
+-NodeID 576
+-NodeName IVec3
+-NodePosition 448.000000 582.000000
+-OutPort ValueOut 577
+$DataBegin
+-Value 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Integer
+-NodeID 578
+-NodeName IVec4
+-NodePosition 672.000000 582.000000
+-OutPort ValueOut 579
+$DataBegin
+-Value 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Float
+-NodeID 580
+-NodeName Float
+-NodePosition 896.000000 582.000000
+-OutPort ValueOut 581
+$DataBegin
+-Value 0.000000
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Vec2
+-NodeID 582
+-NodeName Vec2
+-NodePosition 1120.000000 582.000000
+-OutPort ValueOut 583
+$DataBegin
+-Value 0 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Vec3
+-NodeID 584
+-NodeName Vec3
+-NodePosition 1344.000000 582.000000
+-OutPort ValueOut 585
+$DataBegin
+-Value 0 0 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Vec4
+-NodeID 586
+-NodeName Vec4
+-NodePosition 1568.000000 582.000000
+-OutPort ValueOut 587
+$DataBegin
+-Value 0 0 0 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Mat2
+-NodeID 588
+-NodeName Matrix2
+-NodePosition 1792.000000 582.000000
+-OutPort ValueOut 589
+$DataBegin
+-Value 1 0 0 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Mat3
+-NodeID 590
+-NodeName Matrix3
+-NodePosition 2016.000000 582.000000
+-OutPort ValueOut 591
+$DataBegin
+-Value 1 0 0 0 1 0 0 0 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Mat4
+-NodeID 592
+-NodeName Matrix4
+-NodePosition 2240.000000 582.000000
+-OutPort ValueOut 593
+$DataBegin
+-Value 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType UV
+-NodeID 594
+-NodeName UV
+-NodePosition 0.000000 838.000000
+-OutPort ValueOut 595
+$DataBegin
+-Value 0 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Colour
+-NodeID 596
+-NodeName Colour
+-NodePosition 224.000000 838.000000
+-OutPort ValueOut 597
+$DataBegin
+-Value 1 1 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Direction
+-NodeID 598
+-NodeName Direction
+-NodePosition 448.000000 838.000000
+-OutPort ValueOut 599
+$DataBegin
+-Value 0 1 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType ModelMatrix
+-NodeID 600
+-NodeName Model
+-NodePosition 672.000000 838.000000
+-OutPort ValueOut 601
+$DataBegin
+-Position 0 0 0
+-Roll 0.000000
+-Pitch 0.000000
+-Yaw 0.000000
+-Scale 1 1 1
+-Value 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType ViewMatrix
+-NodeID 602
+-NodeName View
+-NodePosition 896.000000 838.000000
+-OutPort ValueOut 603
+$DataBegin
+-Position 0 0 0
+-Roll 0.000000
+-Pitch 0.000000
+-Yaw 0.000000
+-Value 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType ProjMatrix
+-NodeID 604
+-NodeName Projection
+-NodePosition 1120.000000 838.000000
+-OutPort ValueOut 605
+$DataBegin
+-Type 0
+-FoV 90.000000
+-Aspect 1.891626
+-ClipX -100 100
+-ClipY -100 100
+-ClipZ 1 100
+-Value 0.528646 0 0 0 0 1 0 0 0 0 -1.0202 -1 0 0 -2.0202 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Mesh
+-NodeID 606
+-NodeName Mesh
+-NodePosition 0.000000 1190.000000
+-OutPort MeshOut 607
+$DataBegin
+-File "Meshes/Mesh3.msh"
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Shader
+-NodeID 608
+-NodeName Shader
+-NodePosition 224.000000 1190.000000
+-OutPort ShaderOut 609
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Texture
+-NodeID 610
+-NodeName Texture
+-NodePosition 448.000000 1190.000000
+-OutPort TextureOut 611
+$DataBegin
+-Type 0
+-ScreenLock 0
+-Bounds 1 1
+-Min 1
+-Mag 1
+-Wrap 2
+-Channels 4
+-DataType 2
+-Precision 2
+-Signed 0
+-SRGB 0
+-Compressed 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType TextureFile
+-NodeID 612
+-NodeName Texture
+-NodePosition 672.000000 1190.000000
+-OutPort TextureOut 613
+$DataBegin
+-File ""
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Framebuffer
+-NodeID 614
+-NodeName Framebuffer
+-NodePosition 896.000000 1190.000000
+-OutPort FramebufferOut 615
+$DataBegin
+-NumColourBuffers 0
+-DepthBuffer 0
+-DepthStencilBuffer 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType ScreenWidth
+-NodeID 616
+-NodeName Screen Width
+-NodePosition 0.000000 1574.000000
+-OutPort ValueOut 617
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 618
+-NodeName Input
+-NodePosition 224.000000 96.000000
+-InPort DefaultIn -1
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Output
+-NodeID 620
+-NodeName Output
+-NodePosition 448.000000 96.000000
+-InPort ValueIn -1
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType SubGraph
+-NodeID 622
+-NodeName Sub-Graph
+-NodePosition 672.000000 96.000000
+$DataBegin
+-File $DataEnd
+$DataEnd
+$NodeEnd

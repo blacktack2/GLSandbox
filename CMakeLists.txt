@@ -4,7 +4,10 @@ project(GLSandbox)
 
 set(CMAKE_CXX_STANDARD 20)
 
-file(COPY src/Shaders DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY Assets/Graphs DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY Assets/Meshes DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY Assets/Shaders DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY Assets/Textures DESTINATION ${CMAKE_BINARY_DIR})
 
 find_package(OpenGL REQUIRED)
 
