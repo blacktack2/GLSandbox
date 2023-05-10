@@ -14,8 +14,12 @@ public:
 
     void clearPipeline() final;
     void appendPipeline(pipeline_callback callback) final;
+
+    void setEntryPoint(IPipelineEntry& entry) final;
 protected:
     Renderer() = default;
 private:
+    IPipelineEntry* mEntryPoint = nullptr;
+
     std::vector<pipeline_callback> mRenderPipeline{};
 };

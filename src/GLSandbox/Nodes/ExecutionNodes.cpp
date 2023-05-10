@@ -12,6 +12,19 @@ EntryNode::EntryNode(IPipelineHandler& pipelineHandler) : Node("Entry"), mPipeli
     addPort(mExecutionOut);
 }
 
+void EntryNode::setEntry() {
+    if (validatePipeline())
+        updatePipeline();
+    else
+        mPipelineHandler.resetPipeline();
+    mIsRunning = true;
+}
+
+void EntryNode::unsetEntry() {
+    unlock();
+    mIsRunning = false;
+}
+
 std::vector<std::pair<std::string, std::string>> EntryNode::generateSerializedData() const {
     return {};
 }
@@ -21,27 +34,16 @@ void EntryNode::deserializeData(const std::string& dataID, std::ifstream& stream
 }
 
 void EntryNode::drawContents() {
-    if (!isLocked())
-        if (ImUtils::button("Update", generateNodeLabelID("Update")))
-            pipelineUpdateEvent();
-    if (isLocked())
+    if (mIsRunning) {
         if (ImUtils::button("Reset", generateNodeLabelID("Reset")))
-            pipelineResetEvent();
+            mPipelineHandler.resetPipeline();
+    } else {
+        if (ImUtils::button("Execute", generateNodeLabelID("Execute")))
+            mPipelineHandler.setEntryPoint(*this);
+    }
 
     if (!mMessage.empty())
         drawMessage(mMessage, getMessageColour(mMessageType));
-}
-
-void EntryNode::pipelineUpdateEvent() {
-    if (validatePipeline())
-        updatePipeline();
-    else
-        mPipelineHandler.resetPipeline();
-}
-
-void EntryNode::pipelineResetEvent() {
-    unlock();
-    mPipelineHandler.resetPipeline();
 }
 
 enum class PipelineState {
