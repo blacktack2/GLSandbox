@@ -238,6 +238,8 @@ void Window::drawEditMenu() {
     if (!ImGui::BeginMenu("Edit##MainMenu"))
         return;
 
+    if (ImGui::MenuItem("Reset Pipeline##MainMenu_Edit"))
+        mRenderer->resetPipeline();
     if (ImGui::MenuItem("Clear##MainMenu_Edit"))
         mGraph->clearNodes();
 
