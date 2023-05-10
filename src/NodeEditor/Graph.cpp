@@ -265,24 +265,17 @@ void Graph::checkLinksDeleted() {
 
 void Graph::checkNodesDeleted() {
     ed::NodeId nodeId;
-    if (!ed::QueryDeletedNode(&nodeId))
-        return;
-
+    const auto checkIfDeleteNode = [this, &nodeId](const auto& node) {
+        if (node->isLocked() || node->getID() != nodeId.Get())
+            return false;
+        onNodeDelete(*node);
+        node->safeDestroy();
+        return true;
+    };
     size_t initial = mNodes.size();
-    mNodes.erase(
-        std::remove_if(
-            mNodes.begin(), mNodes.end(),
-            [this, nodeId](const auto& node) {
-                if (!node->isLocked() && node->getID() == nodeId.Get()) {
-                    onNodeDelete(*node);
-                    node->safeDestroy();
-                    return true;
-                }
-                return false;
-            }
-        ),
-        mNodes.end()
-    );
+    while (ed::QueryDeletedNode(&nodeId)) {
+        mNodes.erase(std::remove_if(mNodes.begin(), mNodes.end(), checkIfDeleteNode), mNodes.end());
+    }
     if (mNodes.size() != initial)
         markDirty();
 }
