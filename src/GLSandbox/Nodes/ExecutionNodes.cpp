@@ -345,13 +345,13 @@ mParent(parent), mPipelineHandler(pipelineHandler) {
 
 std::vector<std::pair<std::string, std::string>> SubGraphNode::generateSerializedData() const {
     std::vector<std::pair<std::string, std::string>> data;
-    data.emplace_back("File", mGraphFilepath.generic_string());
+    data.emplace_back("File", SerializationUtils::serializeData(mGraphFilepath));
     return data;
 }
 
 void SubGraphNode::deserializeData(const std::string& dataID, std::ifstream& stream) {
     if (dataID == "File")
-        mGraphFilepath = SerializationUtils::readLine(stream);
+        SerializationUtils::deserializeData(stream, mGraphFilepath);
 }
 
 void SubGraphNode::onDeserialize() {

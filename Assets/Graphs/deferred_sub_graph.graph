@@ -494,6 +494,6 @@ $NodeBegin
 -Dynamic-InPort Input-8 930
 -Dynamic-OutPort Output-0 1109
 $DataBegin
--File /home/blacktack2/Documents/Rep/GLSandbox/cmake-build-debug/Graphs/deferred_pass_model.graph
+-File Graphs/deferred_pass_model.graph
 $DataEnd
 $NodeEnd
