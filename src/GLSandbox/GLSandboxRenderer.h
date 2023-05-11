@@ -30,8 +30,7 @@ public:
     static void APIENTRY debugOutput(unsigned int source, unsigned int type, unsigned int id, unsigned int severity,
                                      int length, const char* message, const void* userParam);
 private:
-
-    Timer mTimer{10};
+    Timer mTimer{100};
 
     std::unique_ptr<Mesh> mQuad;
     std::unique_ptr<Shader> mDefaultShader, mProfileShader;
