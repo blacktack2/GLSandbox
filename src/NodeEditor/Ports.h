@@ -361,18 +361,40 @@ public:
         return { typeid(Types)... };
     };
 
+    /**
+     * @brief Will cause undefined behaviour if no getValue callback is defined for this port.
+     * @return Value resulting from the getValue callback passed during construction (see Port::Port).
+     */
     std::variant<Types...> getValue() const {
         return mGetValue();
     }
+    /**
+     * @brief Will cause undefined behaviour if no getValue callback is defined for this port, or if T is not one of
+     * the types defined in the variadic template arguments for this class.
+     * @return Value resulting from the getValue callback passed during construction, casted to type T.
+     */
     template<typename T>
     T getValue() const {
         return std::visit([](const auto& arg)->T {
             return arg;
         }, getValue());
     }
+    /**
+     * @brief Will cause undefined behaviour if no getValue callback is defined for the port linked to this port.
+     * @brief Will cause undefined behaviour if this port has no link at linkIndex and no default value specified.
+     * @return Value retrieved from the connected port (at the specified link index), or the default value if no link
+     * is present.
+     */
     std::variant<Types...> getLinkedValue(size_t linkIndex = 0) const {
         return mLinks[linkIndex].linkTo ? anyToVariant<Types...>(mLinks[linkIndex].linkTo->getAnyValue()) : *mDefaultValue;
     }
+    /**
+     * @brief Will cause undefined behaviour if no getValue callback is defined for the port linked to this port, or if
+     * T is not one of the types defined in the variadic template arguments for this class.
+     * @brief Will cause undefined behaviour if this port has no link at linkIndex and no default value specified.
+     * @return Value retrieved from the connected port (at the specified link index), or the default value if no link
+     * is present, cast to type T.
+     */
     template<typename T>
     T getLinkedValue(size_t linkIndex = 0) const {
         return std::visit([](const auto& arg)->T {
