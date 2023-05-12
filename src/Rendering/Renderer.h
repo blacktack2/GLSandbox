@@ -12,7 +12,7 @@ public:
 
     void drawScene();
 
-    void clearPipeline() final;
+    void clearPipeline(bool resetEntryPoint) final;
     void appendPipeline(pipeline_callback callback) final;
 
     void setEntryPoint(IPipelineEntry& entry) final;

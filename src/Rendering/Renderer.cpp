@@ -5,8 +5,8 @@ void Renderer::drawScene() {
         pass();
 }
 
-void Renderer::clearPipeline() {
-    if (mEntryPoint) {
+void Renderer::clearPipeline(bool resetEntryPoint) {
+    if (resetEntryPoint && mEntryPoint) {
         mEntryPoint->unsetEntry();
         mEntryPoint = nullptr;
     }

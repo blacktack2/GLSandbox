@@ -143,7 +143,7 @@ void generatePipeline(IPipelineHandler& handler, const Node* node, const LoopNod
 }
 
 void EntryNode::updatePipeline() {
-    mPipelineHandler.clearPipeline();
+    mPipelineHandler.clearPipeline(false);
 
     const Node* node = mExecutionOut.getLinkedValue<Node*>();
     generatePipeline(mPipelineHandler, node);

@@ -61,7 +61,7 @@ void GLSandboxRenderer::drawDebug() {
 }
 
 void GLSandboxRenderer::resetPipeline() {
-    clearPipeline();
+    clearPipeline(true);
     appendPipeline([&]() {
         mDefaultShader->bind();
         mQuad->bind();
@@ -74,7 +74,7 @@ void GLSandboxRenderer::loadAnalysisPipeline(unsigned int bulk, std::size_t iter
     mProfileShader->setUniform("bulk", (int)bulk);
     mProfileShader->unbind();
 
-    clearPipeline();
+    clearPipeline(false);
     appendPipeline([&, iterations]() {
         for (std::size_t i = 0; i < iterations; i++) {
             mProfileShader->bind();
