@@ -13,11 +13,12 @@ EntryNode::EntryNode(IPipelineHandler& pipelineHandler) : Node("Entry"), mPipeli
 }
 
 void EntryNode::setEntry() {
-    if (validatePipeline())
+    if (validatePipeline()) {
         updatePipeline();
-    else
+        mIsRunning = true;
+    } else {
         mPipelineHandler.resetPipeline();
-    mIsRunning = true;
+    }
 }
 
 void EntryNode::unsetEntry() {

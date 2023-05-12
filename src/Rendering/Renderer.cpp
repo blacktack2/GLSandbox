@@ -6,8 +6,10 @@ void Renderer::drawScene() {
 }
 
 void Renderer::clearPipeline() {
-    if (mEntryPoint)
+    if (mEntryPoint) {
         mEntryPoint->unsetEntry();
+        mEntryPoint = nullptr;
+    }
     mRenderPipeline.clear();
 }
 
