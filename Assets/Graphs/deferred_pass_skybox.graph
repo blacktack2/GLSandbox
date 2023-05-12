@@ -1,0 +1,133 @@
+-2274540382970018736
+$NodeBegin
+^NodeType Entry
+-NodeID 378
+-NodeName In
+-NodePosition 0.000000 70.000000
+-OutPort Out 379
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType RenderPass
+-NodeID 380
+-NodeName Render Pass
+-NodePosition 576.000000 70.000000
+-InPort In 392
+-InPort FramebufferIn 396
+-InPort MeshIn 398
+-InPort ShaderIn 400
+-Dynamic-InPort DynamicIn-1 418
+-OutPort Out 382
+$DataBegin
+-Viewport 0 0 0 0
+-ClearColour 0 0 0 0
+-ColourMask 1 1 1 1
+-FaceCull 1
+-DepthMask 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 387
+-NodeName Input
+-NodePosition 288.000000 70.000000
+-InPort DefaultIn 379
+-Dynamic-OutPort Out 392
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Output
+-NodeID 389
+-NodeName Out
+-NodePosition 848.000000 68.000000
+-InPort ValueIn 382
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Framebuffer
+-NodeID 395
+-NodeName Framebuffer
+-NodePosition 288.000000 166.000000
+-InPort Tex0 411
+-OutPort FramebufferOut 396
+$DataBegin
+-NumColourBuffers 1
+-DepthBuffer 0
+-DepthStencilBuffer 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Mesh
+-NodeID 397
+-NodeName Mesh
+-NodePosition 288.000000 358.000000
+-OutPort MeshOut 398
+$DataBegin
+-File "Meshes/quad.msh"
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Shader
+-NodeID 399
+-NodeName Shader
+-NodePosition 288.000000 646.000000
+-OutPort ShaderOut 400
+$DataBegin
+-Vertex "Shaders/simple-quad.vert"
+-Fragment "Shaders/simple-quad.frag"
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 406
+-NodeName Skybox Tex
+-NodePosition 8.000000 164.000000
+-InPort DefaultIn 409
+-Dynamic-OutPort Out 411
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Texture
+-NodeID 408
+-NodeName Texture
+-NodePosition -256.000000 166.000000
+-OutPort TextureOut 409
+$DataBegin
+-Type 0
+-ScreenLock 0
+-Bounds 512 512
+-Min 1
+-Mag 1
+-Wrap 2
+-Channels 4
+-DataType 0
+-Precision 0
+-Signed 0
+-SRGB 0
+-Compressed 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 413
+-NodeName Skybox Colour
+-NodePosition 288.000000 996.000000
+-InPort DefaultIn 416
+-Dynamic-OutPort Out 418
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Colour
+-NodeID 415
+-NodeName Colour
+-NodePosition 32.000000 998.000000
+-OutPort ValueOut 416
+$DataBegin
+-Value 1 1 1
+$DataEnd
+$NodeEnd

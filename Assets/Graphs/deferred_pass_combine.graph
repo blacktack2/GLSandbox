@@ -1,0 +1,249 @@
+-5636561038089905631
+$NodeBegin
+^NodeType Entry
+-NodeID 1
+-NodeName Entry
+-NodePosition 0.000000 100.000000
+-OutPort Out 2
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType RenderPass
+-NodeID 3
+-NodeName Render Pass
+-NodePosition 544.000000 102.000000
+-InPort In 53
+-InPort FramebufferIn -1
+-InPort MeshIn 14
+-InPort ShaderIn 16
+-Dynamic-InPort DynamicIn-1 50
+-Dynamic-InPort DynamicIn-101 46
+-Dynamic-InPort DynamicIn-201 44
+-Dynamic-InPort DynamicIn-301 42
+-Dynamic-InPort DynamicIn-401 55
+-Dynamic-InPort DynamicIn-501 48
+-OutPort Out 5
+$DataBegin
+-Viewport 0 0 0 0
+-ClearColour 0 0 0 0
+-ColourMask 1 1 1 1
+-FaceCull 1
+-DepthMask 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 9
+-NodeName In
+-NodePosition 256.000000 100.000000
+-InPort DefaultIn 2
+-Dynamic-OutPort Out 53
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Output
+-NodeID 11
+-NodeName Out
+-NodePosition 808.000000 100.000000
+-InPort ValueIn 5
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Mesh
+-NodeID 13
+-NodeName Mesh
+-NodePosition 256.000000 198.000000
+-OutPort MeshOut 14
+$DataBegin
+-File "Meshes/quad.msh"
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Shader
+-NodeID 15
+-NodeName Shader
+-NodePosition 256.000000 486.000000
+-OutPort ShaderOut 16
+$DataBegin
+-Vertex "Shaders/deferred_combine.vert"
+-Fragment "Shaders/deferred_combine.frag"
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 17
+-NodeName Skybox Tex
+-NodePosition 264.000000 836.000000
+-InPort DefaultIn 38
+-Dynamic-OutPort Out 50
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 19
+-NodeName Albedo Tex
+-NodePosition 264.000000 932.000000
+-InPort DefaultIn 36
+-Dynamic-OutPort Out 46
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 21
+-NodeName Normal Tex
+-NodePosition 264.000000 1028.000000
+-InPort DefaultIn 34
+-Dynamic-OutPort Out 44
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 23
+-NodeName Diffuse Tex
+-NodePosition 264.000000 1124.000000
+-InPort DefaultIn 32
+-Dynamic-OutPort Out 42
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 25
+-NodeName Specular Tex
+-NodePosition 264.000000 1220.000000
+-InPort DefaultIn 30
+-Dynamic-OutPort Out 55
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 27
+-NodeName Ambience Colour
+-NodePosition 264.000000 1828.000000
+-InPort DefaultIn 40
+-Dynamic-OutPort Out 48
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Texture
+-NodeID 29
+-NodeName Texture
+-NodePosition 0.000000 1606.000000
+-OutPort TextureOut 30
+$DataBegin
+-Type 0
+-ScreenLock 0
+-Bounds 512 512
+-Min 1
+-Mag 1
+-Wrap 2
+-Channels 4
+-DataType 0
+-Precision 0
+-Signed 0
+-SRGB 0
+-Compressed 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Texture
+-NodeID 31
+-NodeName Texture
+-NodePosition 0.000000 1414.000000
+-OutPort TextureOut 32
+$DataBegin
+-Type 0
+-ScreenLock 0
+-Bounds 512 512
+-Min 1
+-Mag 1
+-Wrap 2
+-Channels 4
+-DataType 0
+-Precision 0
+-Signed 0
+-SRGB 0
+-Compressed 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Texture
+-NodeID 33
+-NodeName Texture
+-NodePosition 0.000000 1222.000000
+-OutPort TextureOut 34
+$DataBegin
+-Type 0
+-ScreenLock 0
+-Bounds 512 512
+-Min 1
+-Mag 1
+-Wrap 2
+-Channels 4
+-DataType 0
+-Precision 0
+-Signed 0
+-SRGB 0
+-Compressed 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Texture
+-NodeID 35
+-NodeName Texture
+-NodePosition 0.000000 1030.000000
+-OutPort TextureOut 36
+$DataBegin
+-Type 0
+-ScreenLock 0
+-Bounds 512 512
+-Min 1
+-Mag 1
+-Wrap 2
+-Channels 4
+-DataType 0
+-Precision 0
+-Signed 0
+-SRGB 0
+-Compressed 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Texture
+-NodeID 37
+-NodeName Texture
+-NodePosition 0.000000 838.000000
+-OutPort TextureOut 38
+$DataBegin
+-Type 0
+-ScreenLock 0
+-Bounds 512 512
+-Min 1
+-Mag 1
+-Wrap 2
+-Channels 4
+-DataType 0
+-Precision 0
+-Signed 0
+-SRGB 0
+-Compressed 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Colour
+-NodeID 39
+-NodeName Colour
+-NodePosition 0.000000 1830.000000
+-OutPort ValueOut 40
+$DataBegin
+-Value 1 1 1
+$DataEnd
+$NodeEnd

@@ -1,0 +1,416 @@
+696281180186609483
+$NodeBegin
+^NodeType Entry
+-NodeID 1572
+-NodeName Entry
+-NodePosition -416.000000 102.000000
+-OutPort Out 1573
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType RenderPass
+-NodeID 1574
+-NodeName Render Pass
+-NodePosition 128.000000 100.000000
+-InPort In 1687
+-InPort FramebufferIn 1585
+-InPort MeshIn 1589
+-InPort ShaderIn 1591
+-Dynamic-InPort DynamicIn-0 1695
+-Dynamic-InPort DynamicIn-100 1691
+-Dynamic-InPort DynamicIn-200 1701
+-Dynamic-InPort DynamicIn-300 1703
+-Dynamic-InPort DynamicIn-1 1705
+-Dynamic-InPort DynamicIn-101 1699
+-Dynamic-InPort DynamicIn-201 1695
+-Dynamic-InPort DynamicIn-301 1691
+-Dynamic-InPort DynamicIn-401 1646
+-Dynamic-InPort DynamicIn-501 1621
+-Dynamic-InPort DynamicIn-601 1703
+-Dynamic-InPort DynamicIn-701 1701
+-Dynamic-InPort DynamicIn-801 1689
+-Dynamic-InPort DynamicIn-901 1697
+-Dynamic-InPort DynamicIn-1001 1693
+-OutPort Out 1576
+$DataBegin
+-Viewport 0 0 0 0
+-ClearColour 0 0 0 0
+-BlendFuncSrc 5
+-BlendFuncDst 7
+-ColourMask 1 1 1 1
+-FaceCull 1
+-DepthTestFunc 3
+-DepthTestLimits 0 1
+-DepthMask 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 1580
+-NodeName In
+-NodePosition -160.000000 100.000000
+-InPort DefaultIn 1573
+-Dynamic-OutPort Out 1687
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Output
+-NodeID 1582
+-NodeName Out
+-NodePosition 388.000000 100.000000
+-InPort ValueIn 1576
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Framebuffer
+-NodeID 1584
+-NodeName Framebuffer
+-NodePosition -160.000000 198.000000
+-InPort Tex0 1685
+-InPort Tex1 1649
+-OutPort FramebufferOut 1585
+$DataBegin
+-NumColourBuffers 2
+-DepthBuffer 0
+-DepthStencilBuffer 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Mesh
+-NodeID 1588
+-NodeName Mesh
+-NodePosition -160.000000 390.000000
+-OutPort MeshOut 1589
+$DataBegin
+-File "Meshes/quad.msh"
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Shader
+-NodeID 1590
+-NodeName Shader
+-NodePosition -160.000000 678.000000
+-OutPort ShaderOut 1591
+$DataBegin
+-Vertex "Shaders/deferred_lighting.vert"
+-Fragment "Shaders/deferred_lighting.frag"
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 1592
+-NodeName Proj Mat
+-NodePosition -160.000000 1124.000000
+-InPort DefaultIn 1599
+-Dynamic-OutPort Out 1691
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 1594
+-NodeName View Mat
+-NodePosition -160.000000 1028.000000
+-InPort DefaultIn 1597
+-Dynamic-OutPort Out 1695
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType ViewMatrix
+-NodeID 1596
+-NodeName View
+-NodePosition -416.000000 1030.000000
+-OutPort ValueOut 1597
+$DataBegin
+-Position 0 0 0
+-Roll 0.000000
+-Pitch 0.000000
+-Yaw 0.000000
+-Value 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType ProjMatrix
+-NodeID 1598
+-NodeName Projection
+-NodePosition -416.000000 1222.000000
+-OutPort ValueOut 1599
+$DataBegin
+-Type 0
+-FoV 90.000000
+-Aspect 1.819905
+-ClipX -100 100
+-ClipY -100 100
+-ClipZ 1 100
+-Value 0.549479 0 0 0 0 1 0 0 0 0 -1.0202 -1 0 0 -2.0202 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 1600
+-NodeName Light Angle
+-NodePosition -160.000000 1860.000000
+-InPort DefaultIn 1619
+-Dynamic-OutPort Out 1693
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 1602
+-NodeName Light Direction
+-NodePosition -160.000000 1764.000000
+-InPort DefaultIn 1617
+-Dynamic-OutPort Out 1697
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 1604
+-NodeName Light Colour
+-NodePosition -160.000000 1668.000000
+-InPort DefaultIn 1615
+-Dynamic-OutPort Out 1689
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 1606
+-NodeName Light Radius
+-NodePosition -160.000000 1476.000000
+-InPort DefaultIn 1611
+-Dynamic-OutPort Out 1701
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 1608
+-NodeName Light Position
+-NodePosition -160.000000 1572.000000
+-InPort DefaultIn 1613
+-Dynamic-OutPort Out 1703
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Float
+-NodeID 1610
+-NodeName Float
+-NodePosition -416.000000 1478.000000
+-OutPort ValueOut 1611
+$DataBegin
+-Value 0.000000
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Vec4
+-NodeID 1612
+-NodeName Vec4
+-NodePosition -416.000000 1574.000000
+-OutPort ValueOut 1613
+$DataBegin
+-Value 0 0 0 -5.4
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Colour
+-NodeID 1614
+-NodeName Colour
+-NodePosition -416.000000 1670.000000
+-OutPort ValueOut 1615
+$DataBegin
+-Value 1 1 1
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Direction
+-NodeID 1616
+-NodeName Direction
+-NodePosition -416.000000 1766.000000
+-OutPort ValueOut 1617
+$DataBegin
+-Value 0 1 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Float
+-NodeID 1618
+-NodeName Float
+-NodePosition -416.000000 1862.000000
+-OutPort ValueOut 1619
+$DataBegin
+-Value 0.000000
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Vec3
+-NodeID 1620
+-NodeName Vec3
+-NodePosition -160.000000 1958.000000
+-OutPort ValueOut 1621
+$DataBegin
+-Value 0 0 10
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 1622
+-NodeName Normal Tex
+-NodePosition -152.000000 2148.000000
+-InPort DefaultIn 1627
+-Dynamic-OutPort Out 1699
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 1624
+-NodeName Depth Tex
+-NodePosition -152.000000 2052.000000
+-InPort DefaultIn 1629
+-Dynamic-OutPort Out 1705
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Texture
+-NodeID 1626
+-NodeName Texture
+-NodePosition -416.000000 2246.000000
+-OutPort TextureOut 1627
+$DataBegin
+-Type 0
+-ScreenLock 0
+-Bounds 512 512
+-Min 1
+-Mag 1
+-Wrap 2
+-Channels 4
+-DataType 2
+-Precision 2
+-Signed 0
+-SRGB 0
+-Compressed 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Texture
+-NodeID 1628
+-NodeName Texture
+-NodePosition -416.000000 2054.000000
+-OutPort TextureOut 1629
+$DataBegin
+-Type 1
+-ScreenLock 0
+-Bounds 512 512
+-Min 1
+-Mag 1
+-Wrap 2
+-Channels 4
+-DataType 2
+-Precision 2
+-Signed 0
+-SRGB 0
+-Compressed 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 1630
+-NodeName Specular Tex
+-NodePosition -416.000000 292.000000
+-InPort DefaultIn 1635
+-Dynamic-OutPort Out 1649
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Input
+-NodeID 1632
+-NodeName Diffuse Tex
+-NodePosition -416.000000 196.000000
+-InPort DefaultIn 1637
+-Dynamic-OutPort Out 1685
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Texture
+-NodeID 1634
+-NodeName Texture
+-NodePosition -672.000000 390.000000
+-OutPort TextureOut 1635
+$DataBegin
+-Type 0
+-ScreenLock 0
+-Bounds 512 512
+-Min 1
+-Mag 1
+-Wrap 2
+-Channels 4
+-DataType 2
+-Precision 2
+-Signed 0
+-SRGB 0
+-Compressed 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Texture
+-NodeID 1636
+-NodeName Texture
+-NodePosition -672.000000 198.000000
+-OutPort TextureOut 1637
+$DataBegin
+-Type 0
+-ScreenLock 0
+-Bounds 512 512
+-Min 1
+-Mag 1
+-Wrap 2
+-Channels 4
+-DataType 2
+-Precision 2
+-Signed 0
+-SRGB 0
+-Compressed 0
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType ScreenWidth
+-NodeID 1638
+-NodeName Screen Width
+-NodePosition -416.000000 2566.000000
+-OutPort ValueOut 1639
+$DataBegin
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Arithmetic
+-NodeID 1640
+-NodeName Arithmetic
+-NodePosition -152.000000 2469.000000
+-InPort ValueAIn 1643
+-InPort ValueBIn 1639
+-OutPort ValueOut 1646
+$DataBegin
+-Operation 3
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Vec2
+-NodeID 1642
+-NodeName Vec2
+-NodePosition -416.000000 2470.000000
+-OutPort ValueOut 1643
+$DataBegin
+-Value 1 1
+$DataEnd
+$NodeEnd
