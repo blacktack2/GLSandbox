@@ -1,27 +1,27 @@
 12823797
 $NodeBegin
 ^NodeType Entry
--NodeID 728
+-NodeID 468
 -NodeName Entry
 -NodePosition 0.000000 -825.000000
--OutPort Out 729
+-OutPort Out 469
 $DataBegin
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType RenderPass
--NodeID 730
+-NodeID 470
 -NodeName Model Pass
 -NodePosition 296.000000 229.000000
--InPort In 755
--InPort FramebufferIn 737
--InPort MeshIn 748
--InPort ShaderIn 750
--Dynamic-InPort DynamicIn-0 769
--Dynamic-InPort DynamicIn-100 771
--Dynamic-InPort DynamicIn-200 773
--Dynamic-InPort DynamicIn-1 817
--OutPort Out 732
+-InPort In 495
+-InPort FramebufferIn 477
+-InPort MeshIn 488
+-InPort ShaderIn 490
+-Dynamic-InPort DynamicIn-0 509
+-Dynamic-InPort DynamicIn-100 511
+-Dynamic-InPort DynamicIn-200 513
+-Dynamic-InPort DynamicIn-1 557
+-OutPort Out 472
 $DataBegin
 -Viewport 0 0 0 0
 -ClearColour 0 0 0 0
@@ -34,13 +34,13 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Framebuffer
--NodeID 736
+-NodeID 476
 -NodeName Framebuffer
 -NodePosition 0.000000 229.000000
--InPort Tex0 746
--InPort Tex1 744
--InPort D-Tex 742
--OutPort FramebufferOut 737
+-InPort Tex0 486
+-InPort Tex1 484
+-InPort D-Tex 482
+-OutPort FramebufferOut 477
 $DataBegin
 -NumColourBuffers 2
 -DepthBuffer 1
@@ -49,14 +49,14 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Texture
--NodeID 741
+-NodeID 481
 -NodeName Depth
--NodePosition -384.000000 646.000000
--OutPort TextureOut 742
+-NodePosition -384.000000 -409.000000
+-OutPort TextureOut 482
 $DataBegin
 -Type 1
 -ScreenLock 1
--Bounds 1920 1015
+-Bounds 1920 1055
 -Min 1
 -Mag 1
 -Wrap 2
@@ -70,14 +70,14 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Texture
--NodeID 743
+-NodeID 483
 -NodeName Normal
--NodePosition -384.000000 294.000000
--OutPort TextureOut 744
+-NodePosition -384.000000 -89.000000
+-OutPort TextureOut 484
 $DataBegin
 -Type 0
 -ScreenLock 1
--Bounds 1920 1015
+-Bounds 1920 1055
 -Min 1
 -Mag 1
 -Wrap 2
@@ -91,14 +91,14 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Texture
--NodeID 745
+-NodeID 485
 -NodeName Albedo
--NodePosition -384.000000 -57.000000
--OutPort TextureOut 746
+-NodePosition -640.000000 -89.000000
+-OutPort TextureOut 486
 $DataBegin
 -Type 0
 -ScreenLock 1
--Bounds 1920 1015
+-Bounds 1920 1055
 -Min 1
 -Mag 1
 -Wrap 2
@@ -112,20 +112,20 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Mesh
--NodeID 747
+-NodeID 487
 -NodeName Mesh
 -NodePosition 0.000000 453.000000
--OutPort MeshOut 748
+-OutPort MeshOut 488
 $DataBegin
 -File "Meshes/Teapot.msh"
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Shader
--NodeID 749
+-NodeID 489
 -NodeName Shader
 -NodePosition 0.000000 725.000000
--OutPort ShaderOut 750
+-OutPort ShaderOut 490
 $DataBegin
 -Vertex "Shaders/deferred_model.vert"
 -Fragment "Shaders/deferred_model.frag"
@@ -133,14 +133,14 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Texture
--NodeID 751
+-NodeID 491
 -NodeName Skybox
--NodePosition -384.000000 -409.000000
--OutPort TextureOut 752
+-NodePosition -640.000000 -409.000000
+-OutPort TextureOut 492
 $DataBegin
 -Type 0
 -ScreenLock 1
--Bounds 1920 1015
+-Bounds 1920 1055
 -Min 1
 -Mag 1
 -Wrap 2
@@ -154,15 +154,15 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType RenderPass
--NodeID 753
+-NodeID 493
 -NodeName Skybox Pass
 -NodePosition 288.000000 -700.000000
--InPort In 729
--InPort FramebufferIn 760
--InPort MeshIn 763
--InPort ShaderIn 765
--Dynamic-InPort DynamicIn-1 767
--OutPort Out 755
+-InPort In 469
+-InPort FramebufferIn 500
+-InPort MeshIn 503
+-InPort ShaderIn 505
+-Dynamic-InPort DynamicIn-1 507
+-OutPort Out 495
 $DataBegin
 -Viewport 0 0 0 0
 -ClearColour 0 0 0 0
@@ -173,11 +173,11 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Framebuffer
--NodeID 759
+-NodeID 499
 -NodeName Framebuffer
 -NodePosition 0.000000 -705.000000
--InPort Tex0 752
--OutPort FramebufferOut 760
+-InPort Tex0 492
+-OutPort FramebufferOut 500
 $DataBegin
 -NumColourBuffers 1
 -DepthBuffer 0
@@ -186,20 +186,20 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Mesh
--NodeID 762
+-NodeID 502
 -NodeName Mesh
 -NodePosition 0.000000 -529.000000
--OutPort MeshOut 763
+-OutPort MeshOut 503
 $DataBegin
 -File "Meshes/quad.msh"
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Shader
--NodeID 764
+-NodeID 504
 -NodeName Shader
 -NodePosition 0.000000 -257.000000
--OutPort ShaderOut 765
+-OutPort ShaderOut 505
 $DataBegin
 -Vertex "Shaders/simple-quad.vert"
 -Fragment "Shaders/simple-quad.frag"
@@ -207,20 +207,20 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Colour
--NodeID 766
+-NodeID 506
 -NodeName SkyboxColour
 -NodePosition 0.000000 54.000000
--OutPort ValueOut 767
+-OutPort ValueOut 507
 $DataBegin
 -Value 1 1 1
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType ModelMatrix
--NodeID 768
+-NodeID 508
 -NodeName Model
 -NodePosition 0.000000 1045.000000
--OutPort ValueOut 769
+-OutPort ValueOut 509
 $DataBegin
 -Position 0 0 0
 -Roll 0.000000
@@ -232,10 +232,10 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType ViewMatrix
--NodeID 770
+-NodeID 510
 -NodeName View
 -NodePosition 0.000000 1253.000000
--OutPort ValueOut 771
+-OutPort ValueOut 511
 $DataBegin
 -Position 0 0 10
 -Roll 0.000000
@@ -246,10 +246,10 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType ProjMatrix
--NodeID 772
+-NodeID 512
 -NodeName Projection
 -NodePosition 0.000000 1413.000000
--OutPort ValueOut 773
+-OutPort ValueOut 513
 $DataBegin
 -Type 0
 -FoV 90.000000
@@ -262,29 +262,29 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType RenderPass
--NodeID 774
+-NodeID 514
 -NodeName Lighting Pass
--NodePosition 288.000000 1715.000000
--InPort In 732
--InPort FramebufferIn 781
--InPort MeshIn 789
--InPort ShaderIn 791
--Dynamic-InPort DynamicIn-0 771
--Dynamic-InPort DynamicIn-100 773
--Dynamic-InPort DynamicIn-200 793
--Dynamic-InPort DynamicIn-300 795
--Dynamic-InPort DynamicIn-1 742
--Dynamic-InPort DynamicIn-101 744
--Dynamic-InPort DynamicIn-201 771
--Dynamic-InPort DynamicIn-301 773
--Dynamic-InPort DynamicIn-401 878
--Dynamic-InPort DynamicIn-501 803
--Dynamic-InPort DynamicIn-601 795
--Dynamic-InPort DynamicIn-701 793
--Dynamic-InPort DynamicIn-801 797
--Dynamic-InPort DynamicIn-901 799
--Dynamic-InPort DynamicIn-1001 801
--OutPort Out 776
+-NodePosition 896.000000 228.000000
+-InPort In 472
+-InPort FramebufferIn 521
+-InPort MeshIn 529
+-InPort ShaderIn 531
+-Dynamic-InPort DynamicIn-0 511
+-Dynamic-InPort DynamicIn-100 513
+-Dynamic-InPort DynamicIn-200 533
+-Dynamic-InPort DynamicIn-300 535
+-Dynamic-InPort DynamicIn-1 482
+-Dynamic-InPort DynamicIn-101 484
+-Dynamic-InPort DynamicIn-201 511
+-Dynamic-InPort DynamicIn-301 513
+-Dynamic-InPort DynamicIn-401 627
+-Dynamic-InPort DynamicIn-501 543
+-Dynamic-InPort DynamicIn-601 535
+-Dynamic-InPort DynamicIn-701 533
+-Dynamic-InPort DynamicIn-801 537
+-Dynamic-InPort DynamicIn-901 539
+-Dynamic-InPort DynamicIn-1001 541
+-OutPort Out 516
 $DataBegin
 -Viewport 0 0 0 0
 -ClearColour 0 0 0 0
@@ -299,12 +299,12 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Framebuffer
--NodeID 780
+-NodeID 520
 -NodeName Framebuffer
--NodePosition 0.000000 1717.000000
--InPort Tex0 785
--InPort Tex1 787
--OutPort FramebufferOut 781
+-NodePosition 608.000000 230.000000
+-InPort Tex0 525
+-InPort Tex1 527
+-OutPort FramebufferOut 521
 $DataBegin
 -NumColourBuffers 2
 -DepthBuffer 0
@@ -313,14 +313,14 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Texture
--NodeID 784
+-NodeID 524
 -NodeName Diffuse
--NodePosition -384.000000 966.000000
--OutPort TextureOut 785
+-NodePosition -640.000000 230.000000
+-OutPort TextureOut 525
 $DataBegin
 -Type 0
 -ScreenLock 1
--Bounds 1920 1015
+-Bounds 1920 1055
 -Min 1
 -Mag 1
 -Wrap 2
@@ -334,14 +334,14 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Texture
--NodeID 786
+-NodeID 526
 -NodeName Specular
--NodePosition -384.000000 1318.000000
--OutPort TextureOut 787
+-NodePosition -384.000000 230.000000
+-OutPort TextureOut 527
 $DataBegin
 -Type 0
 -ScreenLock 1
--Bounds 1920 1015
+-Bounds 1920 1055
 -Min 1
 -Mag 1
 -Wrap 2
@@ -355,20 +355,20 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Mesh
--NodeID 788
+-NodeID 528
 -NodeName Mesh
--NodePosition 0.000000 1909.000000
--OutPort MeshOut 789
+-NodePosition 608.000000 454.000000
+-OutPort MeshOut 529
 $DataBegin
 -File "Meshes/quad.msh"
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Shader
--NodeID 790
+-NodeID 530
 -NodeName Shader
--NodePosition 0.000000 2181.000000
--OutPort ShaderOut 791
+-NodePosition 608.000000 726.000000
+-OutPort ShaderOut 531
 $DataBegin
 -Vertex "Shaders/deferred_lighting.vert"
 -Fragment "Shaders/deferred_lighting.frag"
@@ -376,80 +376,80 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Float
--NodeID 792
+-NodeID 532
 -NodeName LightRadius
--NodePosition 0.000000 2501.000000
--OutPort ValueOut 793
+-NodePosition 608.000000 1046.000000
+-OutPort ValueOut 533
 $DataBegin
 -Value 100.000000
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Vec4
--NodeID 794
+-NodeID 534
 -NodeName LightPosition
--NodePosition 0.000000 2597.000000
--OutPort ValueOut 795
+-NodePosition 608.000000 1142.000000
+-OutPort ValueOut 535
 $DataBegin
 -Value 0 0 0 0
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Colour
--NodeID 796
+-NodeID 536
 -NodeName LightColour
--NodePosition 0.000000 2693.000000
--OutPort ValueOut 797
+-NodePosition 608.000000 1238.000000
+-OutPort ValueOut 537
 $DataBegin
 -Value 1 1 1
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Direction
--NodeID 798
+-NodeID 538
 -NodeName LightDirection
--NodePosition 0.000000 2789.000000
--OutPort ValueOut 799
+-NodePosition 608.000000 1334.000000
+-OutPort ValueOut 539
 $DataBegin
 -Value -1 0 0
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Float
--NodeID 800
+-NodeID 540
 -NodeName LightAngle
--NodePosition 0.000000 2885.000000
--OutPort ValueOut 801
+-NodePosition 608.000000 1430.000000
+-OutPort ValueOut 541
 $DataBegin
 -Value 360.000000
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Vec3
--NodeID 802
+-NodeID 542
 -NodeName CameraPos
--NodePosition 0.000000 3109.000000
--OutPort ValueOut 803
+-NodePosition 608.000000 1654.000000
+-OutPort ValueOut 543
 $DataBegin
 -Value 0 0 10
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType RenderPass
--NodeID 804
+-NodeID 544
 -NodeName Combine Pass
--NodePosition 928.000000 229.000000
--InPort In 776
+-NodePosition 896.000000 -700.000000
+-InPort In 516
 -InPort FramebufferIn -1
--InPort MeshIn 811
--InPort ShaderIn 813
--Dynamic-InPort DynamicIn-1 752
--Dynamic-InPort DynamicIn-101 746
--Dynamic-InPort DynamicIn-201 744
--Dynamic-InPort DynamicIn-301 785
--Dynamic-InPort DynamicIn-401 787
--Dynamic-InPort DynamicIn-501 815
--OutPort Out 806
+-InPort MeshIn 551
+-InPort ShaderIn 553
+-Dynamic-InPort DynamicIn-1 492
+-Dynamic-InPort DynamicIn-101 486
+-Dynamic-InPort DynamicIn-201 484
+-Dynamic-InPort DynamicIn-301 525
+-Dynamic-InPort DynamicIn-401 527
+-Dynamic-InPort DynamicIn-501 555
+-OutPort Out 546
 $DataBegin
 -Viewport 0 0 0 0
 -ClearColour 0 0 0 0
@@ -460,20 +460,20 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Mesh
--NodeID 810
+-NodeID 550
 -NodeName Mesh
--NodePosition 640.000000 231.000000
--OutPort MeshOut 811
+-NodePosition 608.000000 -698.000000
+-OutPort MeshOut 551
 $DataBegin
 -File "Meshes/quad.msh"
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Shader
--NodeID 812
+-NodeID 552
 -NodeName Shader
--NodePosition 640.000000 503.000000
--OutPort ShaderOut 813
+-NodePosition 608.000000 -426.000000
+-OutPort ShaderOut 553
 $DataBegin
 -Vertex "Shaders/deferred_combine.vert"
 -Fragment "Shaders/deferred_combine.frag"
@@ -481,51 +481,51 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Colour
--NodeID 814
+-NodeID 554
 -NodeName Ambience
--NodePosition 640.000000 821.000000
--OutPort ValueOut 815
+-NodePosition 608.000000 -109.000000
+-OutPort ValueOut 555
 $DataBegin
 -Value 0 0 0
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType TextureFile
--NodeID 816
+-NodeID 556
 -NodeName Texture
 -NodePosition -384.000000 -793.000000
--OutPort TextureOut 817
+-OutPort TextureOut 557
 $DataBegin
 -File "Textures/Texture0.png"
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Arithmetic
--NodeID 818
+-NodeID 558
 -NodeName Arithmetic
--NodePosition -8.000000 2979.000000
--InPort ValueAIn 823
--InPort ValueBIn 821
--OutPort ValueOut 878
+-NodePosition 600.000000 1524.000000
+-InPort ValueAIn 563
+-InPort ValueBIn 561
+-OutPort ValueOut 627
 $DataBegin
 -Operation 3
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType ScreenWidth
--NodeID 820
+-NodeID 560
 -NodeName Screen Width
--NodePosition -256.000000 3061.000000
--OutPort ValueOut 821
+-NodePosition 352.000000 1606.000000
+-OutPort ValueOut 561
 $DataBegin
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Vec2
--NodeID 822
+-NodeID 562
 -NodeName Vec2
--NodePosition -256.000000 2981.000000
--OutPort ValueOut 823
+-NodePosition 352.000000 1526.000000
+-OutPort ValueOut 563
 $DataBegin
 -Value 1 1
 $DataEnd

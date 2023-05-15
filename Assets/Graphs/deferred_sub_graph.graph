@@ -1,19 +1,19 @@
 -5401247888329724718
 $NodeBegin
 ^NodeType Entry
--NodeID 77
+-NodeID 1
 -NodeName Entry
--NodePosition 0.000000 -825.000000
--OutPort Out 78
+-NodePosition -128.000000 -793.000000
+-OutPort Out 2
 $DataBegin
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Texture
--NodeID 79
+-NodeID 3
 -NodeName Normal
--NodePosition -384.000000 294.000000
--OutPort TextureOut 80
+-NodePosition -384.000000 198.000000
+-OutPort TextureOut 4
 $DataBegin
 -Type 0
 -ScreenLock 1
@@ -31,10 +31,10 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Texture
--NodeID 81
+-NodeID 5
 -NodeName Albedo
--NodePosition -384.000000 -57.000000
--OutPort TextureOut 82
+-NodePosition -384.000000 -121.000000
+-OutPort TextureOut 6
 $DataBegin
 -Type 0
 -ScreenLock 1
@@ -52,20 +52,20 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Mesh
--NodeID 83
+-NodeID 7
 -NodeName Mesh
--NodePosition 256.000000 -601.000000
--OutPort MeshOut 84
+-NodePosition 128.000000 -569.000000
+-OutPort MeshOut 8
 $DataBegin
 -File "Meshes/Teapot.msh"
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Texture
--NodeID 85
+-NodeID 9
 -NodeName Skybox
--NodePosition -384.000000 -409.000000
--OutPort TextureOut 86
+-NodePosition -384.000000 -441.000000
+-OutPort TextureOut 10
 $DataBegin
 -Type 0
 -ScreenLock 1
@@ -83,35 +83,35 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Colour
--NodeID 87
+-NodeID 11
 -NodeName SkyboxColour
--NodePosition 256.000000 -697.000000
--OutPort ValueOut 88
+-NodePosition 128.000000 -665.000000
+-OutPort ValueOut 12
 $DataBegin
 -Value 1 1 1
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType ModelMatrix
--NodeID 89
+-NodeID 13
 -NodeName Model
--NodePosition 0.000000 -281.000000
--OutPort ValueOut 90
+-NodePosition -128.000000 -249.000000
+-OutPort ValueOut 14
 $DataBegin
 -Position 0 0 0
 -Roll 0.000000
 -Pitch 0.000000
--Yaw 90.099998
+-Yaw 80.900002
 -Scale 1 1 1
--Value -0.00174527 0 -0.999998 0 0 1 0 0 0.999998 0 -0.00174527 0 0 0 0 1
+-Value 0.158158 0 -0.987414 0 0 1 0 0 0.987414 0 0.158158 0 0 0 0 1
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType ViewMatrix
--NodeID 91
+-NodeID 15
 -NodeName View
--NodePosition 0.000000 -73.000000
--OutPort ValueOut 92
+-NodePosition -128.000000 -41.000000
+-OutPort ValueOut 16
 $DataBegin
 -Position 0 0 10
 -Roll 0.000000
@@ -122,10 +122,10 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType ProjMatrix
--NodeID 93
+-NodeID 17
 -NodeName Projection
--NodePosition 0.000000 86.000000
--OutPort ValueOut 94
+-NodePosition -128.000000 117.000000
+-OutPort ValueOut 18
 $DataBegin
 -Type 0
 -FoV 90.000000
@@ -138,10 +138,10 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Texture
--NodeID 95
+-NodeID 19
 -NodeName Diffuse
--NodePosition -384.000000 966.000000
--OutPort TextureOut 96
+-NodePosition -128.000000 518.000000
+-OutPort TextureOut 20
 $DataBegin
 -Type 0
 -ScreenLock 1
@@ -159,10 +159,10 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Texture
--NodeID 97
+-NodeID 21
 -NodeName Specular
--NodePosition -384.000000 1318.000000
--OutPort TextureOut 98
+-NodePosition 128.000000 518.000000
+-OutPort TextureOut 22
 $DataBegin
 -Type 0
 -ScreenLock 1
@@ -180,121 +180,121 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Float
--NodeID 99
+-NodeID 23
 -NodeName LightRadius
--NodePosition 288.000000 197.000000
--OutPort ValueOut 100
+-NodePosition 160.000000 163.000000
+-OutPort ValueOut 24
 $DataBegin
 -Value 100.000000
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Vec4
--NodeID 101
+-NodeID 25
 -NodeName LightPosition
--NodePosition 288.000000 293.000000
--OutPort ValueOut 102
+-NodePosition 160.000000 259.000000
+-OutPort ValueOut 26
 $DataBegin
 -Value 0 0 0 0
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Colour
--NodeID 103
+-NodeID 27
 -NodeName LightColour
--NodePosition 288.000000 101.000000
--OutPort ValueOut 104
+-NodePosition 160.000000 67.000000
+-OutPort ValueOut 28
 $DataBegin
 -Value 1 1 1
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Direction
--NodeID 105
+-NodeID 29
 -NodeName LightDirection
--NodePosition 288.000000 5.000000
--OutPort ValueOut 106
+-NodePosition 160.000000 -28.000000
+-OutPort ValueOut 30
 $DataBegin
 -Value -1 0 0
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Float
--NodeID 107
+-NodeID 31
 -NodeName LightAngle
--NodePosition 288.000000 -89.000000
--OutPort ValueOut 108
+-NodePosition 160.000000 -121.000000
+-OutPort ValueOut 32
 $DataBegin
 -Value 360.000000
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Colour
--NodeID 119
+-NodeID 33
 -NodeName Ambience
--NodePosition 288.000000 389.000000
--OutPort ValueOut 120
+-NodePosition 160.000000 422.000000
+-OutPort ValueOut 34
 $DataBegin
 -Value 0 0 0
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType TextureFile
--NodeID 121
+-NodeID 35
 -NodeName Texture
 -NodePosition -384.000000 -793.000000
--OutPort TextureOut 122
+-OutPort TextureOut 36
 $DataBegin
 -File "Textures/Texture3.png"
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType SubGraph
--NodeID 123
+-NodeID 37
 -NodeName Sub-Graph
--NodePosition 584.000000 -604.000000
--Dynamic-InPort Input-0 437
--Dynamic-InPort Input-1 84
--Dynamic-InPort Input-2 122
--Dynamic-InPort Input-3 90
--Dynamic-InPort Input-4 92
--Dynamic-InPort Input-5 94
--Dynamic-InPort Input-6 82
--Dynamic-InPort Input-7 80
--Dynamic-InPort Input-8 390
--Dynamic-OutPort Output-0 222
+-NodePosition 456.000000 -572.000000
+-Dynamic-InPort Input-0 351
+-Dynamic-InPort Input-1 8
+-Dynamic-InPort Input-2 36
+-Dynamic-InPort Input-3 14
+-Dynamic-InPort Input-4 16
+-Dynamic-InPort Input-5 18
+-Dynamic-InPort Input-6 6
+-Dynamic-InPort Input-7 4
+-Dynamic-InPort Input-8 304
+-Dynamic-OutPort Output-0 136
 $DataBegin
 -File "Graphs/deferred_pass_model.graph"
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType SubGraph
--NodeID 223
+-NodeID 137
 -NodeName Sub-Graph
--NodePosition 586.000000 -152.000000
--Dynamic-InPort Input-0 222
--Dynamic-InPort Input-1 94
--Dynamic-InPort Input-2 92
--Dynamic-InPort Input-3 108
--Dynamic-InPort Input-4 106
--Dynamic-InPort Input-5 104
--Dynamic-InPort Input-6 100
--Dynamic-InPort Input-7 102
--Dynamic-InPort Input-8 80
--Dynamic-InPort Input-9 390
--Dynamic-InPort Input-10 98
--Dynamic-InPort Input-11 96
--Dynamic-OutPort Output-0 388
+-NodePosition 458.000000 -189.000000
+-Dynamic-InPort Input-0 136
+-Dynamic-InPort Input-1 18
+-Dynamic-InPort Input-2 16
+-Dynamic-InPort Input-3 32
+-Dynamic-InPort Input-4 30
+-Dynamic-InPort Input-5 28
+-Dynamic-InPort Input-6 24
+-Dynamic-InPort Input-7 26
+-Dynamic-InPort Input-8 4
+-Dynamic-InPort Input-9 304
+-Dynamic-InPort Input-10 22
+-Dynamic-InPort Input-11 20
+-Dynamic-OutPort Output-0 302
 $DataBegin
 -File "Graphs/deferred_pass_lighting.graph"
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Texture
--NodeID 389
+-NodeID 303
 -NodeName Depth
--NodePosition -384.000000 614.000000
--OutPort TextureOut 390
+-NodePosition -384.000000 518.000000
+-OutPort TextureOut 304
 $DataBegin
 -Type 1
 -ScreenLock 1
@@ -312,30 +312,30 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType SubGraph
--NodeID 391
+-NodeID 305
 -NodeName Sub-Graph
--NodePosition 584.000000 -828.000000
--Dynamic-InPort Input-0 78
--Dynamic-InPort Input-1 86
--Dynamic-InPort Input-2 88
--Dynamic-OutPort Output-0 437
+-NodePosition 456.000000 -796.000000
+-Dynamic-InPort Input-0 2
+-Dynamic-InPort Input-1 10
+-Dynamic-InPort Input-2 12
+-Dynamic-OutPort Output-0 351
 $DataBegin
 -File "Graphs/deferred_pass_skybox.graph"
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType SubGraph
--NodeID 483
+-NodeID 352
 -NodeName Sub-Graph
--NodePosition 577.000000 356.000000
--Dynamic-InPort Input-0 388
--Dynamic-InPort Input-1 86
--Dynamic-InPort Input-2 82
--Dynamic-InPort Input-3 80
--Dynamic-InPort Input-4 96
--Dynamic-InPort Input-5 98
--Dynamic-InPort Input-6 120
--Dynamic-OutPort Output-0 567
+-NodePosition 456.000000 260.000000
+-Dynamic-InPort Input-0 302
+-Dynamic-InPort Input-1 10
+-Dynamic-InPort Input-2 6
+-Dynamic-InPort Input-3 4
+-Dynamic-InPort Input-4 20
+-Dynamic-InPort Input-5 22
+-Dynamic-InPort Input-6 34
+-Dynamic-OutPort Output-0 436
 $DataBegin
 -File "Graphs/deferred_pass_combine.graph"
 $DataEnd

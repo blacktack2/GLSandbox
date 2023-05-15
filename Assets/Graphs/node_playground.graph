@@ -1,23 +1,23 @@
 382938767
 $NodeBegin
 ^NodeType Entry
--NodeID 562
+-NodeID 265
 -NodeName Entry
 -NodePosition 0.000000 102.000000
--OutPort Out 563
+-OutPort Out 266
 $DataBegin
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType RenderPass
--NodeID 564
+-NodeID 267
 -NodeName Render Pass
 -NodePosition 896.000000 100.000000
 -InPort In -1
 -InPort FramebufferIn -1
 -InPort MeshIn -1
 -InPort ShaderIn -1
--OutPort Out 566
+-OutPort Out 269
 $DataBegin
 -Viewport 0 0 0 0
 -ColourMask 1 1 1 1
@@ -27,7 +27,7 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Arithmetic
--NodeID 570
+-NodeID 273
 -NodeName Arithmetic
 -NodePosition 8.000000 389.000000
 -InPort ValueAIn -1
@@ -37,150 +37,150 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Integer
--NodeID 572
+-NodeID 275
 -NodeName Integer
 -NodePosition 0.000000 582.000000
--OutPort ValueOut 573
+-OutPort ValueOut 276
 $DataBegin
 -Value 0
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Integer
--NodeID 574
+-NodeID 277
 -NodeName IVec2
 -NodePosition 224.000000 582.000000
--OutPort ValueOut 575
+-OutPort ValueOut 278
 $DataBegin
 -Value 0
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Integer
--NodeID 576
+-NodeID 279
 -NodeName IVec3
 -NodePosition 448.000000 582.000000
--OutPort ValueOut 577
+-OutPort ValueOut 280
 $DataBegin
 -Value 0
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Integer
--NodeID 578
+-NodeID 281
 -NodeName IVec4
 -NodePosition 672.000000 582.000000
--OutPort ValueOut 579
+-OutPort ValueOut 282
 $DataBegin
 -Value 0
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Float
--NodeID 580
+-NodeID 283
 -NodeName Float
 -NodePosition 896.000000 582.000000
--OutPort ValueOut 581
+-OutPort ValueOut 284
 $DataBegin
 -Value 0.000000
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Vec2
--NodeID 582
+-NodeID 285
 -NodeName Vec2
 -NodePosition 1120.000000 582.000000
--OutPort ValueOut 583
+-OutPort ValueOut 286
 $DataBegin
 -Value 0 0
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Vec3
--NodeID 584
+-NodeID 287
 -NodeName Vec3
 -NodePosition 1344.000000 582.000000
--OutPort ValueOut 585
+-OutPort ValueOut 288
 $DataBegin
 -Value 0 0 0
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Vec4
--NodeID 586
+-NodeID 289
 -NodeName Vec4
 -NodePosition 1568.000000 582.000000
--OutPort ValueOut 587
+-OutPort ValueOut 290
 $DataBegin
 -Value 0 0 0 0
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Mat2
--NodeID 588
+-NodeID 291
 -NodeName Matrix2
 -NodePosition 1792.000000 582.000000
--OutPort ValueOut 589
+-OutPort ValueOut 292
 $DataBegin
 -Value 1 0 0 1
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Mat3
--NodeID 590
+-NodeID 293
 -NodeName Matrix3
 -NodePosition 2016.000000 582.000000
--OutPort ValueOut 591
+-OutPort ValueOut 294
 $DataBegin
 -Value 1 0 0 0 1 0 0 0 1
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Mat4
--NodeID 592
+-NodeID 295
 -NodeName Matrix4
 -NodePosition 2240.000000 582.000000
--OutPort ValueOut 593
+-OutPort ValueOut 296
 $DataBegin
 -Value 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType UV
--NodeID 594
+-NodeID 297
 -NodeName UV
 -NodePosition 0.000000 838.000000
--OutPort ValueOut 595
+-OutPort ValueOut 298
 $DataBegin
 -Value 0 0
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Colour
--NodeID 596
+-NodeID 299
 -NodeName Colour
 -NodePosition 224.000000 838.000000
--OutPort ValueOut 597
+-OutPort ValueOut 300
 $DataBegin
 -Value 1 1 1
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Direction
--NodeID 598
+-NodeID 301
 -NodeName Direction
 -NodePosition 448.000000 838.000000
--OutPort ValueOut 599
+-OutPort ValueOut 302
 $DataBegin
 -Value 0 1 0
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType ModelMatrix
--NodeID 600
+-NodeID 303
 -NodeName Model
 -NodePosition 672.000000 838.000000
--OutPort ValueOut 601
+-OutPort ValueOut 304
 $DataBegin
 -Position 0 0 0
 -Roll 0.000000
@@ -192,10 +192,10 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType ViewMatrix
--NodeID 602
+-NodeID 305
 -NodeName View
 -NodePosition 896.000000 838.000000
--OutPort ValueOut 603
+-OutPort ValueOut 306
 $DataBegin
 -Position 0 0 0
 -Roll 0.000000
@@ -206,10 +206,10 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType ProjMatrix
--NodeID 604
+-NodeID 307
 -NodeName Projection
 -NodePosition 1120.000000 838.000000
--OutPort ValueOut 605
+-OutPort ValueOut 308
 $DataBegin
 -Type 0
 -FoV 90.000000
@@ -222,29 +222,29 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Mesh
--NodeID 606
+-NodeID 309
 -NodeName Mesh
 -NodePosition 0.000000 1190.000000
--OutPort MeshOut 607
+-OutPort MeshOut 310
 $DataBegin
 -File "Meshes/Mesh3.msh"
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Shader
--NodeID 608
+-NodeID 311
 -NodeName Shader
 -NodePosition 224.000000 1190.000000
--OutPort ShaderOut 609
+-OutPort ShaderOut 312
 $DataBegin
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Texture
--NodeID 610
+-NodeID 313
 -NodeName Texture
 -NodePosition 448.000000 1190.000000
--OutPort TextureOut 611
+-OutPort TextureOut 314
 $DataBegin
 -Type 0
 -ScreenLock 0
@@ -262,20 +262,20 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType TextureFile
--NodeID 612
+-NodeID 315
 -NodeName Texture
 -NodePosition 672.000000 1190.000000
--OutPort TextureOut 613
+-OutPort TextureOut 316
 $DataBegin
 -File ""
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Framebuffer
--NodeID 614
+-NodeID 317
 -NodeName Framebuffer
 -NodePosition 896.000000 1190.000000
--OutPort FramebufferOut 615
+-OutPort FramebufferOut 318
 $DataBegin
 -NumColourBuffers 0
 -DepthBuffer 0
@@ -284,16 +284,16 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType ScreenWidth
--NodeID 616
+-NodeID 319
 -NodeName Screen Width
 -NodePosition 0.000000 1574.000000
--OutPort ValueOut 617
+-OutPort ValueOut 320
 $DataBegin
 $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Input
--NodeID 618
+-NodeID 321
 -NodeName Input
 -NodePosition 224.000000 96.000000
 -InPort DefaultIn -1
@@ -302,7 +302,7 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType Output
--NodeID 620
+-NodeID 323
 -NodeName Output
 -NodePosition 448.000000 96.000000
 -InPort ValueIn -1
@@ -311,10 +311,23 @@ $DataEnd
 $NodeEnd
 $NodeBegin
 ^NodeType SubGraph
--NodeID 622
+-NodeID 325
 -NodeName Sub-Graph
 -NodePosition 672.000000 96.000000
 $DataBegin
--File $DataEnd
+-File ""
+$DataEnd
+$NodeEnd
+$NodeBegin
+^NodeType Loop
+-NodeID 326
+-NodeName Loop
+-NodePosition 1120.000000 101.000000
+-InPort Entry -1
+-InPort LoopEnd -1
+-OutPort Exit 328
+-OutPort LoopBegin 330
+$DataBegin
+-Iterations 1
 $DataEnd
 $NodeEnd
