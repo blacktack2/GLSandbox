@@ -332,7 +332,7 @@ void RenderPassNode::drawValidationMessage() {
         return;
     }
 
-    if (!ImUtils::beginHeader("Show Problems", generateNodeLabelID("ProblemHeader"), mShowSettings))
+    if (!ImUtils::beginHeader("Show Problems", generateNodeLabelID("ProblemHeader"), mShowProblems))
         return;
 
     if (mValidationState & ValidationState::Invalid)
